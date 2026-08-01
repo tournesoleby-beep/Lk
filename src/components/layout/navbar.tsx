@@ -9,11 +9,10 @@ import { useCart } from "@/components/cart/cart-provider";
 import { useWishlist } from "@/components/cart/wishlist-provider";
 
 const CATEGORY_LINKS = [
-  { label: "New in", href: "/shop?sort=new" },
-  { label: "Women", href: "/shop?category=women" },
-  { label: "Men", href: "/shop?category=men" },
-  { label: "Kids & Baby", href: "/shop?category=kids" },
-  { label: "Bags & Shoes", href: "/shop?category=bags-shoes" },
+  { label: "Fashion", href: "/shop?category=fashion" },
+  { label: "Food", href: "/shop?category=food" },
+  { label: "Production", href: "/shop?category=production" },
+  { label: "Contact us", href: "/contact" },
 ] as const;
 
 export function Navbar() {

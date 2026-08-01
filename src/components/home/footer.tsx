@@ -10,6 +10,15 @@ import { Container } from "@/components/home/container";
 
 const footerColumns = [
   {
+    heading: "Categories",
+    links: [
+      { label: "Fashion", href: "/shop?category=fashion" },
+      { label: "Food", href: "/shop?category=food" },
+      { label: "Production", href: "/shop?category=production" },
+      { label: "Contact us", href: "/contact" },
+    ],
+  },
+  {
     heading: "Shop",
     links: [
       { label: "New arrivals", href: "/#new-arrivals" },
@@ -46,7 +55,7 @@ export function Footer() {
   return (
     <footer className="border-t border-line bg-paper">
       <Container className="flex flex-col gap-16 py-16 sm:py-20">
-        <div className="grid grid-cols-2 gap-10 sm:grid-cols-4">
+        <div className="grid grid-cols-2 gap-10 sm:grid-cols-5">
           <div className="col-span-2 flex flex-col gap-4 sm:col-span-1">
             <span className="font-serif text-lg font-semibold tracking-tight text-ink">
               Lapiita Karya
@@ -93,7 +102,7 @@ export function Footer() {
 
         <div className="flex flex-col gap-4 border-t border-line pt-8 sm:flex-row sm:items-center sm:justify-between">
           <p className="font-mono text-xs text-slate">
-            © {new Date().getFullYear()} Lapiita Karya. All rights reserved.
+            © {new Date().getFullYear()} Charolina Eydet. All rights reserved.
           </p>
           <div className="flex items-center gap-6">
             <Link

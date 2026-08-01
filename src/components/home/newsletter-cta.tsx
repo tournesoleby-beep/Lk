@@ -46,14 +46,14 @@ export function NewsletterCta() {
 
         <div className="flex max-w-xl flex-col gap-3">
           <span className="font-mono text-[11px] font-medium uppercase tracking-[0.2em] text-signal">
-            Stay in the loop
+            Newsletter
           </span>
           <h2 className="font-serif text-balance text-[2rem] font-semibold leading-[1.1] tracking-tight text-paper sm:text-[2.75rem]">
-            Get first access to new arrivals
+            Join our newsletter
           </h2>
           <p className="text-balance text-base leading-relaxed text-white/60 sm:text-lg">
-            One email a month, at most. Early access, restock notices, and
-            notes from the studio — nothing else.
+            One email a month, at most — updates, restock notices, and notes
+            from the studio, nothing else.
           </p>
         </div>
 
