@@ -3,23 +3,24 @@ import { ArrowRight } from "lucide-react";
 
 import { Container } from "@/components/home/container";
 import { HeroGlow } from "@/components/home/hero-glow";
+import { HeroCollageDeck } from "@/components/home/hero-collage-deck";
 
 export function HeroBanner() {
   return (
     <section className="relative isolate overflow-hidden bg-cloud">
       <HeroGlow />
 
-      <Container className="relative grid grid-cols-1 items-center gap-6 py-8 sm:gap-12 sm:py-20 md:py-28 lg:min-h-[80svh] lg:grid-cols-2 lg:gap-16">
+      <Container className="relative grid grid-cols-1 items-center gap-6 py-10 sm:gap-12 sm:py-14 md:py-16 lg:min-h-[80svh] lg:grid-cols-2 lg:gap-16 lg:py-28">
         <div className="animate-fade-up flex flex-col gap-4 sm:gap-7">
           <span className="font-mono text-[10px] font-medium uppercase tracking-[0.14em] text-signal sm:text-[11px] sm:tracking-[0.2em]">
             Lapas Perempuan Kelas II A Jakarta
           </span>
-          <h1 className="max-w-xl text-balance font-serif text-[1.875rem] font-semibold leading-[1.15] tracking-tight text-ink sm:text-6xl sm:leading-[1.1] md:text-[4.25rem]">
+          <h1 className="max-w-xl text-balance font-serif text-4xl font-semibold leading-[1.08] tracking-tight text-ink sm:text-6xl sm:leading-[1.1] md:max-w-2xl md:text-[4.25rem] lg:max-w-xl">
             Mengenal,
             <br />
             Lapiita Karya
           </h1>
-          <p className="max-w-md text-balance text-[15px] leading-normal text-slate sm:text-lg sm:leading-relaxed">
+          <p className="max-w-md text-balance text-base leading-relaxed text-slate sm:text-lg sm:leading-relaxed md:max-w-lg lg:max-w-md">
             Balai Latihan Kerja bagi warga binaan di Lapas Perempuan Kelas
             IIA Jakarta yang menghasilkan berbagai kerajinan tangan, batik,
             dan produk hasil pertanian berkualitas sebagai wujud pembinaan,
@@ -27,7 +28,7 @@ export function HeroBanner() {
           </p>
 
           <div
-            className="flex flex-col gap-2.5 pt-1 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4 sm:pt-2 [animation-delay:150ms]"
+            className="flex flex-col gap-3 pt-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4 sm:pt-3 md:pt-4 lg:pt-2 [animation-delay:150ms]"
             style={{ animation: "var(--animate-fade-up)" }}
           >
             <Link
@@ -48,36 +49,8 @@ export function HeroBanner() {
             </a>
           </div>
 
-          <div className="grid grid-cols-2 gap-3 pt-1 sm:max-w-md sm:gap-4 lg:hidden">
-            <div
-              className="aspect-square w-full overflow-hidden rounded-2xl shadow-lg transition-transform duration-700 ease-out hover:-translate-y-1"
-              style={{
-                background:
-                  "linear-gradient(145deg, #efe3d8 0%, #d9c4ae 55%, #a9843f 100%)",
-              }}
-              aria-hidden="true"
-            />
-            <div
-              className="aspect-square w-full overflow-hidden rounded-2xl shadow-lg transition-transform duration-700 ease-out hover:-translate-y-1"
-              style={{
-                background: "linear-gradient(160deg, #2c232a 0%, #17151a 100%)",
-              }}
-              aria-hidden="true"
-            />
-            <div
-              className="aspect-square w-full overflow-hidden rounded-2xl shadow-lg transition-transform duration-700 ease-out hover:-translate-y-1"
-              style={{
-                background: "linear-gradient(160deg, #fbebee 0%, #a8324f 100%)",
-              }}
-              aria-hidden="true"
-            />
-            <div
-              className="aspect-square w-full overflow-hidden rounded-2xl shadow-lg transition-transform duration-700 ease-out hover:-translate-y-1"
-              style={{
-                background: "linear-gradient(150deg, #eef1ea 0%, #7c8b6f 100%)",
-              }}
-              aria-hidden="true"
-            />
+          <div className="max-w-[220px] pt-3 sm:max-w-[260px] sm:pt-4 md:max-w-[300px] md:pt-6 lg:hidden">
+            <HeroCollageDeck />
           </div>
 
           <dl className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-2.5 border-t border-line pt-4 sm:mt-4 sm:gap-x-8 sm:gap-y-3 sm:pt-6">
@@ -105,8 +78,8 @@ export function HeroBanner() {
         {/* Desktop only (lg+): editorial offset tile arrangement standing in
             for a campaign photo grid, built from the shop's
             placeholder-gradient system so it never depends on external
-            imagery. Mobile/tablet get their own compact 2x2 grid above,
-            right below the CTA buttons. */}
+            imagery. Mobile/tablet get their own interactive stacked photo
+            deck (HeroCollageDeck) above, right below the CTA buttons. */}
         <div
           className="relative hidden aspect-[4/5] w-full lg:block"
           aria-hidden="true"

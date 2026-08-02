@@ -5,8 +5,16 @@ import Link from "next/link";
 import { ArrowUpRight, Camera } from "lucide-react";
 
 import { Container } from "@/components/home/container";
+import { Parallax } from "@/components/home/parallax";
+import { Reveal } from "@/components/home/reveal";
 import { SectionHeading } from "@/components/home/section-heading";
 import { getPlaceholderGradient } from "@/lib/utils";
+
+// This section's own motion signature: a snappier, shorter ease-out —
+// distinct from the other three sections.
+const EASING = "cubic-bezier(0.33, 1, 0.68, 1)";
+const DURATION = 550;
+const STAGGER = 60;
 
 const INSTAGRAM_HANDLE = "@lapiitakarya";
 const INSTAGRAM_URL = "https://www.instagram.com/lapiitakarya";
@@ -82,39 +90,56 @@ export function InstagramHighlights() {
     <section className="bg-paper py-24 sm:py-32">
       <div className="flex flex-col gap-12">
         <Container>
-          <SectionHeading
-            eyebrow="Follow along"
-            title="Instagram Highlights"
-            description="Lihat karya terbaru dan aktivitas Lapiita Karya."
-          />
+          <Reveal variant="fade-up" duration={DURATION} easing={EASING}>
+            <SectionHeading
+              eyebrow="Follow along"
+              title="Instagram Highlights"
+              description="Lihat karya terbaru dan aktivitas Lapiita Karya."
+            />
+          </Reveal>
         </Container>
 
         {/* Horizontally scrollable carousel: native swipe on touch devices,
-            plus pointer-drag support so a mouse can drag it on desktop too. */}
-        <div
-          ref={scrollerRef}
+            plus pointer-drag support so a mouse can drag it on desktop too.
+            Reveal renders this element directly (via elementRef, merged
+            with the drag-scroll ref) so each tile can stagger in on its
+            own instead of the whole row moving as one block. */}
+        <Reveal
+          as="div"
+          elementRef={scrollerRef}
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={endDrag}
           onPointerLeave={endDrag}
           onPointerCancel={endDrag}
           className="flex snap-x snap-mandatory gap-4 overflow-x-auto px-6 pb-2 [scrollbar-width:none] sm:gap-6 md:px-10 [&::-webkit-scrollbar]:hidden cursor-grab active:cursor-grabbing"
+          variant="fade-left"
+          stagger
+          duration={DURATION}
+          easing={EASING}
+          staggerDelay={STAGGER}
         >
           {seeds.map((seed) => (
             <div
               key={seed}
               className="group relative aspect-square w-[140px] shrink-0 select-none snap-start overflow-hidden rounded-2xl border border-line shadow-xs transition-all duration-300 ease-out hover:-translate-y-1 hover:border-ink/15 hover:shadow-lg active:scale-95 sm:w-[190px] md:w-[220px]"
-              style={{ background: getPlaceholderGradient(seed) }}
               aria-hidden="true"
             >
-              <div className="flex h-full w-full items-center justify-center transition-transform duration-500 ease-out group-hover:scale-[1.06]">
+              <Parallax as="div" className="h-full w-full" strength={10}>
+                <div
+                  className="h-full w-full"
+                  style={{ background: getPlaceholderGradient(seed) }}
+                  aria-hidden="true"
+                />
+              </Parallax>
+              <div className="pointer-events-none absolute inset-0 flex items-center justify-center transition-transform duration-500 ease-out group-hover:scale-[1.06]">
                 <Camera className="h-6 w-6 text-white/70" strokeWidth={1.5} />
               </div>
             </div>
           ))}
           {/* Trailing spacer so the last card can reach the container's edge padding. */}
           <div className="w-2 shrink-0 md:w-6" aria-hidden="true" />
-        </div>
+        </Reveal>
 
         <Container className="flex flex-col items-center gap-4 text-center sm:flex-row sm:justify-between sm:text-left">
           <span className="font-mono text-sm font-medium tracking-[0.05em] text-ink">

@@ -9,6 +9,7 @@ import type { ShopProductDetail } from "@/lib/shop/product";
 import { PlaceholderTile } from "@/components/home/placeholder-tile";
 import { useCart } from "@/components/cart/cart-provider";
 import { ProductImageLightbox } from "@/components/shop/product-image-lightbox";
+import { MobileProductGallery } from "@/components/shop/product-gallery/mobile-product-gallery";
 
 const HOVER_ZOOM_QUERY = "(hover: hover) and (pointer: fine)";
 
@@ -87,8 +88,19 @@ export function ProductDetail({ product }: { product: ShopProductDetail }) {
 
   return (
     <div className="grid grid-cols-1 gap-8 pb-24 sm:gap-10 sm:pb-0 lg:grid-cols-2 lg:gap-16">
-      {/* Gallery */}
-      <div className="flex flex-col gap-3">
+      {/* Gallery — mobile/tablet: swipe, pinch-zoom, double-tap, drag. */}
+      <MobileProductGallery
+        images={product.images}
+        productId={product.id}
+        productName={product.name}
+        activeIndex={activeImage}
+        onIndexChange={showImage}
+        onOpenFullscreen={() => setLightboxOpen(true)}
+        className="lg:hidden"
+      />
+
+      {/* Gallery — desktop: unchanged hover-zoom experience. */}
+      <div className="hidden flex-col gap-3 lg:flex">
         <div
           className={cn(
             "relative aspect-[4/5] w-full touch-pan-y select-none overflow-hidden rounded-2xl bg-cloud shadow-sm",

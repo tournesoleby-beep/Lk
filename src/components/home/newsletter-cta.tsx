@@ -4,8 +4,15 @@ import { useState, type FormEvent } from "react";
 import { ArrowRight, Check, Mail } from "lucide-react";
 
 import { Container } from "@/components/home/container";
+import { Reveal } from "@/components/home/reveal";
 import { cn, sleep } from "@/lib/utils";
 import { useToast } from "@/components/providers/toast-provider";
+
+// This section's own motion signature: a gentle back-out with a touch of
+// bounce — distinct from the other three sections.
+const EASING = "cubic-bezier(0.34, 1.56, 0.64, 1)";
+const DURATION = 700;
+const STAGGER = 100;
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -46,7 +53,16 @@ export function NewsletterCta() {
 
   return (
     <section className="bg-ink py-16 sm:py-24 md:py-32">
-      <Container className="flex flex-col items-center gap-6 text-center sm:gap-8">
+      <Container>
+        <Reveal
+          as="div"
+          className="flex flex-col items-center gap-6 text-center sm:gap-8"
+          variant="fade-up"
+          stagger
+          duration={DURATION}
+          easing={EASING}
+          staggerDelay={STAGGER}
+        >
         <div className="flex h-12 w-12 items-center justify-center rounded-full border border-white/15">
           <Mail className="h-5 w-5 text-signal" strokeWidth={1.75} />
         </div>
@@ -122,6 +138,7 @@ export function NewsletterCta() {
             </button>
           </form>
         )}
+        </Reveal>
       </Container>
     </section>
   );

@@ -10,6 +10,7 @@ import {
 import { ChevronLeft, ChevronRight, X, ZoomIn, ZoomOut } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { FullscreenGalleryStage } from "@/components/shop/product-gallery/fullscreen-gallery-stage";
 
 export type LightboxImage = { url: string; altText: string | null };
 
@@ -96,7 +97,7 @@ export function ProductImageLightbox({
               type="button"
               onClick={() => setZoomed((z) => !z)}
               aria-label={zoomed ? "Zoom out" : "Zoom in"}
-              className="flex h-9 w-9 items-center justify-center rounded-full text-paper transition-colors duration-200 hover:bg-paper/10 active:scale-90"
+              className="hidden h-9 w-9 items-center justify-center rounded-full text-paper transition-colors duration-200 hover:bg-paper/10 active:scale-90 lg:flex"
             >
               {zoomed ? (
                 <ZoomOut className="h-5 w-5" strokeWidth={1.75} />
@@ -116,10 +117,19 @@ export function ProductImageLightbox({
         </div>
       </div>
 
-      {/* Image */}
+      {/* Image — mobile/tablet: swipe, pinch-zoom, double-tap, drag. */}
+      <FullscreenGalleryStage
+        images={images}
+        productName={productName}
+        index={index}
+        onIndexChange={showImage}
+        className="lg:hidden"
+      />
+
+      {/* Image — desktop: unchanged click-to-zoom experience. */}
       <div
         className={cn(
-          "relative flex flex-1 select-none items-center justify-center overflow-hidden px-4 pb-4 sm:px-16 sm:pb-10",
+          "relative hidden flex-1 select-none items-center justify-center overflow-hidden px-4 pb-4 sm:px-16 sm:pb-10 lg:flex",
           zoomed ? "cursor-zoom-out" : "cursor-zoom-in"
         )}
         onMouseMove={handlePointerMove}

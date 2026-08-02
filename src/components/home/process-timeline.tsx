@@ -1,8 +1,16 @@
 import { GraduationCap, Hammer, PackageCheck, ShieldCheck } from "lucide-react";
 
 import { Container } from "@/components/home/container";
+import { Parallax } from "@/components/home/parallax";
+import { Reveal } from "@/components/home/reveal";
 import { SectionHeading } from "@/components/home/section-heading";
 import { cn, getPlaceholderGradient } from "@/lib/utils";
+
+// This section's own motion signature: a slightly overshooting ease-out,
+// on the slower end of the range, distinct from the other three sections.
+const EASING = "cubic-bezier(0.16, 1, 0.3, 1)";
+const DURATION = 650;
+const STAGGER = 90;
 
 const steps = [
   {
@@ -35,17 +43,27 @@ export function ProcessTimeline() {
   return (
     <section className="bg-cloud py-24 sm:py-32">
       <Container className="flex flex-col gap-14">
-        <SectionHeading
-          eyebrow="Proses kami"
-          title="Perjalanan Sebuah Karya"
-          description="Setiap produk merupakan hasil proses pembinaan yang bertujuan membangun keterampilan, kreativitas, dan kemandirian warga binaan sebelum sampai ke tangan Anda."
-        />
+        <Reveal variant="fade-up" duration={DURATION} easing={EASING}>
+          <SectionHeading
+            eyebrow="Proses kami"
+            title="Perjalanan Sebuah Karya"
+            description="Setiap produk merupakan hasil proses pembinaan yang bertujuan membangun keterampilan, kreativitas, dan kemandirian warga binaan sebelum sampai ke tangan Anda."
+          />
+        </Reveal>
 
         {/* Mobile / tablet: vertical timeline. The connector is a flex-1
             filler inside each icon's own column, which stretches to match
             that step's (variable-height) content automatically — no
             absolute-position math needed. */}
-        <ol className="flex flex-col lg:hidden">
+        <Reveal
+          as="ol"
+          className="flex flex-col lg:hidden"
+          variant="fade-up"
+          stagger
+          duration={DURATION}
+          easing={EASING}
+          staggerDelay={STAGGER}
+        >
           {steps.map(({ icon: Icon, title, description }, index) => (
             <li key={title} className="group flex gap-5">
               <div className="flex flex-col items-center">
@@ -63,11 +81,17 @@ export function ProcessTimeline() {
                   index < steps.length - 1 && "pb-10"
                 )}
               >
-                <div
-                  className="aspect-[4/3] w-full max-w-xs overflow-hidden rounded-2xl shadow-xs transition-transform duration-500 ease-out group-hover:scale-[1.02]"
-                  style={{ background: getPlaceholderGradient(title) }}
-                  aria-hidden="true"
-                />
+                <Parallax
+                  as="div"
+                  className="aspect-[4/3] w-full max-w-xs overflow-hidden rounded-2xl"
+                  strength={12}
+                >
+                  <div
+                    className="h-full w-full rounded-2xl shadow-xs transition-transform duration-500 ease-out group-hover:scale-[1.02]"
+                    style={{ background: getPlaceholderGradient(title) }}
+                    aria-hidden="true"
+                  />
+                </Parallax>
                 <div className="flex flex-col gap-1.5">
                   <span className="font-mono text-[11px] font-medium uppercase tracking-[0.14em] text-signal">
                     Langkah {String(index + 1).padStart(2, "0")}
@@ -80,7 +104,7 @@ export function ProcessTimeline() {
               </div>
             </li>
           ))}
-        </ol>
+        </Reveal>
 
         {/* Desktop: horizontal timeline. A single connecting line sits at
             the icons' vertical center and spans between the first and
@@ -88,7 +112,15 @@ export function ProcessTimeline() {
             each of the 4 grid columns is 25% wide). Icons render above it
             with an opaque background, so the line reads as passing
             through connected nodes rather than under floating circles. */}
-        <div className="relative hidden lg:grid lg:grid-cols-4 lg:gap-8">
+        <Reveal
+          as="div"
+          className="relative hidden lg:grid lg:grid-cols-4 lg:gap-8"
+          variant="fade-up"
+          stagger
+          duration={DURATION}
+          easing={EASING}
+          staggerDelay={STAGGER}
+        >
           <div
             className="absolute left-[12.5%] right-[12.5%] top-7 h-px bg-line"
             aria-hidden="true"
@@ -103,11 +135,17 @@ export function ProcessTimeline() {
                 <Icon className="h-6 w-6 text-signal" strokeWidth={1.75} />
               </div>
 
-              <div
-                className="aspect-[4/3] w-full max-w-[220px] overflow-hidden rounded-2xl shadow-xs transition-transform duration-500 ease-out group-hover:scale-[1.03]"
-                style={{ background: getPlaceholderGradient(title) }}
-                aria-hidden="true"
-              />
+              <Parallax
+                as="div"
+                className="aspect-[4/3] w-full max-w-[220px] overflow-hidden rounded-2xl"
+                strength={12}
+              >
+                <div
+                  className="h-full w-full rounded-2xl shadow-xs transition-transform duration-500 ease-out group-hover:scale-[1.03]"
+                  style={{ background: getPlaceholderGradient(title) }}
+                  aria-hidden="true"
+                />
+              </Parallax>
 
               <div className="flex flex-col items-center gap-1.5">
                 <span className="font-mono text-[11px] font-medium uppercase tracking-[0.14em] text-signal">
@@ -120,7 +158,7 @@ export function ProcessTimeline() {
               </div>
             </div>
           ))}
-        </div>
+        </Reveal>
       </Container>
     </section>
   );
