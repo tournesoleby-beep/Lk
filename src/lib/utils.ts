@@ -10,16 +10,18 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 /**
- * Format a number as currency (default: USD).
+ * Format a number as currency (default: IDR / Indonesian Rupiah).
  */
 export function formatCurrency(
   amount: number,
-  currency: string = "USD",
-  locale: string = "en-US"
+  currency: string = "IDR",
+  locale: string = "id-ID"
 ) {
   return new Intl.NumberFormat(locale, {
     style: "currency",
     currency,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
   }).format(amount);
 }
 

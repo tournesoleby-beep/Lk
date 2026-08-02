@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin "tailwindcss-animate";
 
 :root {
   --background: #ffffff;
@@ -17,6 +18,14 @@
   --color-signal: #a8324f;
   --color-accent-soft: #fbebee;
   --color-gold: #a9843f;
+
+  /* Soft, low-contrast shadow scale — quiet depth rather than harsh drop
+     shadows, used for cards, popovers, and elevated surfaces. */
+  --shadow-xs: 0 1px 2px 0 rgba(23, 21, 26, 0.04);
+  --shadow-sm: 0 1px 3px 0 rgba(23, 21, 26, 0.06), 0 1px 2px -1px rgba(23, 21, 26, 0.05);
+  --shadow-md: 0 4px 16px -4px rgba(23, 21, 26, 0.08), 0 2px 6px -2px rgba(23, 21, 26, 0.05);
+  --shadow-lg: 0 12px 32px -8px rgba(23, 21, 26, 0.12), 0 4px 12px -4px rgba(23, 21, 26, 0.06);
+  --shadow-signal: 0 8px 24px -6px rgba(168, 50, 79, 0.28);
 }
 
 @theme inline {
@@ -36,6 +45,12 @@
   --color-accent-soft: var(--color-accent-soft);
   --color-gold: var(--color-gold);
 
+  --shadow-xs: var(--shadow-xs);
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --shadow-signal: var(--shadow-signal);
+
   --animate-fade-up: fade-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
@@ -46,10 +61,66 @@
   }
 }
 
+html {
+  scroll-behavior: smooth;
+  /* Prevent iOS Safari from rubber-banding the page horizontally when a
+     slightly-too-wide element slips in on small screens. */
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  max-width: 100%;
+  /* Smoother native momentum scrolling on iOS. */
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Safe-area helpers — keep sticky/fixed mobile UI (bottom bars, drawers,
+   the mobile menu) clear of the iPhone notch and home indicator. Falls
+   back to 0px on devices without a safe-area inset, so these are safe to
+   use everywhere, not just iOS. */
+.pb-safe {
+  padding-bottom: max(env(safe-area-inset-bottom), 0px);
+}
+.pt-safe {
+  padding-top: max(env(safe-area-inset-top), 0px);
+}
+
+::selection {
+  background: var(--color-accent-soft);
+  color: var(--color-ink);
+}
+
+/* Consistent, brand-colored keyboard focus ring across the app — visible
+   for a11y, quiet enough to stay premium. Native focus rings are suppressed
+   in favor of this everywhere except when the browser can't tell the
+   input is being used via keyboard (:focus-visible handles that). */
+:focus-visible {
+  outline: 2px solid var(--color-signal);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-line);
+  border-radius: 999px;
+  border: 2px solid var(--color-paper);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-slate);
 }
 
 @keyframes fade-up {

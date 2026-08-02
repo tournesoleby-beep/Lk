@@ -18,7 +18,7 @@ const EMPTY_VALUES: ProductFormValues = {
   category: "Fashion",
   price: 0,
   compareAtPrice: null,
-  currency: "USD",
+  currency: "IDR",
   status: "DRAFT",
   featured: false,
   stock: 0,
@@ -92,14 +92,14 @@ export function ProductFormModal({
       <div
         onClick={onClose}
         aria-hidden="true"
-        className="fixed inset-0 z-50 bg-ink/40 backdrop-blur-[2px]"
+        className="fixed inset-0 z-50 animate-in bg-ink/40 backdrop-blur-[2px] fade-in duration-200"
       />
 
       <div
         role="dialog"
         aria-modal="true"
         aria-label={product ? "Edit product" : "Add product"}
-        className="fixed left-1/2 top-1/2 z-50 flex max-h-[90vh] w-full max-w-lg -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-2xl border border-line bg-paper shadow-[0_30px_70px_-30px_rgba(0,0,0,0.45)]"
+        className="fixed left-1/2 top-1/2 z-50 flex max-h-[90vh] w-full max-w-lg -translate-x-1/2 -translate-y-1/2 animate-in flex-col overflow-hidden rounded-2xl border border-line bg-paper shadow-lg zoom-in-95 fade-in duration-200"
       >
         <div className="flex items-center justify-between border-b border-line px-6 py-5">
           <h2 className="font-serif text-xl font-semibold text-ink">
@@ -109,7 +109,7 @@ export function ProductFormModal({
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="flex h-9 w-9 items-center justify-center rounded-full text-ink transition-colors hover:bg-cloud"
+            className="flex h-9 w-9 items-center justify-center rounded-full text-ink transition-all duration-200 hover:bg-cloud active:scale-90"
           >
             <X className="h-5 w-5" strokeWidth={1.75} />
           </button>
@@ -128,7 +128,7 @@ export function ProductFormModal({
               value={values.name}
               onChange={(e) => setValues((v) => ({ ...v, name: e.target.value }))}
               placeholder="e.g. Linen Wrap Blouse"
-              className="w-full rounded-xl border border-line bg-cloud/60 px-3.5 py-2.5 text-sm text-ink outline-none transition-colors placeholder:text-slate focus:border-signal/50 focus:bg-paper"
+              className="w-full rounded-xl border border-line bg-cloud/60 px-3.5 py-2.5 text-sm text-ink outline-none transition-all duration-200 placeholder:text-slate focus:border-signal/50 focus:bg-paper focus:ring-4 focus:ring-signal/10"
             />
           </label>
 
@@ -141,7 +141,7 @@ export function ProductFormModal({
                 value={values.sku ?? ""}
                 onChange={(e) => setValues((v) => ({ ...v, sku: e.target.value }))}
                 placeholder="LK-000"
-                className="w-full rounded-xl border border-line bg-cloud/60 px-3.5 py-2.5 text-sm text-ink outline-none transition-colors placeholder:text-slate focus:border-signal/50 focus:bg-paper"
+                className="w-full rounded-xl border border-line bg-cloud/60 px-3.5 py-2.5 text-sm text-ink outline-none transition-all duration-200 placeholder:text-slate focus:border-signal/50 focus:bg-paper focus:ring-4 focus:ring-signal/10"
               />
             </label>
 
@@ -152,7 +152,7 @@ export function ProductFormModal({
               <select
                 value={values.category}
                 onChange={(e) => setValues((v) => ({ ...v, category: e.target.value }))}
-                className="w-full rounded-xl border border-line bg-cloud/60 px-3.5 py-2.5 text-sm text-ink outline-none transition-colors focus:border-signal/50 focus:bg-paper"
+                className="w-full rounded-xl border border-line bg-cloud/60 px-3.5 py-2.5 text-sm text-ink outline-none transition-all duration-200 focus:border-signal/50 focus:bg-paper focus:ring-4 focus:ring-signal/10"
               >
                 <option value="Fashion">Fashion</option>
                 <option value="Food">Food</option>
@@ -164,7 +164,7 @@ export function ProductFormModal({
           <div className="grid grid-cols-2 gap-4">
             <label className="flex flex-col gap-1.5">
               <span className="font-mono text-[11px] font-medium uppercase tracking-[0.14em] text-slate">
-                Price (USD)
+                Price (IDR)
               </span>
               <input
                 required
@@ -175,7 +175,7 @@ export function ProductFormModal({
                 onChange={(e) =>
                   setValues((v) => ({ ...v, price: Number(e.target.value) }))
                 }
-                className="w-full rounded-xl border border-line bg-cloud/60 px-3.5 py-2.5 text-sm text-ink outline-none transition-colors focus:border-signal/50 focus:bg-paper"
+                className="w-full rounded-xl border border-line bg-cloud/60 px-3.5 py-2.5 text-sm text-ink outline-none transition-all duration-200 focus:border-signal/50 focus:bg-paper focus:ring-4 focus:ring-signal/10"
               />
             </label>
 
@@ -191,7 +191,7 @@ export function ProductFormModal({
                 onChange={(e) =>
                   setValues((v) => ({ ...v, stock: Number(e.target.value) }))
                 }
-                className="w-full rounded-xl border border-line bg-cloud/60 px-3.5 py-2.5 text-sm text-ink outline-none transition-colors focus:border-signal/50 focus:bg-paper"
+                className="w-full rounded-xl border border-line bg-cloud/60 px-3.5 py-2.5 text-sm text-ink outline-none transition-all duration-200 focus:border-signal/50 focus:bg-paper focus:ring-4 focus:ring-signal/10"
               />
             </label>
           </div>
@@ -201,7 +201,7 @@ export function ProductFormModal({
               Product image
             </span>
             <div className="flex items-center gap-4">
-              <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-line bg-cloud">
+              <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-line bg-cloud shadow-xs">
                 {imagePreview ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
@@ -218,7 +218,7 @@ export function ProductFormModal({
                   type="file"
                   accept="image/*"
                   onChange={handleImageChange}
-                  className="w-full text-sm text-ink file:mr-3 file:rounded-full file:border-0 file:bg-ink file:px-3.5 file:py-2 file:text-xs file:font-medium file:uppercase file:tracking-[0.1em] file:text-paper file:transition-colors hover:file:bg-ink/85"
+                  className="w-full text-sm text-ink file:mr-3 file:cursor-pointer file:rounded-full file:border-0 file:bg-ink file:px-3.5 file:py-2 file:text-xs file:font-medium file:uppercase file:tracking-[0.1em] file:text-paper file:transition-colors hover:file:bg-ink/85"
                 />
                 {isUploadingImage ? (
                   <span className="font-mono text-xs text-slate">
@@ -244,7 +244,7 @@ export function ProductFormModal({
                   status: e.target.value as MockProductStatus,
                 }))
               }
-              className="w-full rounded-xl border border-line bg-cloud/60 px-3.5 py-2.5 text-sm text-ink outline-none transition-colors focus:border-signal/50 focus:bg-paper"
+              className="w-full rounded-xl border border-line bg-cloud/60 px-3.5 py-2.5 text-sm text-ink outline-none transition-all duration-200 focus:border-signal/50 focus:bg-paper focus:ring-4 focus:ring-signal/10"
             >
               {STATUS_OPTIONS.map((option) => (
                 <option key={option} value={option}>
@@ -276,14 +276,14 @@ export function ProductFormModal({
             <button
               type="button"
               onClick={onClose}
-              className="rounded-full border border-ink/15 px-4 py-2.5 text-xs font-medium uppercase tracking-[0.1em] text-ink transition-colors hover:bg-cloud"
+              className="rounded-full border border-ink/15 px-4 py-2.5 text-xs font-medium uppercase tracking-[0.1em] text-ink transition-all duration-200 hover:bg-cloud active:scale-95"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting || isUploadingImage}
-              className="rounded-full bg-ink px-5 py-2.5 text-xs font-medium uppercase tracking-[0.1em] text-paper transition-colors hover:bg-ink/85 disabled:cursor-not-allowed disabled:opacity-60"
+              className="rounded-full bg-ink px-5 py-2.5 text-xs font-medium uppercase tracking-[0.1em] text-paper shadow-sm transition-all duration-200 hover:bg-ink/85 hover:shadow-md active:scale-95 disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100"
             >
               {isSubmitting
                 ? "Saving…"

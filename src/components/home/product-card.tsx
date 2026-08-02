@@ -1,7 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
-import { Heart, ShoppingBag } from "lucide-react";
+import { Check, Heart, ShoppingBag } from "lucide-react";
 
 import type { ProductCardData } from "@/lib/queries/home";
 import { cn, formatCurrency } from "@/lib/utils";
@@ -18,15 +19,28 @@ export function ProductCard({
 }) {
   const cart = useCart();
   const wishlist = useWishlist();
+  const [added, setAdded] = useState(false);
 
   const isMarkedDown =
     product.compareAtPrice !== null && product.compareAtPrice > product.price;
   const saved = wishlist.has(product.id);
 
+  function handleAddToCart() {
+    cart.addItem({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      currency: product.currency,
+      imageUrl: product.imageUrl,
+    });
+    setAdded(true);
+    window.setTimeout(() => setAdded(false), 2000);
+  }
+
   return (
     <div
       className={cn(
-        "group relative flex w-full shrink-0 flex-col overflow-hidden rounded-2xl border border-line bg-paper transition-all duration-300 hover:-translate-y-1 hover:border-ink/15 hover:shadow-[0_20px_45px_-25px_rgba(0,0,0,0.35)]",
+        "group relative flex w-full shrink-0 flex-col overflow-hidden rounded-2xl border border-line bg-paper shadow-xs transition-all duration-300 ease-out hover:-translate-y-1 hover:border-ink/15 hover:shadow-lg",
         className
       )}
     >
@@ -69,7 +83,7 @@ export function ProductCard({
         }
         aria-pressed={saved}
         aria-label={saved ? "Remove from wishlist" : "Save to wishlist"}
-        className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-paper/90 text-ink shadow-sm backdrop-blur transition-colors hover:text-signal"
+        className="absolute right-2.5 top-2.5 flex h-10 w-10 items-center justify-center rounded-full bg-paper/90 text-ink shadow-sm backdrop-blur transition-all duration-200 hover:scale-110 hover:text-signal active:scale-95 sm:h-8 sm:w-8"
       >
         <Heart
           className={cn("h-4 w-4", saved && "fill-signal text-signal")}
@@ -77,9 +91,9 @@ export function ProductCard({
         />
       </button>
 
-      <div className="flex flex-1 flex-col gap-1 px-4 py-4">
-        <Link href={`/shop/${product.slug}`}>
-          <h3 className="text-sm font-medium leading-snug text-ink">
+      <div className="flex flex-1 flex-col gap-1 px-3.5 py-3.5 sm:px-4 sm:py-4">
+        <Link href={`/shop/${product.slug}`} className="group/title">
+          <h3 className="text-sm font-medium leading-snug text-ink transition-colors duration-200 group-hover/title:text-signal">
             {product.name}
           </h3>
         </Link>
@@ -96,19 +110,20 @@ export function ProductCard({
 
         <button
           type="button"
-          onClick={() =>
-            cart.addItem({
-              id: product.id,
-              name: product.name,
-              price: product.price,
-              currency: product.currency,
-              imageUrl: product.imageUrl,
-            })
-          }
-          className="mt-3 inline-flex items-center justify-center gap-2 rounded-full border border-ink/15 py-2 text-xs font-medium uppercase tracking-[0.1em] text-ink transition-colors duration-200 hover:border-ink hover:bg-ink hover:text-paper"
+          onClick={handleAddToCart}
+          className={cn(
+            "mt-3 inline-flex min-h-11 items-center justify-center gap-2 rounded-full border py-2 text-xs font-medium uppercase tracking-[0.1em] transition-all duration-200 active:scale-[0.98] sm:min-h-0",
+            added
+              ? "border-ink bg-ink text-paper"
+              : "border-ink/15 text-ink hover:border-ink hover:bg-ink hover:text-paper"
+          )}
         >
-          <ShoppingBag className="h-3.5 w-3.5" strokeWidth={1.75} />
-          Add to bag
+          {added ? (
+            <Check className="h-3.5 w-3.5" strokeWidth={2} />
+          ) : (
+            <ShoppingBag className="h-3.5 w-3.5" strokeWidth={1.75} />
+          )}
+          {added ? "Added to bag" : "Add to bag"}
         </button>
       </div>
     </div>

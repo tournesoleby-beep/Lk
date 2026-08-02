@@ -42,7 +42,7 @@ export function CartDrawer() {
             type="button"
             onClick={cart.close}
             aria-label="Close bag"
-            className="flex h-9 w-9 items-center justify-center rounded-full text-ink transition-colors hover:bg-cloud"
+            className="flex h-11 w-11 items-center justify-center rounded-full text-ink transition-all duration-200 hover:bg-cloud active:scale-95 sm:h-9 sm:w-9"
           >
             <X className="h-5 w-5" strokeWidth={1.75} />
           </button>
@@ -65,7 +65,7 @@ export function CartDrawer() {
             <button
               type="button"
               onClick={cart.close}
-              className="mt-2 inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3 text-sm font-medium text-paper transition-colors hover:bg-ink/85"
+              className="mt-2 inline-flex min-h-11 items-center gap-2 rounded-full bg-ink px-6 py-3 text-sm font-medium text-paper shadow-sm transition-all duration-200 hover:bg-ink/85 hover:shadow-md active:scale-[0.98]"
             >
               Continue shopping
             </button>
@@ -76,9 +76,9 @@ export function CartDrawer() {
               {cart.lines.map((line) => (
                 <li
                   key={line.id}
-                  className="flex gap-4 border-b border-line py-5 first:pt-0"
+                  className="flex gap-4 border-b border-line py-5 transition-colors first:pt-0"
                 >
-                  <div className="h-24 w-20 shrink-0 overflow-hidden rounded-xl bg-cloud">
+                  <div className="h-24 w-20 shrink-0 overflow-hidden rounded-xl bg-cloud shadow-xs">
                     {line.imageUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
@@ -98,7 +98,7 @@ export function CartDrawer() {
                         type="button"
                         onClick={() => cart.removeItem(line.id)}
                         aria-label={`Remove ${line.name} from bag`}
-                        className="shrink-0 text-slate transition-colors hover:text-signal"
+                        className="-m-2.5 flex h-11 w-11 shrink-0 items-center justify-center text-slate transition-all duration-200 hover:scale-110 hover:text-signal active:scale-95 sm:-m-2 sm:h-9 sm:w-9"
                       >
                         <Trash2 className="h-4 w-4" strokeWidth={1.75} />
                       </button>
@@ -116,7 +116,7 @@ export function CartDrawer() {
                             cart.updateQuantity(line.id, line.quantity - 1)
                           }
                           aria-label="Decrease quantity"
-                          className="flex h-7 w-7 items-center justify-center text-ink transition-colors hover:bg-cloud"
+                          className="flex h-11 w-11 items-center justify-center text-ink transition-colors duration-200 hover:bg-cloud active:scale-90 sm:h-9 sm:w-9"
                         >
                           <Minus className="h-3.5 w-3.5" strokeWidth={1.75} />
                         </button>
@@ -129,7 +129,7 @@ export function CartDrawer() {
                             cart.updateQuantity(line.id, line.quantity + 1)
                           }
                           aria-label="Increase quantity"
-                          className="flex h-7 w-7 items-center justify-center text-ink transition-colors hover:bg-cloud"
+                          className="flex h-11 w-11 items-center justify-center text-ink transition-colors duration-200 hover:bg-cloud active:scale-90 sm:h-9 sm:w-9"
                         >
                           <Plus className="h-3.5 w-3.5" strokeWidth={1.75} />
                         </button>
@@ -140,13 +140,13 @@ export function CartDrawer() {
               ))}
             </ul>
 
-            <div className="flex flex-col gap-4 border-t border-line px-6 py-6">
+            <div className="flex flex-col gap-4 border-t border-line px-6 py-6 pb-safe">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-slate">Subtotal</span>
                 <span className="font-mono text-base font-medium text-ink">
                   {formatCurrency(
                     cart.subtotal,
-                    cart.lines[0]?.currency ?? "USD"
+                    cart.lines[0]?.currency ?? "IDR"
                   )}
                 </span>
               </div>
@@ -156,21 +156,21 @@ export function CartDrawer() {
               <Link
                 href="/checkout"
                 onClick={cart.close}
-                className="inline-flex w-full items-center justify-center rounded-full bg-ink px-6 py-3.5 text-sm font-medium text-paper transition-colors hover:bg-ink/85"
+                className="inline-flex min-h-11 w-full items-center justify-center rounded-full bg-ink px-6 py-3.5 text-sm font-medium text-paper shadow-sm transition-all duration-200 hover:bg-ink/85 hover:shadow-md active:scale-[0.98]"
               >
                 Checkout
               </Link>
               <Link
                 href="/cart"
                 onClick={cart.close}
-                className="text-center text-sm font-medium text-ink underline underline-offset-4 transition-colors hover:text-signal"
+                className="flex min-h-11 items-center justify-center text-center text-sm font-medium text-ink underline underline-offset-4 transition-colors duration-200 hover:text-signal"
               >
                 View full bag
               </Link>
               <button
                 type="button"
                 onClick={cart.close}
-                className="text-center text-sm text-slate transition-colors hover:text-ink"
+                className="flex min-h-11 items-center justify-center text-center text-sm text-slate transition-colors duration-200 hover:text-ink"
               >
                 Continue shopping
               </button>

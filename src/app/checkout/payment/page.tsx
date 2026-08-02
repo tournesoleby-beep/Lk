@@ -40,13 +40,13 @@ export default async function CheckoutPaymentPage({
     return (
       <div className="flex flex-1 flex-col">
         <main className="flex flex-1 flex-col">
-          <section className="bg-paper py-16 sm:py-24">
+          <section className="bg-paper py-10 sm:py-16 md:py-24">
             <Container className="flex flex-col items-center gap-6">
               <SectionHeading eyebrow="Shop" title="Payment" align="center" />
               <EmptyState message="We couldn't find that order. Check the link, or start a new order from the shop." />
               <Link
                 href="/shop"
-                className="inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3 text-sm font-medium text-paper transition-colors hover:bg-ink/85"
+                className="inline-flex min-h-11 items-center gap-2 rounded-full bg-ink px-6 py-3 text-sm font-medium text-paper shadow-sm transition-all duration-200 hover:bg-ink/85 hover:shadow-md active:scale-[0.98]"
               >
                 Continue shopping
               </Link>
@@ -70,17 +70,17 @@ export default async function CheckoutPaymentPage({
   return (
     <div className="flex flex-1 flex-col">
       <main className="flex flex-1 flex-col">
-        <section className="bg-paper py-16 sm:py-24">
-          <Container className="flex flex-col gap-10">
+        <section className="bg-paper py-10 sm:py-16 md:py-24">
+          <Container className="flex flex-col gap-8 sm:gap-10">
             <SectionHeading
               eyebrow="Shop"
               title="Complete your payment"
               description={`Order ${order.orderNumber}`}
             />
 
-            <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1fr_340px] lg:items-start">
+            <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_340px] lg:items-start">
               {/* Main panel — status-dependent */}
-              <div className="flex flex-col gap-6 rounded-2xl border border-line p-6">
+              <div className="flex flex-col gap-6 rounded-2xl border border-line p-5 shadow-xs sm:p-6">
                 {isConfirmed ? (
                   <div className="flex flex-col items-center gap-4 py-6 text-center">
                     <span className="flex h-14 w-14 items-center justify-center rounded-full bg-accent-soft text-signal">
@@ -162,7 +162,7 @@ export default async function CheckoutPaymentPage({
                           <img
                             src={QRIS_IMAGE_URL}
                             alt="QRIS code for payment"
-                            className="h-56 w-56 object-contain"
+                            className="h-44 w-44 rounded-lg object-contain shadow-xs sm:h-56 sm:w-56"
                           />
                         </div>
                       ) : null}
@@ -204,7 +204,7 @@ export default async function CheckoutPaymentPage({
               </div>
 
               {/* Order summary */}
-              <div className="flex flex-col gap-4 rounded-2xl border border-line bg-cloud/40 p-6">
+              <div className="flex flex-col gap-4 rounded-2xl border border-line bg-cloud/40 p-5 shadow-xs sm:p-6">
                 <h2 className="font-serif text-lg font-semibold text-ink">Order summary</h2>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-slate">Order number</span>

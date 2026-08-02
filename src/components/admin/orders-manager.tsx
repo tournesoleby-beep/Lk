@@ -80,7 +80,7 @@ export function OrdersManager({ initialOrders }: { initialOrders: AdminOrderList
             onChange={(event) => updateQuery(event.target.value)}
             placeholder="Search by order #, name, email, or phone…"
             aria-label="Search orders"
-            className="w-full rounded-full border border-line bg-cloud/60 py-2.5 pl-10 pr-4 text-sm text-ink outline-none transition-colors placeholder:text-slate focus:border-signal/50 focus:bg-paper"
+            className="w-full rounded-full border border-line bg-cloud/60 py-2.5 pl-10 pr-4 text-sm text-ink outline-none transition-all duration-200 placeholder:text-slate focus:border-signal/50 focus:bg-paper focus:ring-4 focus:ring-signal/10"
           />
         </div>
 
@@ -92,10 +92,10 @@ export function OrdersManager({ initialOrders }: { initialOrders: AdminOrderList
               onClick={() => updateStatusFilter(filter.value)}
               aria-pressed={statusFilter === filter.value}
               className={cn(
-                "rounded-full px-4 py-2 text-xs font-medium uppercase tracking-[0.1em] transition-colors",
+                "rounded-full px-4 py-2 text-xs font-medium uppercase tracking-[0.1em] transition-all duration-200 active:scale-95",
                 statusFilter === filter.value
-                  ? "bg-ink text-paper"
-                  : "border border-line text-slate hover:bg-cloud/60"
+                  ? "bg-ink text-paper shadow-sm"
+                  : "border border-line text-slate hover:border-ink/25 hover:bg-cloud/60 hover:text-ink"
               )}
             >
               {filter.label}
@@ -109,7 +109,7 @@ export function OrdersManager({ initialOrders }: { initialOrders: AdminOrderList
       ) : (
         <>
           {/* Desktop / tablet table */}
-          <div className="hidden overflow-hidden rounded-2xl border border-line md:block">
+          <div className="hidden overflow-hidden rounded-2xl border border-line shadow-xs md:block">
             <table className="w-full border-collapse text-left text-sm">
               <thead>
                 <tr className="border-b border-line bg-cloud/60">
@@ -146,7 +146,7 @@ export function OrdersManager({ initialOrders }: { initialOrders: AdminOrderList
                 {paginated.map((order) => (
                   <tr
                     key={order.id}
-                    className="border-b border-line last:border-b-0 hover:bg-cloud/40"
+                    className="border-b border-line transition-colors duration-150 last:border-b-0 hover:bg-cloud/40"
                   >
                     <td className="px-5 py-3 font-mono text-xs text-ink">{order.orderNumber}</td>
                     <td className="px-5 py-3 text-ink">{order.customerName}</td>
@@ -172,7 +172,7 @@ export function OrdersManager({ initialOrders }: { initialOrders: AdminOrderList
                     <td className="px-5 py-3 text-right">
                       <Link
                         href={`/admin/orders/${order.id}`}
-                        className="text-xs font-medium uppercase tracking-[0.1em] text-ink underline underline-offset-4 transition-colors hover:text-signal"
+                        className="text-xs font-medium uppercase tracking-[0.1em] text-ink underline underline-offset-4 transition-colors duration-200 hover:text-signal"
                       >
                         View
                       </Link>
@@ -186,7 +186,7 @@ export function OrdersManager({ initialOrders }: { initialOrders: AdminOrderList
           {/* Mobile cards */}
           <ul className="flex flex-col gap-3 md:hidden">
             {paginated.map((order) => (
-              <li key={order.id} className="rounded-2xl border border-line p-4">
+              <li key={order.id} className="rounded-2xl border border-line p-4 shadow-xs transition-shadow duration-200 hover:shadow-sm">
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex flex-col gap-0.5">
                     <span className="font-mono text-xs text-slate">{order.orderNumber}</span>
@@ -211,7 +211,7 @@ export function OrdersManager({ initialOrders }: { initialOrders: AdminOrderList
                   </span>
                   <Link
                     href={`/admin/orders/${order.id}`}
-                    className="text-xs font-medium uppercase tracking-[0.1em] text-ink underline underline-offset-4 transition-colors hover:text-signal"
+                    className="text-xs font-medium uppercase tracking-[0.1em] text-ink underline underline-offset-4 transition-colors duration-200 hover:text-signal"
                   >
                     View
                   </Link>
@@ -233,7 +233,7 @@ export function OrdersManager({ initialOrders }: { initialOrders: AdminOrderList
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
                   aria-label="Previous page"
-                  className="flex h-8 w-8 items-center justify-center rounded-full border border-line text-ink transition-colors hover:bg-cloud/60 disabled:cursor-not-allowed disabled:opacity-40"
+                  className="flex h-8 w-8 items-center justify-center rounded-full border border-line text-ink transition-all duration-200 hover:bg-cloud/60 active:scale-90 disabled:cursor-not-allowed disabled:opacity-40 disabled:active:scale-100"
                 >
                   <ChevronLeft className="h-4 w-4" strokeWidth={1.75} />
                 </button>
@@ -242,7 +242,7 @@ export function OrdersManager({ initialOrders }: { initialOrders: AdminOrderList
                   onClick={() => setPage((p) => Math.min(pageCount, p + 1))}
                   disabled={currentPage === pageCount}
                   aria-label="Next page"
-                  className="flex h-8 w-8 items-center justify-center rounded-full border border-line text-ink transition-colors hover:bg-cloud/60 disabled:cursor-not-allowed disabled:opacity-40"
+                  className="flex h-8 w-8 items-center justify-center rounded-full border border-line text-ink transition-all duration-200 hover:bg-cloud/60 active:scale-90 disabled:cursor-not-allowed disabled:opacity-40 disabled:active:scale-100"
                 >
                   <ChevronRight className="h-4 w-4" strokeWidth={1.75} />
                 </button>

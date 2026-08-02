@@ -75,7 +75,7 @@ export async function placeOrder(
     }
 
     const subtotal = orderItemsData.reduce((sum, item) => sum + item.price * item.quantity, 0);
-    const currency = products[0]?.currency ?? "USD";
+    const currency = products[0]?.currency ?? "IDR";
 
     const user = await prisma.user.upsert({
       where: { email },

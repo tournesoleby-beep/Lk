@@ -15,7 +15,7 @@ export function CategoryCard({
     <Link
       href={`/shop?category=${category.slug}`}
       className={cn(
-        "group relative flex aspect-[3/4] w-full flex-col justify-end overflow-hidden rounded-2xl",
+        "group relative flex aspect-[3/4] w-full flex-col justify-end overflow-hidden rounded-2xl shadow-xs transition-shadow duration-300 hover:shadow-lg",
         className
       )}
     >
@@ -46,7 +46,9 @@ export function CategoryCard({
             {category.productCount}{" "}
             {category.productCount === 1 ? "piece" : "pieces"}
           </span>
-          <span className="inline-flex items-center rounded-full bg-paper/90 px-2.5 py-1 font-mono text-[10px] font-medium uppercase tracking-[0.1em] text-ink opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+          {/* Visible by default on touch screens (no hover state to reveal
+              it); fades in on hover for pointer devices instead. */}
+          <span className="inline-flex items-center rounded-full bg-paper/90 px-2.5 py-1 font-mono text-[10px] font-medium uppercase tracking-[0.1em] text-ink opacity-100 transition-opacity duration-300 md:opacity-0 md:group-hover:opacity-100">
             Shop now
           </span>
         </div>

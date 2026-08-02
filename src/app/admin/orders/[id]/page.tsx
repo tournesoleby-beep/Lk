@@ -31,7 +31,7 @@ export default async function AdminOrderDetailPage({
           <EmptyState message="This order doesn't exist, or may have been removed." />
           <Link
             href="/admin/orders"
-            className="inline-flex w-fit items-center gap-1.5 text-xs font-medium uppercase tracking-[0.1em] text-slate transition-colors hover:text-ink"
+            className="group inline-flex w-fit items-center gap-1.5 text-xs font-medium uppercase tracking-[0.1em] text-slate transition-colors duration-200 hover:text-ink"
           >
             <ArrowLeft className="h-3.5 w-3.5" strokeWidth={1.75} />
             Back to orders
@@ -48,7 +48,7 @@ export default async function AdminOrderDetailPage({
 
         <Link
           href="/admin/orders"
-          className="inline-flex w-fit items-center gap-1.5 text-xs font-medium uppercase tracking-[0.1em] text-slate transition-colors hover:text-ink"
+          className="group inline-flex w-fit items-center gap-1.5 text-xs font-medium uppercase tracking-[0.1em] text-slate transition-colors duration-200 hover:text-ink"
         >
           <ArrowLeft className="h-3.5 w-3.5" strokeWidth={1.75} />
           Back to orders
@@ -71,7 +71,7 @@ export default async function AdminOrderDetailPage({
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_340px] lg:items-start">
           <div className="flex flex-col gap-6">
             {/* Items */}
-            <div className="overflow-hidden rounded-2xl border border-line bg-paper">
+            <div className="overflow-hidden rounded-2xl border border-line bg-paper shadow-xs">
               <div className="border-b border-line px-6 py-4">
                 <h2 className="font-serif text-lg font-semibold text-ink">Items</h2>
               </div>
@@ -138,7 +138,7 @@ export default async function AdminOrderDetailPage({
             </div>
 
             {/* Shipping address */}
-            <div className="rounded-2xl border border-line bg-paper p-6">
+            <div className="rounded-2xl border border-line bg-paper p-6 shadow-xs">
               <h2 className="font-serif text-lg font-semibold text-ink">Shipping address</h2>
               {order.shippingAddress ? (
                 <div className="mt-3 flex flex-col gap-3 text-sm text-ink">
@@ -164,7 +164,7 @@ export default async function AdminOrderDetailPage({
 
           <div className="flex flex-col gap-6">
             {/* Customer */}
-            <div className="rounded-2xl border border-line bg-paper p-6">
+            <div className="rounded-2xl border border-line bg-paper p-6 shadow-xs">
               <h2 className="font-serif text-lg font-semibold text-ink">Customer</h2>
               <dl className="mt-3 flex flex-col gap-3 text-sm">
                 <div className="flex flex-col gap-0.5">
@@ -189,7 +189,7 @@ export default async function AdminOrderDetailPage({
             </div>
 
             {/* Payment proof */}
-            <div className="rounded-2xl border border-line bg-paper p-6">
+            <div className="rounded-2xl border border-line bg-paper p-6 shadow-xs">
               <h2 className="font-serif text-lg font-semibold text-ink">Payment proof</h2>
               {order.paymentProofUrl ? (
                 <div className="mt-3 flex flex-col gap-4">
@@ -197,7 +197,7 @@ export default async function AdminOrderDetailPage({
                     href={order.paymentProofUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="block overflow-hidden rounded-xl border border-line"
+                    className="block overflow-hidden rounded-xl border border-line transition-shadow duration-200 hover:shadow-sm"
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
@@ -210,7 +210,7 @@ export default async function AdminOrderDetailPage({
                     href={order.paymentProofUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-fit text-xs font-medium uppercase tracking-[0.1em] text-ink underline underline-offset-4 transition-colors hover:text-signal"
+                    className="w-fit text-xs font-medium uppercase tracking-[0.1em] text-ink underline underline-offset-4 transition-colors duration-200 hover:text-signal"
                   >
                     Open full size
                   </a>
@@ -232,7 +232,7 @@ export default async function AdminOrderDetailPage({
             </div>
 
             {/* Status update */}
-            <div className="rounded-2xl border border-line bg-cloud/40 p-6">
+            <div className="rounded-2xl border border-line bg-cloud/40 p-6 shadow-xs">
               <h2 className="font-serif text-lg font-semibold text-ink">Update status</h2>
               <p className="mt-1 text-sm text-slate">
                 The customer is emailed automatically when the status changes.

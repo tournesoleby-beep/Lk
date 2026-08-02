@@ -11,13 +11,13 @@ import { EmptyState } from "@/components/home/empty-state";
 
 export default function CartPage() {
   const cart = useCart();
-  const currency = cart.lines[0]?.currency ?? "USD";
+  const currency = cart.lines[0]?.currency ?? "IDR";
 
   return (
     <div className="flex flex-1 flex-col">
       <main className="flex flex-1 flex-col">
-        <section className="bg-paper py-16 sm:py-24">
-          <Container className="flex flex-col gap-10">
+        <section className="bg-paper py-10 sm:py-16 md:py-24">
+          <Container className="flex flex-col gap-8 sm:gap-10">
             <SectionHeading eyebrow="Shop" title="Your bag" />
 
             {cart.lines.length === 0 ? (
@@ -25,19 +25,19 @@ export default function CartPage() {
                 <EmptyState message="Your bag is empty. Pieces you add will show up here." />
                 <Link
                   href="/shop"
-                  className="inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3 text-sm font-medium text-paper transition-colors hover:bg-ink/85"
+                  className="inline-flex min-h-11 items-center gap-2 rounded-full bg-ink px-6 py-3 text-sm font-medium text-paper shadow-sm transition-all duration-200 hover:bg-ink/85 hover:shadow-md active:scale-[0.98]"
                 >
                   <ShoppingBag className="h-4 w-4" strokeWidth={1.75} />
                   Continue shopping
                 </Link>
               </div>
             ) : (
-              <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1fr_340px] lg:items-start">
+              <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_340px] lg:items-start">
                 {/* Line items */}
-                <ul className="flex flex-col divide-y divide-line rounded-2xl border border-line">
+                <ul className="flex flex-col divide-y divide-line rounded-2xl border border-line shadow-xs">
                   {cart.lines.map((line) => (
-                    <li key={line.id} className="flex gap-4 p-5 sm:gap-6">
-                      <div className="h-28 w-24 shrink-0 overflow-hidden rounded-xl bg-cloud sm:h-32 sm:w-28">
+                    <li key={line.id} className="flex gap-3 p-4 sm:gap-6 sm:p-5">
+                      <div className="h-24 w-20 shrink-0 overflow-hidden rounded-xl bg-cloud shadow-xs sm:h-32 sm:w-28">
                         {line.imageUrl ? (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img
@@ -57,7 +57,7 @@ export default function CartPage() {
                             type="button"
                             onClick={() => cart.removeItem(line.id)}
                             aria-label={`Remove ${line.name} from bag`}
-                            className="shrink-0 text-slate transition-colors hover:text-signal"
+                            className="-m-2.5 flex h-11 w-11 shrink-0 items-center justify-center text-slate transition-all duration-200 hover:scale-110 hover:text-signal active:scale-95 sm:-m-2 sm:h-9 sm:w-9"
                           >
                             <Trash2 className="h-4 w-4" strokeWidth={1.75} />
                           </button>
@@ -75,7 +75,7 @@ export default function CartPage() {
                                 cart.updateQuantity(line.id, line.quantity - 1)
                               }
                               aria-label={`Decrease ${line.name} quantity`}
-                              className="flex h-8 w-8 items-center justify-center text-ink transition-colors hover:bg-cloud"
+                              className="flex h-11 w-11 items-center justify-center text-ink transition-colors duration-200 hover:bg-cloud active:scale-90 sm:h-8 sm:w-8"
                             >
                               <Minus className="h-3.5 w-3.5" strokeWidth={1.75} />
                             </button>
@@ -88,7 +88,7 @@ export default function CartPage() {
                                 cart.updateQuantity(line.id, line.quantity + 1)
                               }
                               aria-label={`Increase ${line.name} quantity`}
-                              className="flex h-8 w-8 items-center justify-center text-ink transition-colors hover:bg-cloud"
+                              className="flex h-11 w-11 items-center justify-center text-ink transition-colors duration-200 hover:bg-cloud active:scale-90 sm:h-8 sm:w-8"
                             >
                               <Plus className="h-3.5 w-3.5" strokeWidth={1.75} />
                             </button>
@@ -107,7 +107,7 @@ export default function CartPage() {
                 </ul>
 
                 {/* Summary */}
-                <div className="flex flex-col gap-4 rounded-2xl border border-line bg-cloud/40 p-6">
+                <div className="flex flex-col gap-4 rounded-2xl border border-line bg-cloud/40 p-5 shadow-xs sm:p-6">
                   <h2 className="font-serif text-lg font-semibold text-ink">
                     Order summary
                   </h2>
@@ -135,13 +135,13 @@ export default function CartPage() {
 
                   <Link
                     href="/checkout"
-                    className="inline-flex w-full items-center justify-center rounded-full bg-ink px-6 py-3.5 text-sm font-medium text-paper transition-colors hover:bg-ink/85"
+                    className="inline-flex min-h-11 w-full items-center justify-center rounded-full bg-ink px-6 py-3.5 text-sm font-medium text-paper shadow-sm transition-all duration-200 hover:bg-ink/85 hover:shadow-md active:scale-[0.98]"
                   >
                     Checkout
                   </Link>
                   <Link
                     href="/shop"
-                    className="text-center text-sm font-medium text-ink underline underline-offset-4 transition-colors hover:text-signal"
+                    className="flex min-h-11 items-center justify-center text-center text-sm font-medium text-ink underline underline-offset-4 transition-colors duration-200 hover:text-signal"
                   >
                     Continue shopping
                   </Link>

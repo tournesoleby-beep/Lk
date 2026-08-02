@@ -4,11 +4,12 @@ import { useState, type FormEvent } from "react";
 import { CheckCircle2, Loader2 } from "lucide-react";
 
 import { sendContactMessage } from "@/lib/contact/actions";
+import { useToast } from "@/components/providers/toast-provider";
 
 const LABEL_CLASS =
   "font-mono text-[11px] font-medium uppercase tracking-[0.14em] text-slate";
 const INPUT_CLASS =
-  "w-full rounded-xl border border-line bg-cloud/60 px-3.5 py-2.5 text-sm text-ink outline-none transition-colors placeholder:text-slate focus:border-signal/50 focus:bg-paper";
+  "w-full rounded-xl border border-line bg-cloud/60 px-3.5 py-2.5 text-sm text-ink outline-none transition-all duration-200 placeholder:text-slate focus:border-signal/50 focus:bg-paper focus:ring-4 focus:ring-signal/10";
 
 type FormValues = {
   fullName: string;
@@ -24,6 +25,7 @@ export function ContactForm() {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [sent, setSent] = useState(false);
+  const { toast } = useToast();
 
   function update(field: keyof FormValues, value: string) {
     setValues((current) => ({ ...current, [field]: value }));
@@ -60,11 +62,16 @@ export function ContactForm() {
 
     setSent(true);
     setValues(EMPTY_VALUES);
+    toast({
+      title: "Message sent",
+      description: "We'll get back to you soon.",
+      variant: "success",
+    });
   }
 
   if (sent) {
     return (
-      <div className="flex flex-col items-center gap-4 rounded-2xl border border-line px-6 py-12 text-center">
+      <div className="flex animate-in flex-col items-center gap-4 rounded-2xl border border-line px-6 py-12 text-center shadow-xs fade-in zoom-in-95 duration-300">
         <span className="flex h-14 w-14 items-center justify-center rounded-full bg-accent-soft text-signal">
           <CheckCircle2 className="h-7 w-7" strokeWidth={1.75} />
         </span>
@@ -79,7 +86,7 @@ export function ContactForm() {
         <button
           type="button"
           onClick={() => setSent(false)}
-          className="text-sm font-medium text-ink underline underline-offset-4 transition-colors hover:text-signal"
+          className="text-sm font-medium text-ink underline underline-offset-4 transition-colors duration-200 hover:text-signal"
         >
           Send another message
         </button>
@@ -139,7 +146,7 @@ export function ContactForm() {
       <button
         type="submit"
         disabled={isSubmitting}
-        className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-ink px-6 py-3.5 text-sm font-medium text-paper transition-colors hover:bg-ink/85 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto sm:px-8"
+        className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-ink px-6 py-3.5 text-sm font-medium text-paper shadow-sm transition-all duration-200 hover:bg-ink/85 hover:shadow-md active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100 sm:w-auto sm:px-8"
       >
         {isSubmitting ? (
           <Loader2 className="h-4 w-4 animate-spin" strokeWidth={1.75} />

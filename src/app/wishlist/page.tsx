@@ -43,7 +43,7 @@ export default function WishlistPage() {
                 <EmptyState message="Tap the heart on any product to save it here — your wishlist lives in this browser session." />
                 <Link
                   href="/shop"
-                  className="inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3 text-sm font-medium text-paper transition-colors hover:bg-ink/85"
+                  className="inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3 text-sm font-medium text-paper shadow-sm transition-all duration-200 hover:bg-ink/85 hover:shadow-md active:scale-[0.98]"
                 >
                   Browse the shop
                 </Link>

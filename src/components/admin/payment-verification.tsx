@@ -53,7 +53,7 @@ export function PaymentVerification({ orderId }: { orderId: string }) {
           type="button"
           onClick={() => handleDecision("approve")}
           disabled={pending !== null}
-          className="inline-flex items-center justify-center gap-2 rounded-full bg-ink px-5 py-2.5 text-xs font-medium uppercase tracking-[0.1em] text-paper transition-colors hover:bg-ink/85 disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex items-center justify-center gap-2 rounded-full bg-ink px-5 py-2.5 text-xs font-medium uppercase tracking-[0.1em] text-paper shadow-sm transition-all duration-200 hover:bg-ink/85 hover:shadow-md active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100"
         >
           {pending === "approve" ? (
             <Loader2 className="h-4 w-4 animate-spin" strokeWidth={1.75} />
@@ -65,7 +65,7 @@ export function PaymentVerification({ orderId }: { orderId: string }) {
           type="button"
           onClick={() => handleDecision("reject")}
           disabled={pending !== null}
-          className="inline-flex items-center justify-center gap-2 rounded-full border border-line px-5 py-2.5 text-xs font-medium uppercase tracking-[0.1em] text-signal transition-colors hover:bg-accent-soft disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex items-center justify-center gap-2 rounded-full border border-line px-5 py-2.5 text-xs font-medium uppercase tracking-[0.1em] text-signal transition-all duration-200 hover:bg-accent-soft active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100"
         >
           {pending === "reject" ? (
             <Loader2 className="h-4 w-4 animate-spin" strokeWidth={1.75} />

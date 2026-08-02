@@ -59,7 +59,7 @@ export function OrderStatusUpdater({
         <select
           value={selected}
           onChange={(event) => setSelected(event.target.value as OrderStatus)}
-          className="w-full rounded-xl border border-line bg-cloud/60 px-3.5 py-2.5 text-sm text-ink outline-none transition-colors focus:border-signal/50 focus:bg-paper"
+          className="w-full rounded-xl border border-line bg-cloud/60 px-3.5 py-2.5 text-sm text-ink outline-none transition-all duration-200 focus:border-signal/50 focus:bg-paper focus:ring-4 focus:ring-signal/10"
         >
           {STATUS_OPTIONS.map((status) => (
             <option key={status} value={status}>
@@ -79,7 +79,7 @@ export function OrderStatusUpdater({
         type="button"
         onClick={handleSubmit}
         disabled={!hasChanged || isSubmitting}
-        className="inline-flex items-center justify-center gap-2 rounded-full bg-ink px-5 py-2.5 text-xs font-medium uppercase tracking-[0.1em] text-paper transition-colors hover:bg-ink/85 disabled:cursor-not-allowed disabled:opacity-60"
+        className="inline-flex items-center justify-center gap-2 rounded-full bg-ink px-5 py-2.5 text-xs font-medium uppercase tracking-[0.1em] text-paper shadow-sm transition-all duration-200 hover:bg-ink/85 hover:shadow-md active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100"
       >
         {isSubmitting ? (
           <Loader2 className="h-4 w-4 animate-spin" strokeWidth={1.75} />

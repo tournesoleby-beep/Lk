@@ -38,13 +38,13 @@ export default function GlobalError({
               <button
                 type="button"
                 onClick={reset}
-                className="inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3 text-sm font-medium text-paper transition-colors hover:bg-ink/85"
+                className="inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3 text-sm font-medium text-paper shadow-sm transition-all duration-200 hover:bg-ink/85 hover:shadow-md active:scale-[0.98]"
               >
                 Try again
               </button>
               <Link
                 href="/"
-                className="inline-flex items-center gap-2 rounded-full border border-ink/15 px-6 py-3 text-sm font-medium text-ink transition-colors hover:border-ink/35"
+                className="inline-flex items-center gap-2 rounded-full border border-ink/15 px-6 py-3 text-sm font-medium text-ink transition-all duration-200 hover:border-ink/35 hover:bg-cloud active:scale-[0.98]"
               >
                 Back to home
               </Link>

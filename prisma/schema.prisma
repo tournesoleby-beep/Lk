@@ -122,7 +122,7 @@ model Product {
   description String?       @db.Text
   price       Decimal       @db.Decimal(10, 2)
   compareAtPrice Decimal?   @db.Decimal(10, 2) @map("compare_at_price")
-  currency    String        @default("USD")
+  currency    String        @default("IDR")
   sku         String?       @unique
   status      ProductStatus @default(DRAFT)
   featured    Boolean       @default(false)
@@ -287,7 +287,7 @@ model Order {
   shippingTotal Decimal @default(0) @db.Decimal(10, 2) @map("shipping_total")
   taxTotal      Decimal @default(0) @db.Decimal(10, 2) @map("tax_total")
   total         Decimal @db.Decimal(10, 2)
-  currency      String  @default("USD")
+  currency      String  @default("IDR")
 
   shippingAddressId String?  @map("shipping_address_id")
   billingAddressId  String?  @map("billing_address_id")

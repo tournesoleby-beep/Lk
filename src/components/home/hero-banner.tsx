@@ -9,12 +9,12 @@ export function HeroBanner() {
     <section className="relative isolate overflow-hidden bg-cloud">
       <HeroGlow />
 
-      <Container className="relative grid min-h-[80svh] grid-cols-1 items-center gap-12 py-20 md:py-28 lg:grid-cols-2 lg:gap-16">
-        <div className="animate-fade-up flex flex-col gap-7">
+      <Container className="relative grid grid-cols-1 items-center gap-10 py-14 sm:gap-12 sm:py-20 md:py-28 lg:min-h-[80svh] lg:grid-cols-2 lg:gap-16">
+        <div className="animate-fade-up flex flex-col gap-5 sm:gap-7">
           <span className="font-mono text-[11px] font-medium uppercase tracking-[0.2em] text-signal">
             The Autumn Edit
           </span>
-          <h1 className="max-w-xl text-balance font-serif text-[2.75rem] font-semibold leading-[1.08] tracking-tight text-ink sm:text-6xl md:text-[4.25rem]">
+          <h1 className="max-w-xl text-balance font-serif text-[2.25rem] font-semibold leading-[1.1] tracking-tight text-ink sm:text-6xl md:text-[4.25rem]">
             Considered style,
             <br />
             made to last.
@@ -26,12 +26,12 @@ export function HeroBanner() {
           </p>
 
           <div
-            className="flex flex-wrap items-center gap-4 pt-2 [animation-delay:150ms]"
+            className="flex flex-col gap-3 pt-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4 [animation-delay:150ms]"
             style={{ animation: "var(--animate-fade-up)" }}
           >
             <Link
               href="/shop"
-              className="group inline-flex items-center gap-2 rounded-full bg-ink px-7 py-3.5 text-sm font-medium text-paper transition-colors hover:bg-ink/85"
+              className="group inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-ink px-7 py-3.5 text-sm font-medium text-paper shadow-sm transition-all duration-200 hover:bg-ink/85 hover:shadow-md active:scale-[0.98]"
             >
               Shop the collection
               <ArrowRight
@@ -41,18 +41,18 @@ export function HeroBanner() {
             </Link>
             <a
               href="#new-arrivals"
-              className="inline-flex items-center gap-2 rounded-full border border-ink/15 px-7 py-3.5 text-sm font-medium text-ink transition-colors hover:border-ink/35 hover:bg-paper"
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-ink/15 px-7 py-3.5 text-sm font-medium text-ink transition-all duration-200 hover:border-ink/35 hover:bg-paper hover:shadow-sm active:scale-[0.98]"
             >
               See what&apos;s new
             </a>
           </div>
 
-          <dl className="mt-4 flex flex-wrap items-center gap-x-8 gap-y-3 border-t border-line pt-6">
+          <dl className="mt-2 flex flex-wrap items-center gap-x-6 gap-y-3 border-t border-line pt-6 sm:mt-4 sm:gap-x-8">
             <div className="flex flex-col">
               <dt className="font-mono text-[10px] uppercase tracking-[0.14em] text-slate">
                 Free shipping
               </dt>
-              <dd className="text-sm font-medium text-ink">Over $150</dd>
+              <dd className="text-sm font-medium text-ink">Over Rp2.350.000</dd>
             </div>
             <div className="flex flex-col">
               <dt className="font-mono text-[10px] uppercase tracking-[0.14em] text-slate">
@@ -77,21 +77,21 @@ export function HeroBanner() {
           aria-hidden="true"
         >
           <div
-            className="absolute left-0 top-6 h-[62%] w-[62%] rounded-3xl shadow-[0_30px_60px_-25px_rgba(23,21,26,0.35)]"
+            className="absolute left-0 top-6 h-[62%] w-[62%] rounded-3xl shadow-lg transition-transform duration-700 ease-out hover:-translate-y-1"
             style={{
               background:
                 "linear-gradient(145deg, #efe3d8 0%, #d9c4ae 55%, #a9843f 100%)",
             }}
           />
           <div
-            className="absolute bottom-4 right-2 h-[52%] w-[48%] rounded-3xl shadow-[0_30px_60px_-25px_rgba(23,21,26,0.35)]"
+            className="absolute bottom-4 right-2 h-[52%] w-[48%] rounded-3xl shadow-lg transition-transform duration-700 ease-out hover:-translate-y-1"
             style={{
               background:
                 "linear-gradient(160deg, #2c232a 0%, #17151a 100%)",
             }}
           />
           <div
-            className="absolute bottom-24 left-[8%] h-24 w-24 rounded-2xl bg-paper shadow-[0_20px_40px_-20px_rgba(23,21,26,0.3)]"
+            className="absolute bottom-24 left-[8%] h-24 w-24 rounded-2xl bg-paper shadow-lg transition-transform duration-700 ease-out hover:-translate-y-1"
             style={{
               background:
                 "linear-gradient(160deg, #fbebee 0%, #a8324f 100%)",

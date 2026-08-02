@@ -63,14 +63,14 @@ export default async function AdminDashboardPage() {
             <Link
               key={label}
               href={href}
-              className="group flex flex-col gap-4 rounded-2xl border border-line bg-paper p-6 transition-colors hover:border-ink/20"
+              className="group flex flex-col gap-4 rounded-2xl border border-line bg-paper p-6 shadow-xs transition-all duration-300 hover:-translate-y-0.5 hover:border-ink/20 hover:shadow-md"
             >
               <div className="flex items-start justify-between">
-                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-cloud text-ink">
+                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-cloud text-ink transition-colors duration-300 group-hover:bg-ink group-hover:text-paper">
                   <Icon className="h-4.5 w-4.5" strokeWidth={1.75} />
                 </span>
                 <ArrowUpRight
-                  className="h-4 w-4 text-slate transition-colors group-hover:text-ink"
+                  className="h-4 w-4 text-slate transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-signal"
                   strokeWidth={1.75}
                 />
               </div>

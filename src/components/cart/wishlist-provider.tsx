@@ -8,6 +8,9 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { Heart } from "lucide-react";
+
+import { useToast } from "@/components/providers/toast-provider";
 
 export type WishlistProduct = {
   id: string;
@@ -37,18 +40,33 @@ const WishlistContext = createContext<WishlistContextValue | null>(null);
  */
 export function WishlistProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<Map<string, WishlistProduct>>(new Map());
+  const { toast } = useToast();
 
-  const toggle = useCallback((product: WishlistProduct) => {
-    setItems((current) => {
-      const next = new Map(current);
-      if (next.has(product.id)) {
-        next.delete(product.id);
-      } else {
-        next.set(product.id, product);
-      }
-      return next;
-    });
-  }, []);
+  const toggle = useCallback(
+    (product: WishlistProduct) => {
+      setItems((current) => {
+        const next = new Map(current);
+        if (next.has(product.id)) {
+          next.delete(product.id);
+          toast({
+            title: "Removed from wishlist",
+            description: product.name,
+            variant: "removed",
+          });
+        } else {
+          next.set(product.id, product);
+          toast({
+            title: "Saved to wishlist",
+            description: product.name,
+            variant: "success",
+            icon: Heart,
+          });
+        }
+        return next;
+      });
+    },
+    [toast]
+  );
 
   const value = useMemo<WishlistContextValue>(
     () => ({

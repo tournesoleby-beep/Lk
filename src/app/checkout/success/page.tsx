@@ -16,7 +16,7 @@ export default async function CheckoutSuccessPage({
       <main className="flex flex-1 flex-col">
         <section className="bg-paper py-16 sm:py-24">
           <Container className="flex flex-col items-center gap-6 text-center">
-            <span className="flex h-14 w-14 items-center justify-center rounded-full bg-accent-soft text-signal">
+            <span className="flex h-14 w-14 animate-in items-center justify-center rounded-full bg-accent-soft text-signal shadow-sm zoom-in-75 duration-500">
               <CheckCircle2 className="h-7 w-7" strokeWidth={1.75} />
             </span>
 
@@ -35,7 +35,7 @@ export default async function CheckoutSuccessPage({
 
             <Link
               href="/shop"
-              className="inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3 text-sm font-medium text-paper transition-colors hover:bg-ink/85"
+              className="inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3 text-sm font-medium text-paper shadow-sm transition-all duration-200 hover:bg-ink/85 hover:shadow-md active:scale-[0.98]"
             >
               Continue shopping
             </Link>

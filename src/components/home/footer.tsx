@@ -1,12 +1,7 @@
 import Link from "next/link";
-import { Camera, Play, Users } from "lucide-react";
 
 import { Container } from "@/components/home/container";
-
-// Lucide 1.0 removed all trademarked brand icons (Facebook, Instagram,
-// YouTube, etc.) for legal reasons — see https://lucide.dev/guide/react/migration.
-// These generic icons stand in for the real platforms below; the platform
-// names still surface via the link label and aria-label.
+import { InstagramIcon } from "@/components/icons/instagram-icon";
 
 const footerColumns = [
   {
@@ -15,7 +10,6 @@ const footerColumns = [
       { label: "Fashion", href: "/shop?category=fashion" },
       { label: "Food", href: "/shop?category=food" },
       { label: "Production", href: "/shop?category=production" },
-      { label: "Contact us", href: "/contact" },
     ],
   },
   {
@@ -45,10 +39,14 @@ const footerColumns = [
   },
 ] as const;
 
+// Instagram is currently the only channel Lapiita Karya is active on — keep
+// this list to what's real rather than padding it with unused platforms.
 const socialLinks = [
-  { label: "Instagram", href: "https://instagram.com", icon: Camera },
-  { label: "Facebook", href: "https://facebook.com", icon: Users },
-  { label: "YouTube", href: "https://youtube.com", icon: Play },
+  {
+    label: "Instagram",
+    href: "https://instagram.com/lapiitakarya",
+    icon: InstagramIcon,
+  },
 ] as const;
 
 export function Footer() {
@@ -79,7 +77,7 @@ export function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={label}
-                  className="flex h-9 w-9 items-center justify-center rounded-full border border-line text-slate transition-colors hover:border-ink/20 hover:text-ink"
+                  className="flex h-9 w-9 items-center justify-center rounded-full border border-line text-slate transition-all duration-200 hover:-translate-y-0.5 hover:border-ink/20 hover:text-signal hover:shadow-sm"
                 >
                   <Icon className="h-4 w-4" strokeWidth={1.75} />
                 </a>
@@ -97,7 +95,7 @@ export function Footer() {
                   <li key={link.label}>
                     <Link
                       href={link.href}
-                      className="text-sm text-ink/80 transition-colors hover:text-ink"
+                      className="text-sm text-ink/80 transition-colors duration-200 hover:text-signal"
                     >
                       {link.label}
                     </Link>

@@ -6,6 +6,7 @@ import type { ReactNode } from "react";
 
 import { CartProvider } from "@/components/cart/cart-provider";
 import { WishlistProvider } from "@/components/cart/wishlist-provider";
+import { ToastProvider } from "@/components/providers/toast-provider";
 
 export function Providers({
   children,
@@ -16,9 +17,11 @@ export function Providers({
 }) {
   return (
     <SessionProvider session={session}>
-      <CartProvider>
-        <WishlistProvider>{children}</WishlistProvider>
-      </CartProvider>
+      <ToastProvider>
+        <CartProvider>
+          <WishlistProvider>{children}</WishlistProvider>
+        </CartProvider>
+      </ToastProvider>
     </SessionProvider>
   );
 }

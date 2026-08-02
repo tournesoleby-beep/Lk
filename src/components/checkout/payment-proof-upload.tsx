@@ -50,7 +50,7 @@ export function PaymentProofUpload({ orderId }: { orderId: string }) {
           ref={inputRef}
           type="file"
           accept="image/*"
-          className="w-full rounded-xl border border-line bg-cloud/60 px-3.5 py-2.5 text-sm text-ink outline-none transition-colors file:mr-3 file:rounded-full file:border-0 file:bg-ink file:px-3.5 file:py-1.5 file:text-xs file:font-medium file:uppercase file:tracking-[0.08em] file:text-paper"
+          className="w-full rounded-xl border border-line bg-cloud/60 px-3.5 py-3 text-base text-ink outline-none transition-all duration-200 file:mr-3 file:cursor-pointer file:rounded-full file:border-0 file:bg-ink file:px-3.5 file:py-2 file:text-xs file:font-medium file:uppercase file:tracking-[0.08em] file:text-paper file:transition-colors file:hover:bg-ink/85 focus:border-signal/50 focus:bg-paper focus:ring-4 focus:ring-signal/10 sm:py-2.5 sm:text-sm"
         />
       </label>
 
@@ -61,7 +61,7 @@ export function PaymentProofUpload({ orderId }: { orderId: string }) {
       <button
         type="submit"
         disabled={isSubmitting}
-        className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-ink px-6 py-3.5 text-sm font-medium text-paper transition-colors hover:bg-ink/85 disabled:cursor-not-allowed disabled:opacity-60"
+        className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full bg-ink px-6 py-3.5 text-sm font-medium text-paper shadow-sm transition-all duration-200 hover:bg-ink/85 hover:shadow-md active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100"
       >
         {isSubmitting ? (
           <Loader2 className="h-4 w-4 animate-spin" strokeWidth={1.75} />

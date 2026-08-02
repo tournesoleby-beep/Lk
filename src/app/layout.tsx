@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Playfair_Display } from "next/font/google";
 import "./globals.css";
 
@@ -31,6 +31,15 @@ export const metadata: Metadata = {
     "Lapiita Karya is a boutique fashion house: seasonal edits, considered essentials, and pieces made to last.",
 };
 
+// viewportFit: "cover" lets the safe-area-inset-* env() variables populate
+// on notched/home-indicator iPhones, which the sticky mobile add-to-bag
+// bar and cart drawer footer rely on (see .pb-safe in globals.css).
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
+
 export default async function RootLayout({
   children,
 }: Readonly<{
@@ -43,7 +52,7 @@ export default async function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} ${playfairDisplay.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-paper text-ink">
+      <body className="min-h-full flex flex-col overflow-x-hidden bg-paper text-ink">
         <Providers session={session}>
           <Navbar />
           {children}

@@ -30,7 +30,7 @@ export function OrderStatusBadge({ status }: { status: OrderStatus }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full px-2.5 py-1 font-mono text-[10px] font-medium uppercase tracking-[0.12em]",
+        "inline-flex items-center rounded-full px-2.5 py-1 font-mono text-[10px] font-medium uppercase tracking-[0.12em] ring-1 ring-inset ring-current/10",
         STATUS_STYLES[status]
       )}
     >

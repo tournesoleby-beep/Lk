@@ -52,11 +52,11 @@ export default function FaqPage() {
               description="Everything you need to know about ordering, paying, and tracking with Lapiita Karya."
             />
 
-            <div className="flex max-w-2xl flex-col divide-y divide-line rounded-2xl border border-line">
+            <div className="flex max-w-2xl flex-col divide-y divide-line rounded-2xl border border-line shadow-xs">
               {FAQS.map((faq) => (
-                <details key={faq.question} className="group px-6 py-5">
+                <details key={faq.question} className="group px-6 py-5 transition-colors duration-200 open:bg-cloud/30">
                   <summary className="cursor-pointer list-none text-sm font-medium text-ink marker:content-none">
-                    <span className="flex items-center justify-between gap-4">
+                    <span className="flex items-center justify-between gap-4 transition-colors duration-200 group-hover:text-signal">
                       {faq.question}
                       <span className="font-mono text-slate transition-transform duration-200 group-open:rotate-45">
                         +

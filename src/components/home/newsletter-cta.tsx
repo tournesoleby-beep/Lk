@@ -5,6 +5,7 @@ import { ArrowRight, Check, Mail } from "lucide-react";
 
 import { Container } from "@/components/home/container";
 import { cn, sleep } from "@/lib/utils";
+import { useToast } from "@/components/providers/toast-provider";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -20,6 +21,7 @@ export function NewsletterCta() {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -35,11 +37,16 @@ export function NewsletterCta() {
     setError(null);
     await sleep(600);
     setStatus("success");
+    toast({
+      title: "You're on the list",
+      description: "One email a month, at most.",
+      variant: "success",
+    });
   }
 
   return (
-    <section className="bg-ink py-24 sm:py-32">
-      <Container className="flex flex-col items-center gap-8 text-center">
+    <section className="bg-ink py-16 sm:py-24 md:py-32">
+      <Container className="flex flex-col items-center gap-6 text-center sm:gap-8">
         <div className="flex h-12 w-12 items-center justify-center rounded-full border border-white/15">
           <Mail className="h-5 w-5 text-signal" strokeWidth={1.75} />
         </div>
@@ -48,7 +55,7 @@ export function NewsletterCta() {
           <span className="font-mono text-[11px] font-medium uppercase tracking-[0.2em] text-signal">
             Newsletter
           </span>
-          <h2 className="font-serif text-balance text-[2rem] font-semibold leading-[1.1] tracking-tight text-paper sm:text-[2.75rem]">
+          <h2 className="font-serif text-balance text-[1.75rem] font-semibold leading-[1.15] tracking-tight text-paper sm:text-[2.75rem]">
             Join our newsletter
           </h2>
           <p className="text-balance text-base leading-relaxed text-white/60 sm:text-lg">
@@ -58,7 +65,7 @@ export function NewsletterCta() {
         </div>
 
         {status === "success" ? (
-          <div className="flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-6 py-3 text-sm font-medium text-paper">
+          <div className="flex animate-in items-center gap-2 rounded-full border border-white/15 bg-white/5 px-6 py-3 text-sm font-medium text-paper shadow-sm fade-in zoom-in-95 duration-300">
             <Check className="h-4 w-4 text-signal" strokeWidth={2} />
             You&apos;re on the list.
           </div>
@@ -87,7 +94,7 @@ export function NewsletterCta() {
                   }
                 }}
                 className={cn(
-                  "w-full rounded-full border bg-white/5 px-5 py-3 text-sm text-paper outline-none transition-colors placeholder:text-white/40 focus:border-signal",
+                  "h-11 w-full rounded-full border bg-white/5 px-5 text-base text-paper outline-none transition-all duration-200 placeholder:text-white/40 focus:border-signal focus:ring-4 focus:ring-signal/20 sm:h-auto sm:py-3 sm:text-sm",
                   status === "error" ? "border-red-500/60" : "border-white/15"
                 )}
                 aria-invalid={status === "error"}
@@ -103,7 +110,7 @@ export function NewsletterCta() {
             <button
               type="submit"
               disabled={status === "loading"}
-              className="group inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-paper px-6 py-3 text-sm font-medium text-ink transition-colors hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-60"
+              className="group inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-full bg-paper px-6 py-3 text-sm font-medium text-ink transition-all duration-200 hover:bg-white/90 hover:shadow-md active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100"
             >
               {status === "loading" ? "Subscribing…" : "Subscribe"}
               {status !== "loading" ? (

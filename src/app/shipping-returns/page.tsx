@@ -26,7 +26,7 @@ export default function ShippingReturnsPage() {
               <div className="flex flex-col gap-3 rounded-2xl border border-line p-6">
                 <span className={LABEL_CLASS}>Shipping</span>
                 <p className="text-sm leading-relaxed text-slate">
-                  Complimentary shipping on orders over $150. Orders are
+                  Free shipping on orders over Rp2.350.000. Orders are
                   prepared once payment is verified, and we&apos;ll email you
                   updates as your order moves through processing and
                   shipping.

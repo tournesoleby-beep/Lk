@@ -121,7 +121,7 @@ export function ProductsManager({
         <button
           type="button"
           onClick={openAddModal}
-          className="inline-flex items-center justify-center gap-2 self-start rounded-full bg-ink px-5 py-2.5 text-xs font-medium uppercase tracking-[0.1em] text-paper transition-colors hover:bg-ink/85 sm:self-auto"
+          className="inline-flex items-center justify-center gap-2 self-start rounded-full bg-ink px-5 py-2.5 text-xs font-medium uppercase tracking-[0.1em] text-paper shadow-sm transition-all duration-200 hover:bg-ink/85 hover:shadow-md active:scale-[0.98] sm:self-auto"
         >
           <Plus className="h-4 w-4" strokeWidth={1.75} />
           Add Product
@@ -141,7 +141,7 @@ export function ProductsManager({
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Search by name, SKU, or category…"
             aria-label="Search products"
-            className="w-full rounded-full border border-line bg-cloud/60 py-2.5 pl-10 pr-4 text-sm text-ink outline-none transition-colors placeholder:text-slate focus:border-signal/50 focus:bg-paper"
+            className="w-full rounded-full border border-line bg-cloud/60 py-2.5 pl-10 pr-4 text-sm text-ink outline-none transition-all duration-200 placeholder:text-slate focus:border-signal/50 focus:bg-paper focus:ring-4 focus:ring-signal/10"
           />
         </div>
 
@@ -153,10 +153,10 @@ export function ProductsManager({
               onClick={() => setStatusFilter(filter.value)}
               aria-pressed={statusFilter === filter.value}
               className={cn(
-                "rounded-full px-4 py-2 text-xs font-medium uppercase tracking-[0.1em] transition-colors",
+                "rounded-full px-4 py-2 text-xs font-medium uppercase tracking-[0.1em] transition-all duration-200 active:scale-95",
                 statusFilter === filter.value
-                  ? "bg-ink text-paper"
-                  : "border border-line text-slate hover:bg-cloud/60"
+                  ? "bg-ink text-paper shadow-sm"
+                  : "border border-line text-slate hover:border-ink/25 hover:bg-cloud/60 hover:text-ink"
               )}
             >
               {filter.label}
@@ -170,7 +170,7 @@ export function ProductsManager({
       ) : (
         <>
           {/* Desktop / tablet table */}
-          <div className="hidden overflow-hidden rounded-2xl border border-line md:block">
+          <div className="hidden overflow-hidden rounded-2xl border border-line shadow-xs md:block">
             <table className="w-full border-collapse text-left text-sm">
               <thead>
                 <tr className="border-b border-line bg-cloud/60">
@@ -201,7 +201,7 @@ export function ProductsManager({
                 {filtered.map((product) => (
                   <tr
                     key={product.id}
-                    className="border-b border-line last:border-b-0 hover:bg-cloud/40"
+                    className="border-b border-line transition-colors duration-150 last:border-b-0 hover:bg-cloud/40"
                   >
                     <td className="px-5 py-3">
                       <div className="flex items-center gap-3">
@@ -274,7 +274,7 @@ export function ProductsManager({
                           type="button"
                           onClick={() => openEditModal(product)}
                           aria-label={`Edit ${product.name}`}
-                          className="flex h-8 w-8 items-center justify-center rounded-full text-ink transition-colors hover:bg-cloud"
+                          className="flex h-8 w-8 items-center justify-center rounded-full text-ink transition-all duration-200 hover:bg-cloud active:scale-90"
                         >
                           <Pencil className="h-4 w-4" strokeWidth={1.75} />
                         </button>
@@ -285,7 +285,7 @@ export function ProductsManager({
                             setPendingDelete(product);
                           }}
                           aria-label={`Delete ${product.name}`}
-                          className="flex h-8 w-8 items-center justify-center rounded-full text-ink transition-colors hover:bg-accent-soft hover:text-signal"
+                          className="flex h-8 w-8 items-center justify-center rounded-full text-ink transition-all duration-200 hover:bg-accent-soft hover:text-signal active:scale-90"
                         >
                           <Trash2 className="h-4 w-4" strokeWidth={1.75} />
                         </button>
@@ -302,7 +302,7 @@ export function ProductsManager({
             {filtered.map((product) => (
               <div
                 key={product.id}
-                className="flex flex-col gap-3 rounded-2xl border border-line bg-paper p-4"
+                className="flex flex-col gap-3 rounded-2xl border border-line bg-paper p-4 shadow-xs transition-shadow duration-200 hover:shadow-sm"
               >
                 <div className="flex items-start gap-3">
                   {product.imageUrl ? (
@@ -361,7 +361,7 @@ export function ProductsManager({
                   <button
                     type="button"
                     onClick={() => openEditModal(product)}
-                    className="inline-flex flex-1 items-center justify-center gap-2 rounded-full border border-ink/15 py-2 text-xs font-medium uppercase tracking-[0.1em] text-ink transition-colors hover:bg-cloud"
+                    className="inline-flex flex-1 items-center justify-center gap-2 rounded-full border border-ink/15 py-2 text-xs font-medium uppercase tracking-[0.1em] text-ink transition-all duration-200 hover:bg-cloud active:scale-[0.98]"
                   >
                     <Pencil className="h-3.5 w-3.5" strokeWidth={1.75} />
                     Edit
@@ -372,7 +372,7 @@ export function ProductsManager({
                       setDeleteError(null);
                       setPendingDelete(product);
                     }}
-                    className="inline-flex flex-1 items-center justify-center gap-2 rounded-full border border-line py-2 text-xs font-medium uppercase tracking-[0.1em] text-signal transition-colors hover:bg-accent-soft"
+                    className="inline-flex flex-1 items-center justify-center gap-2 rounded-full border border-line py-2 text-xs font-medium uppercase tracking-[0.1em] text-signal transition-all duration-200 hover:bg-accent-soft active:scale-[0.98]"
                   >
                     <Trash2 className="h-3.5 w-3.5" strokeWidth={1.75} />
                     Delete
@@ -410,13 +410,13 @@ export function ProductsManager({
               setDeleteError(null);
             }}
             aria-hidden="true"
-            className="fixed inset-0 z-50 bg-ink/40 backdrop-blur-[2px]"
+            className="fixed inset-0 z-50 bg-ink/40 backdrop-blur-[2px] animate-in fade-in duration-200"
           />
           <div
             role="alertdialog"
             aria-modal="true"
             aria-label="Confirm delete"
-            className="fixed left-1/2 top-1/2 z-50 w-full max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-line bg-paper p-6 shadow-[0_30px_70px_-30px_rgba(0,0,0,0.45)]"
+            className="fixed left-1/2 top-1/2 z-50 w-full max-w-sm -translate-x-1/2 -translate-y-1/2 animate-in rounded-2xl border border-line bg-paper p-6 shadow-lg zoom-in-95 fade-in duration-200"
           >
             <h2 className="font-serif text-lg font-semibold text-ink">
               Delete product?
@@ -439,7 +439,7 @@ export function ProductsManager({
                   setDeleteError(null);
                 }}
                 disabled={isDeleting}
-                className="rounded-full border border-ink/15 px-4 py-2.5 text-xs font-medium uppercase tracking-[0.1em] text-ink transition-colors hover:bg-cloud disabled:cursor-not-allowed disabled:opacity-60"
+                className="rounded-full border border-ink/15 px-4 py-2.5 text-xs font-medium uppercase tracking-[0.1em] text-ink transition-all duration-200 hover:bg-cloud active:scale-95 disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100"
               >
                 Cancel
               </button>
@@ -447,7 +447,7 @@ export function ProductsManager({
                 type="button"
                 onClick={confirmDelete}
                 disabled={isDeleting}
-                className="rounded-full bg-signal px-4 py-2.5 text-xs font-medium uppercase tracking-[0.1em] text-paper transition-colors hover:bg-signal/90 disabled:cursor-not-allowed disabled:opacity-60"
+                className="rounded-full bg-signal px-4 py-2.5 text-xs font-medium uppercase tracking-[0.1em] text-paper shadow-sm transition-all duration-200 hover:bg-signal/90 hover:shadow-md active:scale-95 disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100"
               >
                 {isDeleting ? "Deleting…" : "Delete"}
               </button>

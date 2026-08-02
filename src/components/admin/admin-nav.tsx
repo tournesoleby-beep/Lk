@@ -23,10 +23,10 @@ export function AdminNav() {
             href={link.href}
             aria-current={isActive ? "page" : undefined}
             className={cn(
-              "rounded-full px-4 py-2 text-xs font-medium uppercase tracking-[0.1em] transition-colors",
+              "rounded-full px-4 py-2 text-xs font-medium uppercase tracking-[0.1em] transition-all duration-200 active:scale-95",
               isActive
-                ? "bg-ink text-paper"
-                : "border border-line text-slate hover:bg-cloud/60"
+                ? "bg-ink text-paper shadow-sm"
+                : "border border-line text-slate hover:border-ink/25 hover:bg-cloud/60 hover:text-ink"
             )}
           >
             {link.label}

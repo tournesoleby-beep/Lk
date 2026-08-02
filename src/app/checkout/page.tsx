@@ -15,7 +15,7 @@ import { EmptyState } from "@/components/home/empty-state";
 const LABEL_CLASS =
   "font-mono text-[11px] font-medium uppercase tracking-[0.14em] text-slate";
 const INPUT_CLASS =
-  "w-full rounded-xl border border-line bg-cloud/60 px-3.5 py-2.5 text-sm text-ink outline-none transition-colors placeholder:text-slate focus:border-signal/50 focus:bg-paper";
+  "w-full rounded-xl border border-line bg-cloud/60 px-3.5 py-3 text-base text-ink outline-none transition-all duration-200 placeholder:text-slate focus:border-signal/50 focus:bg-paper focus:ring-4 focus:ring-signal/10 sm:py-2.5 sm:text-sm";
 
 type FormValues = {
   fullName: string;
@@ -36,7 +36,7 @@ const EMPTY_VALUES: FormValues = {
 export default function CheckoutPage() {
   const cart = useCart();
   const router = useRouter();
-  const currency = cart.lines[0]?.currency ?? "USD";
+  const currency = cart.lines[0]?.currency ?? "IDR";
 
   const [values, setValues] = useState<FormValues>(EMPTY_VALUES);
   const [errors, setErrors] = useState<Partial<Record<keyof FormValues, string>>>({});
@@ -93,13 +93,13 @@ export default function CheckoutPage() {
     return (
       <div className="flex flex-1 flex-col">
         <main className="flex flex-1 flex-col">
-          <section className="bg-paper py-16 sm:py-24">
+          <section className="bg-paper py-10 sm:py-16 md:py-24">
             <Container className="flex flex-col items-center gap-6">
               <SectionHeading eyebrow="Shop" title="Checkout" align="center" />
               <EmptyState message="Your bag is empty. Add something before checking out." />
               <Link
                 href="/shop"
-                className="inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3 text-sm font-medium text-paper transition-colors hover:bg-ink/85"
+                className="inline-flex min-h-11 items-center gap-2 rounded-full bg-ink px-6 py-3 text-sm font-medium text-paper shadow-sm transition-all duration-200 hover:bg-ink/85 hover:shadow-md active:scale-[0.98]"
               >
                 Continue shopping
               </Link>
@@ -113,16 +113,16 @@ export default function CheckoutPage() {
   return (
     <div className="flex flex-1 flex-col">
       <main className="flex flex-1 flex-col">
-        <section className="bg-paper py-16 sm:py-24">
-          <Container className="flex flex-col gap-10">
+        <section className="bg-paper py-10 sm:py-16 md:py-24">
+          <Container className="flex flex-col gap-8 sm:gap-10">
             <SectionHeading eyebrow="Shop" title="Checkout" />
 
             <form
               onSubmit={handleSubmit}
-              className="grid grid-cols-1 gap-10 lg:grid-cols-[1fr_340px] lg:items-start"
+              className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_340px] lg:items-start"
             >
               {/* Contact + shipping details */}
-              <div className="flex flex-col gap-5 rounded-2xl border border-line p-6">
+              <div className="flex flex-col gap-5 rounded-2xl border border-line p-5 shadow-xs sm:p-6">
                 <h2 className="font-serif text-lg font-semibold text-ink">
                   Delivery details
                 </h2>
@@ -206,7 +206,7 @@ export default function CheckoutPage() {
               </div>
 
               {/* Order summary */}
-              <div className="flex flex-col gap-4 rounded-2xl border border-line bg-cloud/40 p-6">
+              <div className="flex flex-col gap-4 rounded-2xl border border-line bg-cloud/40 p-5 shadow-xs sm:p-6">
                 <h2 className="font-serif text-lg font-semibold text-ink">
                   Order summary
                 </h2>
@@ -252,7 +252,7 @@ export default function CheckoutPage() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-ink px-6 py-3.5 text-sm font-medium text-paper transition-colors hover:bg-ink/85 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full bg-ink px-6 py-3.5 text-sm font-medium text-paper shadow-sm transition-all duration-200 hover:bg-ink/85 hover:shadow-md active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100"
                 >
                   {isSubmitting ? (
                     <Loader2 className="h-4 w-4 animate-spin" strokeWidth={1.75} />

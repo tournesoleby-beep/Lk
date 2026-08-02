@@ -52,19 +52,19 @@ export default async function OrderLookupPage({
                   name="order"
                   defaultValue={trimmed ?? ""}
                   placeholder="e.g. ORD-1A2B3C4D"
-                  className="w-full rounded-full border border-line bg-cloud/60 py-2.5 pl-10 pr-4 text-sm text-ink outline-none transition-colors placeholder:text-slate focus:border-signal/50 focus:bg-paper"
+                  className="w-full rounded-full border border-line bg-cloud/60 py-2.5 pl-10 pr-4 text-sm text-ink outline-none transition-all duration-200 placeholder:text-slate focus:border-signal/50 focus:bg-paper focus:ring-4 focus:ring-signal/10"
                 />
               </div>
               <button
                 type="submit"
-                className="inline-flex items-center justify-center rounded-full bg-ink px-6 py-2.5 text-sm font-medium text-paper transition-colors hover:bg-ink/85"
+                className="inline-flex items-center justify-center rounded-full bg-ink px-6 py-2.5 text-sm font-medium text-paper shadow-sm transition-all duration-200 hover:bg-ink/85 hover:shadow-md active:scale-[0.98]"
               >
                 Track order
               </button>
             </form>
 
             {order ? (
-              <div className="flex max-w-md flex-col gap-4 rounded-2xl border border-line p-6">
+              <div className="flex max-w-md flex-col gap-4 rounded-2xl border border-line p-6 shadow-xs">
                 <div className="flex items-center justify-between">
                   <span className="font-mono text-sm text-ink">
                     {order.orderNumber}
@@ -85,7 +85,7 @@ export default async function OrderLookupPage({
                 {!CONFIRMED_STATUSES.has(order.status) ? (
                   <Link
                     href={`/checkout/payment?order=${encodeURIComponent(order.orderNumber)}`}
-                    className="mt-2 inline-flex items-center justify-center rounded-full bg-ink px-6 py-3 text-sm font-medium text-paper transition-colors hover:bg-ink/85"
+                    className="mt-2 inline-flex items-center justify-center rounded-full bg-ink px-6 py-3 text-sm font-medium text-paper shadow-sm transition-all duration-200 hover:bg-ink/85 hover:shadow-md active:scale-[0.98]"
                   >
                     View payment details
                   </Link>
