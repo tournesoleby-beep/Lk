@@ -21,22 +21,27 @@ export type OrderEmailData = {
 
 const STATUS_LABELS: Record<OrderStatus, string> = {
   PENDING: "Pending",
+  WAITING_VERIFICATION: "Waiting for verification",
   PAID: "Paid",
   PROCESSING: "Processing",
   SHIPPED: "Shipped",
   DELIVERED: "Delivered",
   CANCELLED: "Cancelled",
   REFUNDED: "Refunded",
+  PAYMENT_REJECTED: "Payment rejected",
 };
 
 const STATUS_MESSAGES: Record<OrderStatus, string> = {
   PENDING: "Your order has been received and is pending confirmation.",
+  WAITING_VERIFICATION: "We've received your payment proof and are verifying it.",
   PAID: "We've confirmed payment for your order.",
   PROCESSING: "Your order is now being prepared.",
   SHIPPED: "Your order is on its way.",
   DELIVERED: "Your order has been delivered.",
   CANCELLED: "Your order has been cancelled.",
   REFUNDED: "Your order has been refunded.",
+  PAYMENT_REJECTED:
+    "We couldn't verify your payment proof. Please upload a new one on your payment page, or contact us if you think this is a mistake.",
 };
 
 /** Shared page chrome so every email reads as one family. Inline styles only — email clients strip <style> tags. */
@@ -91,7 +96,7 @@ export async function sendOrderConfirmationEmail(order: OrderEmailData): Promise
         "Thank you for your order",
         `
           <p style="color: #756e6a; font-size: 14px; line-height: 1.6;">
-            Hi ${order.customerName}, we've received your order and will be in touch shortly to confirm the details. No payment has been collected yet.
+            Hi ${order.customerName}, we've received your order. Please complete payment by bank transfer using the instructions on the payment page and upload your proof of transfer there.
           </p>
           <p style="color: #17151a; font-size: 14px; margin-top: 20px;">
             Order <strong>${order.orderNumber}</strong> · ${formatDate(order.createdAt)}

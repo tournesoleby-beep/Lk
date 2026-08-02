@@ -9,6 +9,7 @@ import { AdminNav } from "@/components/admin/admin-nav";
 import { EmptyState } from "@/components/home/empty-state";
 import { OrderStatusBadge } from "@/components/admin/order-status-badge";
 import { OrderStatusUpdater } from "@/components/admin/order-status-updater";
+import { PaymentVerification } from "@/components/admin/payment-verification";
 
 export const metadata: Metadata = {
   title: "Order details — Admin — Lapiita Karya",
@@ -185,6 +186,49 @@ export default async function AdminOrderDetailPage({
                   <dd className="text-ink">{order.phone}</dd>
                 </div>
               </dl>
+            </div>
+
+            {/* Payment proof */}
+            <div className="rounded-2xl border border-line bg-paper p-6">
+              <h2 className="font-serif text-lg font-semibold text-ink">Payment proof</h2>
+              {order.paymentProofUrl ? (
+                <div className="mt-3 flex flex-col gap-4">
+                  <a
+                    href={order.paymentProofUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block overflow-hidden rounded-xl border border-line"
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={order.paymentProofUrl}
+                      alt="Uploaded payment proof"
+                      className="max-h-72 w-full object-contain bg-cloud/40"
+                    />
+                  </a>
+                  <a
+                    href={order.paymentProofUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-fit text-xs font-medium uppercase tracking-[0.1em] text-ink underline underline-offset-4 transition-colors hover:text-signal"
+                  >
+                    Open full size
+                  </a>
+                  {order.paymentProofUploadedAt ? (
+                    <span className="text-xs text-slate">
+                      Uploaded {formatDate(order.paymentProofUploadedAt)}
+                    </span>
+                  ) : null}
+
+                  {order.status === "WAITING_VERIFICATION" ? (
+                    <PaymentVerification orderId={order.id} />
+                  ) : null}
+                </div>
+              ) : (
+                <p className="mt-3 text-sm text-slate">
+                  The customer hasn&apos;t uploaded a payment proof yet.
+                </p>
+              )}
             </div>
 
             {/* Status update */}

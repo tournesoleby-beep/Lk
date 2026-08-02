@@ -10,12 +10,14 @@ import { ORDER_STATUS_LABELS } from "@/components/admin/order-status-badge";
 
 const STATUS_OPTIONS: OrderStatus[] = [
   "PENDING",
+  "WAITING_VERIFICATION",
   "PAID",
   "PROCESSING",
   "SHIPPED",
   "DELIVERED",
   "CANCELLED",
   "REFUNDED",
+  "PAYMENT_REJECTED",
 ];
 
 export function OrderStatusUpdater({

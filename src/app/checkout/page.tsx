@@ -86,7 +86,7 @@ export default function CheckoutPage() {
     }
 
     cart.clear();
-    router.push(`/checkout/success?order=${encodeURIComponent(result.orderNumber)}`);
+    router.push(`/checkout/payment?order=${encodeURIComponent(result.orderNumber)}`);
   }
 
   if (cart.lines.length === 0) {
@@ -245,8 +245,8 @@ export default function CheckoutPage() {
                 </div>
 
                 <p className="text-xs leading-relaxed text-slate">
-                  No payment is collected here — we&apos;ll follow up to confirm
-                  your order.
+                  You&apos;ll pay by bank transfer on the next page and upload
+                  your payment proof there.
                 </p>
 
                 <button

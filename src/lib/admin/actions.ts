@@ -1,24 +1,18 @@
 "use server";
 
-import { createHash } from "crypto";
 import { revalidatePath } from "next/cache";
 
 import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/utils";
+import { uploadImageToCloudinary, type UploadImageResult } from "@/lib/cloudinary";
 import type { MockProduct } from "@/lib/mock/products";
 import type { ProductFormValues } from "@/components/admin/product-form-modal";
 
-export type UploadImageResult =
-  | { success: true; url: string }
-  | { success: false; error: string };
+export type { UploadImageResult };
 
 /**
  * Upload a single product image to Cloudinary and return its hosted URL.
- *
- * Uses a signed upload (via a direct call to Cloudinary's REST API, no SDK
- * dependency needed) so the API secret never reaches the browser. Requires
- * `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, and `CLOUDINARY_API_SECRET`
- * to be set — see `.env.example`.
+ * Thin wrapper around the shared helper in src/lib/cloudinary.ts.
  */
 export async function uploadProductImage(
   formData: FormData
@@ -28,55 +22,7 @@ export async function uploadProductImage(
     return { success: false, error: "No image file was provided." };
   }
 
-  const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
-  const apiKey = process.env.CLOUDINARY_API_KEY;
-  const apiSecret = process.env.CLOUDINARY_API_SECRET;
-
-  if (!cloudName || !apiKey || !apiSecret) {
-    console.error(
-      "[admin products] Cloudinary env vars are not configured (CLOUDINARY_CLOUD_NAME / CLOUDINARY_API_KEY / CLOUDINARY_API_SECRET)."
-    );
-    return { success: false, error: "Image upload isn't configured yet." };
-  }
-
-  try {
-    const timestamp = Math.round(Date.now() / 1000);
-    const folder = "lapiita-karya/products";
-
-    // Cloudinary signed uploads require a SHA-1 hash of every non-file
-    // param (alphabetically sorted) plus the API secret appended at the end.
-    const signature = createHash("sha1")
-      .update(`folder=${folder}&timestamp=${timestamp}${apiSecret}`)
-      .digest("hex");
-
-    const uploadForm = new FormData();
-    uploadForm.append("file", file);
-    uploadForm.append("api_key", apiKey);
-    uploadForm.append("timestamp", String(timestamp));
-    uploadForm.append("signature", signature);
-    uploadForm.append("folder", folder);
-
-    const response = await fetch(
-      `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
-      { method: "POST", body: uploadForm }
-    );
-
-    if (!response.ok) {
-      const body = await response.text();
-      console.error("[admin products] Cloudinary upload failed:", body);
-      return { success: false, error: "Image upload failed. Please try again." };
-    }
-
-    const data = (await response.json()) as { secure_url?: string };
-    if (!data.secure_url) {
-      return { success: false, error: "Image upload failed. Please try again." };
-    }
-
-    return { success: true, url: data.secure_url };
-  } catch (error) {
-    console.error("[admin products] failed to upload image:", error);
-    return { success: false, error: "Image upload failed. Please try again." };
-  }
+  return uploadImageToCloudinary(file, "lapiita-karya/products");
 }
 
 export type SaveProductResult =

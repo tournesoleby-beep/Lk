@@ -57,9 +57,17 @@ export function Footer() {
       <Container className="flex flex-col gap-16 py-16 sm:py-20">
         <div className="grid grid-cols-2 gap-10 sm:grid-cols-5">
           <div className="col-span-2 flex flex-col gap-4 sm:col-span-1">
-            <span className="font-serif text-lg font-semibold tracking-tight text-ink">
-              Lapiita Karya
-            </span>
+            <div className="flex items-center gap-2.5">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/logo.png"
+                alt=""
+                className="h-16 w-16 object-contain"
+              />
+              <span className="font-serif text-lg font-semibold tracking-tight text-ink">
+                Lapiita Karya
+              </span>
+            </div>
             <p className="max-w-[220px] text-sm leading-relaxed text-slate">
               Considered pieces, made to last.
             </p>

@@ -25,6 +25,7 @@ export type AdminOrderListItem = {
   total: number;
   currency: string;
   createdAt: string;
+  hasPaymentProof: boolean;
 };
 
 /**
@@ -46,6 +47,7 @@ export async function getAdminOrders(): Promise<AdminOrderListItem[]> {
         total: true,
         currency: true,
         createdAt: true,
+        paymentProofUrl: true,
         user: { select: { email: true, name: true } },
         shippingAddress: { select: { fullName: true, phone: true } },
       },
@@ -61,6 +63,7 @@ export async function getAdminOrders(): Promise<AdminOrderListItem[]> {
       total: Number(order.total.toString()),
       currency: order.currency,
       createdAt: order.createdAt.toISOString(),
+      hasPaymentProof: order.paymentProofUrl !== null,
     }));
   }, []);
 }
@@ -89,6 +92,8 @@ export type AdminOrderDetail = {
   // the comment in src/lib/checkout/actions.ts on why it's reused that way.
   shippingAddress: { line1: string; notes: string | null } | null;
   items: AdminOrderItem[];
+  paymentProofUrl: string | null;
+  paymentProofUploadedAt: string | null;
 };
 
 export async function getAdminOrderById(id: string): Promise<AdminOrderDetail | null> {
@@ -105,6 +110,8 @@ export async function getAdminOrderById(id: string): Promise<AdminOrderDetail | 
         taxTotal: true,
         total: true,
         currency: true,
+        paymentProofUrl: true,
+        paymentProofUploadedAt: true,
         user: { select: { email: true, name: true } },
         shippingAddress: {
           select: { fullName: true, phone: true, line1: true, line2: true },
@@ -137,6 +144,10 @@ export async function getAdminOrderById(id: string): Promise<AdminOrderDetail | 
         price: Number(item.price.toString()),
         quantity: item.quantity,
       })),
+      paymentProofUrl: order.paymentProofUrl,
+      paymentProofUploadedAt: order.paymentProofUploadedAt
+        ? order.paymentProofUploadedAt.toISOString()
+        : null,
     };
   }, null);
 }

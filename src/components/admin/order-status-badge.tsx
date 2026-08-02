@@ -4,22 +4,26 @@ import { cn } from "@/lib/utils";
 
 const STATUS_STYLES: Record<OrderStatus, string> = {
   PENDING: "bg-cloud text-slate",
+  WAITING_VERIFICATION: "bg-gold/10 text-gold",
   PAID: "bg-accent-soft text-signal",
   PROCESSING: "bg-gold/10 text-gold",
   SHIPPED: "bg-ink/10 text-ink",
   DELIVERED: "bg-ink text-paper",
   CANCELLED: "bg-signal/10 text-signal",
   REFUNDED: "bg-ink/5 text-ink/50",
+  PAYMENT_REJECTED: "bg-signal/10 text-signal",
 };
 
 const STATUS_LABELS: Record<OrderStatus, string> = {
   PENDING: "Pending",
+  WAITING_VERIFICATION: "Waiting for verification",
   PAID: "Paid",
   PROCESSING: "Processing",
   SHIPPED: "Shipped",
   DELIVERED: "Delivered",
   CANCELLED: "Cancelled",
   REFUNDED: "Refunded",
+  PAYMENT_REJECTED: "Payment rejected",
 };
 
 export function OrderStatusBadge({ status }: { status: OrderStatus }) {

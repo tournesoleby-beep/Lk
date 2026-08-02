@@ -55,7 +55,18 @@ export function ProductCard({
 
       <button
         type="button"
-        onClick={() => wishlist.toggle(product.id)}
+        onClick={() =>
+          wishlist.toggle({
+            id: product.id,
+            name: product.name,
+            slug: product.slug,
+            price: product.price,
+            compareAtPrice: product.compareAtPrice,
+            currency: product.currency,
+            imageUrl: product.imageUrl,
+            imageAlt: product.imageAlt,
+          })
+        }
         aria-pressed={saved}
         aria-label={saved ? "Remove from wishlist" : "Save to wishlist"}
         className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-paper/90 text-ink shadow-sm backdrop-blur transition-colors hover:text-signal"

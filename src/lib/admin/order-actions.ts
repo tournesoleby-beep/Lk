@@ -12,12 +12,14 @@ export type UpdateOrderStatusResult =
 
 const VALID_STATUSES: OrderStatus[] = [
   "PENDING",
+  "WAITING_VERIFICATION",
   "PAID",
   "PROCESSING",
   "SHIPPED",
   "DELIVERED",
   "CANCELLED",
   "REFUNDED",
+  "PAYMENT_REJECTED",
 ];
 
 /**

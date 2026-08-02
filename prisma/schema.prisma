@@ -237,12 +237,14 @@ model CartItem {
 
 enum OrderStatus {
   PENDING
+  WAITING_VERIFICATION // manual bank-transfer proof uploaded, awaiting admin review
   PAID
   PROCESSING
   SHIPPED
   DELIVERED
   CANCELLED
   REFUNDED
+  PAYMENT_REJECTED // admin reviewed the transfer proof and rejected it
 }
 
 enum AddressType {
@@ -293,6 +295,13 @@ model Order {
   billingAddress    Address? @relation("BillingAddress", fields: [billingAddressId], references: [id], onDelete: SetNull)
 
   stripePaymentIntentId String? @map("stripe_payment_intent_id")
+
+  // Manual bank-transfer payment proof, uploaded by the customer on the
+  // /checkout/payment page and hosted on Cloudinary (see src/lib/cloudinary.ts).
+  // No separate "payment" table — this is the only data the flow needs, so
+  // it lives directly on Order to keep the schema change minimal.
+  paymentProofUrl        String?   @map("payment_proof_url")
+  paymentProofUploadedAt DateTime? @map("payment_proof_uploaded_at")
 
   user  User        @relation(fields: [userId], references: [id], onDelete: Restrict)
   items OrderItem[]

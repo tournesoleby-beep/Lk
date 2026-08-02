@@ -134,6 +134,9 @@ export function OrdersManager({ initialOrders }: { initialOrders: AdminOrderList
                   <th className="px-5 py-3 font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-slate">
                     Status
                   </th>
+                  <th className="px-5 py-3 font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-slate">
+                    Proof
+                  </th>
                   <th className="px-5 py-3 text-right font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-slate">
                     &nbsp;
                   </th>
@@ -155,6 +158,16 @@ export function OrdersManager({ initialOrders }: { initialOrders: AdminOrderList
                     </td>
                     <td className="px-5 py-3">
                       <OrderStatusBadge status={order.status} />
+                    </td>
+                    <td className="px-5 py-3">
+                      <span
+                        className={cn(
+                          "font-mono text-[10px] font-medium uppercase tracking-[0.1em]",
+                          order.hasPaymentProof ? "text-signal" : "text-slate"
+                        )}
+                      >
+                        {order.hasPaymentProof ? "Uploaded" : "—"}
+                      </span>
                     </td>
                     <td className="px-5 py-3 text-right">
                       <Link
@@ -185,6 +198,12 @@ export function OrdersManager({ initialOrders }: { initialOrders: AdminOrderList
                   <span>{order.email}</span>
                   <span>{order.phone}</span>
                   <span>{formatDate(order.createdAt)}</span>
+                  <span>
+                    Payment proof:{" "}
+                    <span className={order.hasPaymentProof ? "text-signal" : "text-slate"}>
+                      {order.hasPaymentProof ? "Uploaded" : "Not uploaded"}
+                    </span>
+                  </span>
                 </div>
                 <div className="mt-3 flex items-center justify-between">
                   <span className="font-mono text-sm font-medium text-ink">

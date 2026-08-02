@@ -52,11 +52,16 @@ export function Navbar() {
           )}
         </button>
 
-        <Link
-          href="/"
-          className="shrink-0 font-serif text-2xl font-semibold tracking-tight text-ink"
-        >
-          Lapiita Karya
+        <Link href="/" className="flex shrink-0 items-center gap-2.5">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/logo.png"
+            alt=""
+            className="h-14 w-14 object-contain sm:h-16 sm:w-16"
+          />
+          <span className="font-serif text-lg font-semibold tracking-tight text-ink sm:text-xl">
+            Lapiita Karya
+          </span>
         </Link>
 
         {/* Category navigation — desktop */}
