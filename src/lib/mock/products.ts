@@ -4,6 +4,16 @@
 
 export type MockProductStatus = "DRAFT" | "ACTIVE" | "ARCHIVED";
 
+// A single product image as managed from the admin form. `id` is a stable
+// key for the uploaded/existing row; brand-new uploads that haven't been
+// saved yet get a client-generated id (see product-form-modal.tsx) so they
+// can still be reordered/removed before the first save.
+export type AdminProductImage = {
+  id: string;
+  url: string;
+  altText: string | null;
+};
+
 export type MockProduct = {
   id: string;
   name: string;
@@ -16,7 +26,9 @@ export type MockProduct = {
   status: MockProductStatus;
   featured: boolean;
   stock: number;
-  imageUrl: string | null;
+  // Ordered — index 0 is the cover image shown in listings, matching the
+  // `ProductImage.position` convention used throughout the storefront.
+  images: AdminProductImage[];
   updatedAt: string;
 };
 
@@ -33,7 +45,7 @@ export const MOCK_PRODUCTS: MockProduct[] = [
     status: "ACTIVE",
     featured: true,
     stock: 42,
-    imageUrl: null,
+    images: [],
     updatedAt: "2026-07-18",
   },
   {
@@ -48,7 +60,7 @@ export const MOCK_PRODUCTS: MockProduct[] = [
     status: "ACTIVE",
     featured: false,
     stock: 15,
-    imageUrl: null,
+    images: [],
     updatedAt: "2026-07-15",
   },
   {
@@ -63,7 +75,7 @@ export const MOCK_PRODUCTS: MockProduct[] = [
     status: "ACTIVE",
     featured: true,
     stock: 120,
-    imageUrl: null,
+    images: [],
     updatedAt: "2026-07-27",
   },
   {
@@ -78,7 +90,7 @@ export const MOCK_PRODUCTS: MockProduct[] = [
     status: "DRAFT",
     featured: false,
     stock: 0,
-    imageUrl: null,
+    images: [],
     updatedAt: "2026-07-30",
   },
   {
@@ -93,7 +105,7 @@ export const MOCK_PRODUCTS: MockProduct[] = [
     status: "ACTIVE",
     featured: false,
     stock: 63,
-    imageUrl: null,
+    images: [],
     updatedAt: "2026-07-10",
   },
   {
@@ -108,7 +120,7 @@ export const MOCK_PRODUCTS: MockProduct[] = [
     status: "ARCHIVED",
     featured: false,
     stock: 0,
-    imageUrl: null,
+    images: [],
     updatedAt: "2026-06-02",
   },
   {
@@ -123,7 +135,7 @@ export const MOCK_PRODUCTS: MockProduct[] = [
     status: "ACTIVE",
     featured: true,
     stock: 8,
-    imageUrl: null,
+    images: [],
     updatedAt: "2026-07-29",
   },
   {
@@ -138,7 +150,7 @@ export const MOCK_PRODUCTS: MockProduct[] = [
     status: "DRAFT",
     featured: false,
     stock: 27,
-    imageUrl: null,
+    images: [],
     updatedAt: "2026-07-22",
   },
 ];

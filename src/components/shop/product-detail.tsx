@@ -1,19 +1,50 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import Link from "next/link";
-import { Minus, Plus, ShoppingBag } from "lucide-react";
+import { Maximize2, Minus, Plus, ShoppingBag } from "lucide-react";
 
 import { cn, formatCurrency } from "@/lib/utils";
 import type { ShopProductDetail } from "@/lib/shop/product";
 import { PlaceholderTile } from "@/components/home/placeholder-tile";
 import { useCart } from "@/components/cart/cart-provider";
+import { ProductImageLightbox } from "@/components/shop/product-image-lightbox";
+
+const HOVER_ZOOM_QUERY = "(hover: hover) and (pointer: fine)";
+
+function subscribeToHoverZoomSupport(callback: () => void) {
+  const query = window.matchMedia(HOVER_ZOOM_QUERY);
+  query.addEventListener("change", callback);
+  return () => query.removeEventListener("change", callback);
+}
+
+function getHoverZoomSupportSnapshot() {
+  return window.matchMedia(HOVER_ZOOM_QUERY).matches;
+}
+
+function getHoverZoomServerSnapshot() {
+  return false;
+}
 
 export function ProductDetail({ product }: { product: ShopProductDetail }) {
   const cart = useCart();
   const [activeImage, setActiveImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  // Cursor-follow zoom is a hover affordance — only enabled on devices that
+  // actually have a precise pointer, so touch users get swipe/tap instead
+  // of a magnifier that could never track their finger between moves.
+  // Synced via useSyncExternalStore rather than effect+setState so it also
+  // stays correct if the user connects/disconnects a mouse mid-session.
+  const supportsHoverZoom = useSyncExternalStore(
+    subscribeToHoverZoomSupport,
+    getHoverZoomSupportSnapshot,
+    getHoverZoomServerSnapshot
+  );
+  const [hoverOrigin, setHoverOrigin] = useState<{ x: number; y: number } | null>(
+    null
+  );
 
   const isMarkedDown =
     product.compareAtPrice !== null && product.compareAtPrice > product.price;
@@ -58,7 +89,10 @@ export function ProductDetail({ product }: { product: ShopProductDetail }) {
       {/* Gallery */}
       <div className="flex flex-col gap-3">
         <div
-          className="relative aspect-[4/5] w-full touch-pan-y select-none overflow-hidden rounded-2xl bg-cloud shadow-sm"
+          className={cn(
+            "relative aspect-[4/5] w-full touch-pan-y select-none overflow-hidden rounded-2xl bg-cloud shadow-sm",
+            image && supportsHoverZoom && "cursor-zoom-in"
+          )}
           onTouchStart={(event) => {
             event.currentTarget.dataset.touchStartX = String(
               event.touches[0]?.clientX ?? ""
@@ -75,13 +109,31 @@ export function ProductDetail({ product }: { product: ShopProductDetail }) {
               showImage(activeImage + (delta < 0 ? 1 : -1));
             }
           }}
+          onMouseMove={(event) => {
+            if (!supportsHoverZoom) return;
+            const rect = event.currentTarget.getBoundingClientRect();
+            setHoverOrigin({
+              x: ((event.clientX - rect.left) / rect.width) * 100,
+              y: ((event.clientY - rect.top) / rect.height) * 100,
+            });
+          }}
+          onMouseLeave={() => setHoverOrigin(null)}
+          onClick={() => image && setLightboxOpen(true)}
         >
           {image ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={image.url}
               alt={image.altText ?? product.name}
-              className="h-full w-full object-cover transition-opacity duration-300"
+              className={cn(
+                "h-full w-full object-cover transition-transform duration-150 ease-out",
+                supportsHoverZoom && hoverOrigin ? "scale-[1.8]" : "scale-100"
+              )}
+              style={
+                supportsHoverZoom && hoverOrigin
+                  ? { transformOrigin: `${hoverOrigin.x}% ${hoverOrigin.y}%` }
+                  : undefined
+              }
               key={image.url}
             />
           ) : (
@@ -91,6 +143,20 @@ export function ProductDetail({ product }: { product: ShopProductDetail }) {
               className="h-full w-full"
             />
           )}
+
+          {image ? (
+            <button
+              type="button"
+              onClick={(event) => {
+                event.stopPropagation();
+                setLightboxOpen(true);
+              }}
+              aria-label="View fullscreen"
+              className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-ink/50 text-paper opacity-0 transition-opacity duration-200 hover:bg-ink/70 active:scale-90 sm:opacity-100"
+            >
+              <Maximize2 className="h-4 w-4" strokeWidth={1.75} />
+            </button>
+          ) : null}
 
           {imageCount > 1 ? (
             <div
@@ -235,6 +301,15 @@ export function ProductDetail({ product }: { product: ShopProductDetail }) {
         </div>
         {addToBagButton}
       </div>
+
+      {lightboxOpen && imageCount > 0 ? (
+        <ProductImageLightbox
+          images={product.images}
+          productName={product.name}
+          initialIndex={activeImage}
+          onClose={() => setLightboxOpen(false)}
+        />
+      ) : null}
     </div>
   );
 }

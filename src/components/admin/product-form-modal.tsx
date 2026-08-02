@@ -1,11 +1,23 @@
 "use client";
 
 import { useState, type ChangeEvent, type FormEvent } from "react";
-import { Image as ImageIcon, X } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Image as ImageIcon,
+  Loader2,
+  Star,
+  Trash2,
+  X,
+} from "lucide-react";
 
-import { slugify } from "@/lib/utils";
+import { cn, slugify } from "@/lib/utils";
 import { uploadProductImage } from "@/lib/admin/actions";
-import type { MockProduct, MockProductStatus } from "@/lib/mock/products";
+import type {
+  AdminProductImage,
+  MockProduct,
+  MockProductStatus,
+} from "@/lib/mock/products";
 
 const STATUS_OPTIONS: MockProductStatus[] = ["DRAFT", "ACTIVE", "ARCHIVED"];
 
@@ -22,8 +34,17 @@ const EMPTY_VALUES: ProductFormValues = {
   status: "DRAFT",
   featured: false,
   stock: 0,
-  imageUrl: null,
+  images: [],
 };
+
+/**
+ * Local-only id for an image that's mid-upload and hasn't been through the
+ * server yet — lets it be reordered/removed from the list before the file
+ * has finished uploading (or before the form has even been saved once).
+ */
+function makeLocalImageId() {
+  return `local_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+}
 
 export function ProductFormModal({
   product,
@@ -41,33 +62,99 @@ export function ProductFormModal({
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(
-    product?.imageUrl ?? null
-  );
-  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  // Ids of images that are still mid-upload — used to show a spinner over
+  // that thumbnail and to block submitting until every upload settles.
+  const [uploadingIds, setUploadingIds] = useState<Set<string>>(new Set());
   const [imageError, setImageError] = useState<string | null>(null);
+  const isUploadingImage = uploadingIds.size > 0;
 
-  async function handleImageChange(event: ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
-    if (!file) return;
+  async function handleImagesChange(event: ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(event.target.files ?? []);
+    // Reset the input so selecting the same file again still fires onChange.
+    event.target.value = "";
+    if (files.length === 0) return;
 
     setImageError(null);
-    setImagePreview(URL.createObjectURL(file));
-    setIsUploadingImage(true);
 
-    const uploadForm = new FormData();
-    uploadForm.append("file", file);
-    const result = await uploadProductImage(uploadForm);
+    const placeholders: AdminProductImage[] = files.map((file) => ({
+      id: makeLocalImageId(),
+      url: URL.createObjectURL(file),
+      altText: null,
+    }));
 
-    setIsUploadingImage(false);
+    setValues((v) => ({ ...v, images: [...v.images, ...placeholders] }));
+    setUploadingIds((prev) => {
+      const next = new Set(prev);
+      placeholders.forEach((p) => next.add(p.id));
+      return next;
+    });
 
-    if (!result.success) {
-      setImageError(result.error);
-      return;
-    }
+    await Promise.all(
+      files.map(async (file, index) => {
+        const placeholder = placeholders[index];
+        const uploadForm = new FormData();
+        uploadForm.append("file", file);
+        const result = await uploadProductImage(uploadForm);
 
-    setValues((v) => ({ ...v, imageUrl: result.url }));
-    setImagePreview(result.url);
+        if (!result.success) {
+          setImageError(result.error);
+          setValues((v) => ({
+            ...v,
+            images: v.images.filter((img) => img.id !== placeholder.id),
+          }));
+        } else {
+          setValues((v) => ({
+            ...v,
+            images: v.images.map((img) =>
+              img.id === placeholder.id ? { ...img, url: result.url } : img
+            ),
+          }));
+        }
+
+        setUploadingIds((prev) => {
+          const next = new Set(prev);
+          next.delete(placeholder.id);
+          return next;
+        });
+      })
+    );
+  }
+
+  function removeImage(id: string) {
+    setValues((v) => ({
+      ...v,
+      images: v.images.filter((img) => img.id !== id),
+    }));
+    setUploadingIds((prev) => {
+      if (!prev.has(id)) return prev;
+      const next = new Set(prev);
+      next.delete(id);
+      return next;
+    });
+  }
+
+  function setCoverImage(id: string) {
+    setValues((v) => {
+      const index = v.images.findIndex((img) => img.id === id);
+      if (index <= 0) return v;
+      const images = [...v.images];
+      const [image] = images.splice(index, 1);
+      images.unshift(image);
+      return { ...v, images };
+    });
+  }
+
+  function moveImage(id: string, direction: -1 | 1) {
+    setValues((v) => {
+      const index = v.images.findIndex((img) => img.id === id);
+      const targetIndex = index + direction;
+      if (index === -1 || targetIndex < 0 || targetIndex >= v.images.length) {
+        return v;
+      }
+      const images = [...v.images];
+      [images[index], images[targetIndex]] = [images[targetIndex], images[index]];
+      return { ...v, images };
+    });
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -196,41 +283,126 @@ export function ProductFormModal({
             </label>
           </div>
 
-          <label className="flex flex-col gap-1.5">
+          <div className="flex flex-col gap-2">
             <span className="font-mono text-[11px] font-medium uppercase tracking-[0.14em] text-slate">
-              Product image
+              Product images
             </span>
-            <div className="flex items-center gap-4">
-              <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-line bg-cloud shadow-xs">
-                {imagePreview ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={imagePreview}
-                    alt="Product preview"
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <ImageIcon className="h-6 w-6 text-slate" strokeWidth={1.5} />
-                )}
+
+            {values.images.length > 0 ? (
+              <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
+                {values.images.map((image, index) => {
+                  const isUploading = uploadingIds.has(image.id);
+                  const isCover = index === 0;
+                  return (
+                    <div
+                      key={image.id}
+                      className={cn(
+                        "group relative aspect-square overflow-hidden rounded-xl border shadow-xs",
+                        isCover ? "border-ink" : "border-line"
+                      )}
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={image.url}
+                        alt={image.altText ?? "Product image"}
+                        className="h-full w-full object-cover"
+                      />
+
+                      {isUploading ? (
+                        <div className="absolute inset-0 flex items-center justify-center bg-ink/40">
+                          <Loader2
+                            className="h-5 w-5 animate-spin text-paper"
+                            strokeWidth={2}
+                          />
+                        </div>
+                      ) : (
+                        <>
+                          {isCover ? (
+                            <span className="absolute left-1.5 top-1.5 inline-flex items-center gap-1 rounded-full bg-ink px-2 py-0.5 font-mono text-[9px] font-medium uppercase tracking-[0.1em] text-paper">
+                              <Star
+                                className="h-2.5 w-2.5 fill-paper"
+                                strokeWidth={0}
+                              />
+                              Cover
+                            </span>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => setCoverImage(image.id)}
+                              aria-label="Set as cover image"
+                              title="Set as cover image"
+                              className="absolute left-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-ink/70 text-paper opacity-0 transition-opacity duration-150 hover:bg-ink group-hover:opacity-100"
+                            >
+                              <Star className="h-3.5 w-3.5" strokeWidth={1.75} />
+                            </button>
+                          )}
+
+                          <button
+                            type="button"
+                            onClick={() => removeImage(image.id)}
+                            aria-label="Remove image"
+                            title="Remove image"
+                            className="absolute right-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-ink/70 text-paper opacity-0 transition-opacity duration-150 hover:bg-signal group-hover:opacity-100"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" strokeWidth={1.75} />
+                          </button>
+
+                          <div className="absolute inset-x-1.5 bottom-1.5 flex items-center justify-between opacity-0 transition-opacity duration-150 group-hover:opacity-100">
+                            <button
+                              type="button"
+                              onClick={() => moveImage(image.id, -1)}
+                              disabled={index === 0}
+                              aria-label="Move image earlier"
+                              title="Move earlier"
+                              className="flex h-6 w-6 items-center justify-center rounded-full bg-ink/70 text-paper transition-colors hover:bg-ink disabled:cursor-not-allowed disabled:opacity-0"
+                            >
+                              <ChevronLeft className="h-3.5 w-3.5" strokeWidth={1.75} />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => moveImage(image.id, 1)}
+                              disabled={index === values.images.length - 1}
+                              aria-label="Move image later"
+                              title="Move later"
+                              className="flex h-6 w-6 items-center justify-center rounded-full bg-ink/70 text-paper transition-colors hover:bg-ink disabled:cursor-not-allowed disabled:opacity-0"
+                            >
+                              <ChevronRight className="h-3.5 w-3.5" strokeWidth={1.75} />
+                            </button>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
-              <div className="flex flex-1 flex-col gap-1.5">
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="w-full text-sm text-ink file:mr-3 file:cursor-pointer file:rounded-full file:border-0 file:bg-ink file:px-3.5 file:py-2 file:text-xs file:font-medium file:uppercase file:tracking-[0.1em] file:text-paper file:transition-colors hover:file:bg-ink/85"
-                />
-                {isUploadingImage ? (
-                  <span className="font-mono text-xs text-slate">
-                    Uploading…
-                  </span>
-                ) : null}
-                {imageError ? (
-                  <span className="text-xs text-signal">{imageError}</span>
-                ) : null}
+            ) : (
+              <div className="flex h-20 w-20 items-center justify-center rounded-xl border border-line bg-cloud shadow-xs">
+                <ImageIcon className="h-6 w-6 text-slate" strokeWidth={1.5} />
               </div>
+            )}
+
+            <div className="flex flex-col gap-1.5">
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleImagesChange}
+                className="w-full text-sm text-ink file:mr-3 file:cursor-pointer file:rounded-full file:border-0 file:bg-ink file:px-3.5 file:py-2 file:text-xs file:font-medium file:uppercase file:tracking-[0.1em] file:text-paper file:transition-colors hover:file:bg-ink/85"
+              />
+              <span className="font-mono text-[11px] text-slate">
+                The first image is the cover shown in listings. Hover a
+                thumbnail to reorder, set the cover, or remove it.
+              </span>
+              {isUploadingImage ? (
+                <span className="font-mono text-xs text-slate">
+                  Uploading…
+                </span>
+              ) : null}
+              {imageError ? (
+                <span className="text-xs text-signal">{imageError}</span>
+              ) : null}
             </div>
-          </label>
+          </div>
 
           <label className="flex flex-col gap-1.5">
             <span className="font-mono text-[11px] font-medium uppercase tracking-[0.14em] text-slate">

@@ -34,7 +34,7 @@ type AdminProductRow = {
   featured: boolean;
   updatedAt: Date;
   category: { name: string } | null;
-  images: { url: string }[];
+  images: { id: string; url: string; altText: string | null }[];
   variants: { stock: number }[];
 };
 
@@ -56,7 +56,11 @@ function toAdminProduct(product: AdminProductRow): MockProduct {
       (total: number, variant: { stock: number }) => total + variant.stock,
       0
     ),
-    imageUrl: product.images[0]?.url ?? null,
+    images: product.images.map((image) => ({
+      id: image.id,
+      url: image.url,
+      altText: image.altText,
+    })),
     updatedAt: product.updatedAt.toISOString(),
   };
 }
@@ -79,8 +83,7 @@ export async function getAdminProducts(): Promise<MockProduct[]> {
         category: { select: { name: true } },
         images: {
           orderBy: { position: "asc" },
-          take: 1,
-          select: { url: true },
+          select: { id: true, url: true, altText: true },
         },
         variants: { select: { stock: true } },
       },

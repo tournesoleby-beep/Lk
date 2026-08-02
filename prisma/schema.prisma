@@ -317,7 +317,12 @@ model Order {
 model OrderItem {
   id        String  @id @default(cuid())
   orderId   String  @map("order_id")
-  productId String  @map("product_id")
+  // Nullable: `name`/`price` below already snapshot everything needed to
+  // render order history, so the live product link can be cleared rather
+  // than blocking deletion — see onDelete below and
+  // src/lib/admin/actions.ts (deleteProduct) for the business-logic side
+  // of this (only *active* orders should block deleting a product).
+  productId String? @map("product_id")
   variantId String? @map("variant_id")
 
   name     String // snapshot of product name at purchase time
@@ -325,7 +330,7 @@ model OrderItem {
   quantity Int
 
   order   Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  product Product         @relation(fields: [productId], references: [id], onDelete: Restrict)
+  product Product?        @relation(fields: [productId], references: [id], onDelete: SetNull)
   variant ProductVariant? @relation(fields: [variantId], references: [id], onDelete: SetNull)
 
   @@index([orderId])

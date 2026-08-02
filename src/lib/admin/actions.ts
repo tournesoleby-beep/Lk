@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import type { OrderStatus } from "@prisma/client";
 
 import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/utils";
@@ -41,7 +42,7 @@ type CreatedProductRow = {
   featured: boolean;
   updatedAt: Date;
   category: { name: string } | null;
-  images: { url: string }[];
+  images: { id: string; url: string; altText: string | null }[];
   variants: { stock: number }[];
 };
 
@@ -59,8 +60,7 @@ const PRODUCT_SELECT = {
   category: { select: { name: true } },
   images: {
     orderBy: { position: "asc" as const },
-    take: 1,
-    select: { url: true },
+    select: { id: true, url: true, altText: true },
   },
   variants: { select: { stock: true } },
 } as const;
@@ -83,7 +83,11 @@ function toMockProduct(product: CreatedProductRow): MockProduct {
       (total: number, variant: { stock: number }) => total + variant.stock,
       0
     ),
-    imageUrl: product.images[0]?.url ?? null,
+    images: product.images.map((image) => ({
+      id: image.id,
+      url: image.url,
+      altText: image.altText,
+    })),
     updatedAt: product.updatedAt.toISOString(),
   };
 }
@@ -92,7 +96,9 @@ function toMockProduct(product: CreatedProductRow): MockProduct {
  * Create a new product from the admin "Add Product" form.
  *
  * - `Product` is always created.
- * - `ProductImage` is created only if the form supplied an image URL.
+ * - A `ProductImage` row is created for each image in `values.images`, in
+ *   order — array index becomes `position`, so the first image is always
+ *   the cover shown in listings.
  * - A single "Default" `ProductVariant` is created to hold the stock count
  *   entered in the form, since stock is tracked per-variant rather than on
  *   `Product` directly.
@@ -126,8 +132,14 @@ export async function createProduct(
         status: values.status,
         featured: values.featured,
         categoryId: category.id,
-        images: values.imageUrl
-          ? { create: [{ url: values.imageUrl, position: 0 }] }
+        images: values.images.length
+          ? {
+              create: values.images.map((image, position) => ({
+                url: image.url,
+                altText: image.altText || null,
+                position,
+              })),
+            }
           : undefined,
         variants: {
           create: [
@@ -170,10 +182,10 @@ export async function createProduct(
  * Update an existing product from the admin "Edit product" modal.
  *
  * Reuses the same field-mapping and category-resolution logic as
- * `createProduct`. The image is replaced only when `values.imageUrl`
- * differs from what's already stored — since `ProductFormModal` always
- * pre-fills `imageUrl` with the product's current image, submitting the
- * form without picking a new file naturally keeps the old image.
+ * `createProduct`. Images are replaced wholesale on every save — the form
+ * always starts from the product's current images (see
+ * `ProductFormModal`), so `values.images` already reflects any adds,
+ * removes, or reordering the admin made before submitting.
  */
 export async function updateProduct(
   id: string,
@@ -211,9 +223,11 @@ export async function updateProduct(
         categoryId: category.id,
         images: {
           deleteMany: {},
-          create: values.imageUrl
-            ? [{ url: values.imageUrl, position: 0 }]
-            : [],
+          create: values.images.map((image, position) => ({
+            url: image.url,
+            altText: image.altText || null,
+            position,
+          })),
         },
         variants: existingVariant
           ? {
@@ -263,16 +277,49 @@ export type DeleteProductResult =
   | { success: true }
   | { success: false; error: string };
 
+// Orders in these states are done, one way or another — they'll never be
+// fulfilled, so a product that only appears in orders like these is free to
+// be removed from the catalog. Everything else (PENDING through DELIVERED)
+// is still "in flight" and should keep the product around.
+const NON_BLOCKING_ORDER_STATUSES: OrderStatus[] = [
+  "CANCELLED",
+  "REFUNDED",
+  "PAYMENT_REJECTED",
+];
+
 /**
  * Delete a product from the admin products table.
  *
  * `ProductImage` and `ProductVariant` rows cascade-delete with the product.
- * `OrderItem` uses `onDelete: Restrict`, so deleting a product that appears
- * in an existing order fails with a foreign-key error (P2003) — surfaced
- * here as a friendly message rather than a crash.
+ * `OrderItem.productId` is nullable with `onDelete: SetNull` (see
+ * prisma/schema.prisma) — order history keeps its own snapshot of
+ * `name`/`price`/`quantity`, so it doesn't need a live product row and is
+ * never the reason a delete should fail at the database level.
+ *
+ * The actual business rule — a product can't be deleted while it's part of
+ * an *active* order — is enforced explicitly here, before the delete runs,
+ * by checking order status rather than relying on a foreign-key error.
+ * Cancelled, refunded, and payment-rejected orders don't count as active,
+ * so a product whose only orders are in those states can be deleted freely.
  */
 export async function deleteProduct(id: string): Promise<DeleteProductResult> {
   try {
+    const blockingOrderItem = await prisma.orderItem.findFirst({
+      where: {
+        productId: id,
+        order: { status: { notIn: NON_BLOCKING_ORDER_STATUSES } },
+      },
+      select: { id: true },
+    });
+
+    if (blockingOrderItem) {
+      return {
+        success: false,
+        error:
+          "This product can't be deleted because it's part of an active order. Archive it instead.",
+      };
+    }
+
     await prisma.product.delete({ where: { id } });
     return { success: true };
   } catch (error) {
@@ -286,11 +333,9 @@ export async function deleteProduct(id: string): Promise<DeleteProductResult> {
     return {
       success: false,
       error:
-        code === "P2003"
-          ? "This product can't be deleted because it's part of an existing order. Archive it instead."
-          : code === "P2025"
-            ? "This product no longer exists. It may have already been deleted."
-            : "Something went wrong deleting this product. Please try again.",
+        code === "P2025"
+          ? "This product no longer exists. It may have already been deleted."
+          : "Something went wrong deleting this product. Please try again.",
     };
   } finally {
     revalidatePath("/admin/products");

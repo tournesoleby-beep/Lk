@@ -205,10 +205,10 @@ export function ProductsManager({
                   >
                     <td className="px-5 py-3">
                       <div className="flex items-center gap-3">
-                        {product.imageUrl ? (
+                        {product.images[0] ? (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img
-                            src={product.imageUrl}
+                            src={product.images[0].url}
                             alt={product.name}
                             className="h-10 w-10 shrink-0 rounded-lg object-cover"
                           />
@@ -305,10 +305,10 @@ export function ProductsManager({
                 className="flex flex-col gap-3 rounded-2xl border border-line bg-paper p-4 shadow-xs transition-shadow duration-200 hover:shadow-sm"
               >
                 <div className="flex items-start gap-3">
-                  {product.imageUrl ? (
+                  {product.images[0] ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
-                      src={product.imageUrl}
+                      src={product.images[0].url}
                       alt={product.name}
                       className="h-12 w-12 shrink-0 rounded-lg object-cover"
                     />

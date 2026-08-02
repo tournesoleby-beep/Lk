@@ -12,17 +12,18 @@ export function HeroBanner() {
       <Container className="relative grid grid-cols-1 items-center gap-10 py-14 sm:gap-12 sm:py-20 md:py-28 lg:min-h-[80svh] lg:grid-cols-2 lg:gap-16">
         <div className="animate-fade-up flex flex-col gap-5 sm:gap-7">
           <span className="font-mono text-[11px] font-medium uppercase tracking-[0.2em] text-signal">
-            The Autumn Edit
+            Lapas Perempuan Kelas II A Jakarta
           </span>
           <h1 className="max-w-xl text-balance font-serif text-[2.25rem] font-semibold leading-[1.1] tracking-tight text-ink sm:text-6xl md:text-[4.25rem]">
-            Considered style,
+            Mengenal,
             <br />
-            made to last.
+            Lapiita Karya
           </h1>
           <p className="max-w-md text-balance text-base leading-relaxed text-slate sm:text-lg">
-            Discover this season&apos;s edit of clothing, bags, and shoes —
-            chosen for fabric, fit, and the kind of quality you notice on
-            day one and day one thousand.
+            Balai Latihan Kerja bagi warga binaan di Lapas Perempuan Kelas
+            IIA Jakarta yang menghasilkan berbagai kerajinan tangan, batik,
+            dan produk hasil pertanian berkualitas sebagai wujud pembinaan,
+            keterampilan, dan kemandirian.
           </p>
 
           <div
