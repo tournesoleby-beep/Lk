@@ -24,8 +24,11 @@ export function ProductCard({
   const isMarkedDown =
     product.compareAtPrice !== null && product.compareAtPrice > product.price;
   const saved = wishlist.has(product.id);
+  const inStock = product.stock > 0;
+  const isLowStock = inStock && product.stock <= 5;
 
   function handleAddToCart() {
+    if (!inStock) return;
     cart.addItem({
       id: product.id,
       name: product.name,
@@ -65,6 +68,12 @@ export function ProductCard({
             className="h-full w-full transition-transform duration-500 group-hover:scale-[1.04]"
           />
         )}
+
+        {!inStock ? (
+          <span className="absolute left-2.5 top-2.5 inline-flex items-center rounded-full bg-ink/80 px-2.5 py-1 font-mono text-[10px] font-medium uppercase tracking-[0.1em] text-paper backdrop-blur">
+            Out of Stock
+          </span>
+        ) : null}
       </Link>
 
       <button
@@ -79,6 +88,7 @@ export function ProductCard({
             currency: product.currency,
             imageUrl: product.imageUrl,
             imageAlt: product.imageAlt,
+            stock: product.stock,
           })
         }
         aria-pressed={saved}
@@ -108,11 +118,18 @@ export function ProductCard({
           ) : null}
         </div>
 
+        {isLowStock ? (
+          <span className="font-mono text-[11px] font-medium text-signal">
+            Only {product.stock} left
+          </span>
+        ) : null}
+
         <button
           type="button"
           onClick={handleAddToCart}
+          disabled={!inStock}
           className={cn(
-            "mt-3 inline-flex min-h-11 items-center justify-center gap-2 rounded-full border py-2 text-xs font-medium uppercase tracking-[0.1em] transition-all duration-200 active:scale-[0.98] sm:min-h-0",
+            "mt-3 inline-flex min-h-11 items-center justify-center gap-2 rounded-full border py-2 text-xs font-medium uppercase tracking-[0.1em] transition-all duration-200 active:scale-[0.98] disabled:cursor-not-allowed disabled:border-line disabled:bg-cloud disabled:text-slate sm:min-h-0",
             added
               ? "border-ink bg-ink text-paper"
               : "border-ink/15 text-ink hover:border-ink hover:bg-ink hover:text-paper"
@@ -123,7 +140,7 @@ export function ProductCard({
           ) : (
             <ShoppingBag className="h-3.5 w-3.5" strokeWidth={1.75} />
           )}
-          {added ? "Added to bag" : "Add to bag"}
+          {!inStock ? "Out of Stock" : added ? "Added to bag" : "Add to bag"}
         </button>
       </div>
     </div>

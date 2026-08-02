@@ -8,8 +8,26 @@ import { slugify } from "@/lib/utils";
 import { uploadImageToCloudinary, type UploadImageResult } from "@/lib/cloudinary";
 import type { MockProduct } from "@/lib/mock/products";
 import type { ProductFormValues } from "@/components/admin/product-form-modal";
+import {
+  recordStockChange,
+  queryProductStockHistory,
+  type StockHistoryEntry,
+} from "@/lib/admin/stock-history";
 
 export type { UploadImageResult };
+
+/**
+ * Fetch a single product's stock ledger, newest first, for the Stock
+ * History section of the admin "Edit product" modal (see
+ * src/components/admin/product-form-modal.tsx). Thin re-export as a server
+ * action so the client component can call it directly, the same way it
+ * already calls createProduct/updateProduct/deleteProduct below.
+ */
+export async function getProductStockHistory(
+  productId: string
+): Promise<StockHistoryEntry[]> {
+  return queryProductStockHistory(productId);
+}
 
 /**
  * Upload a single product image to Cloudinary and return its hosted URL.
@@ -155,6 +173,19 @@ export async function createProduct(
       select: PRODUCT_SELECT,
     });
 
+    // Best-effort: the ledger entry documents the product's starting stock,
+    // but a logging failure should never fail the product creation itself.
+    try {
+      await recordStockChange({
+        productId: product.id,
+        previousStock: 0,
+        newStock: values.stock,
+        reason: "INITIAL_STOCK",
+      });
+    } catch (error) {
+      console.error("[admin products] failed to log initial stock:", error);
+    }
+
     return { success: true, product: toMockProduct(product) };
   } catch (error) {
     console.error("[admin products] failed to create product:", error);
@@ -206,7 +237,7 @@ export async function updateProduct(
     // if this product somehow doesn't have one yet.
     const existingVariant = await prisma.productVariant.findFirst({
       where: { productId: id },
-      select: { id: true },
+      select: { id: true, stock: true },
     });
 
     const product = await prisma.product.update({
@@ -249,6 +280,26 @@ export async function updateProduct(
       },
       select: PRODUCT_SELECT,
     });
+
+    // Best-effort ledger entry — see the note in createProduct above.
+    // A product that never had a variant (edge case) is treated the same
+    // as a fresh product: its first tracked stock count is "initial
+    // stock" rather than a restock/adjustment.
+    try {
+      const previousStock = existingVariant?.stock ?? 0;
+      await recordStockChange({
+        productId: id,
+        previousStock,
+        newStock: values.stock,
+        reason: !existingVariant
+          ? "INITIAL_STOCK"
+          : values.stock > previousStock
+            ? "RESTOCK"
+            : "MANUAL_ADJUSTMENT",
+      });
+    } catch (error) {
+      console.error("[admin products] failed to log stock change:", error);
+    }
 
     return { success: true, product: toMockProduct(product) };
   } catch (error) {

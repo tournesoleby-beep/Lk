@@ -21,6 +21,7 @@ export type WishlistProduct = {
   currency: string;
   imageUrl: string | null;
   imageAlt: string | null;
+  stock: number;
 };
 
 type WishlistContextValue = {

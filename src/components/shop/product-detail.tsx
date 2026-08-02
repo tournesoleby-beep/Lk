@@ -49,6 +49,7 @@ export function ProductDetail({ product }: { product: ShopProductDetail }) {
   const isMarkedDown =
     product.compareAtPrice !== null && product.compareAtPrice > product.price;
   const inStock = product.stock > 0;
+  const isLowStock = inStock && product.stock <= 5;
   const image = product.images[activeImage] ?? null;
   const imageCount = product.images.length;
 
@@ -80,7 +81,7 @@ export function ProductDetail({ product }: { product: ShopProductDetail }) {
       className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full bg-ink py-3.5 text-xs font-medium uppercase tracking-[0.12em] text-paper shadow-sm transition-all duration-200 hover:bg-ink/85 hover:shadow-md active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-cloud disabled:text-slate disabled:shadow-none disabled:active:scale-100 sm:flex-none sm:px-8"
     >
       <ShoppingBag className="h-4 w-4" strokeWidth={1.75} />
-      {inStock ? (added ? "Added to bag" : "Add to cart") : "Out of stock"}
+      {inStock ? (added ? "Added to bag" : "Add to cart") : "Out of Stock"}
     </button>
   );
 
@@ -238,7 +239,11 @@ export function ProductDetail({ product }: { product: ShopProductDetail }) {
             inStock ? "bg-signal/10 text-signal" : "bg-cloud text-slate"
           )}
         >
-          {inStock ? `In stock — ${product.stock} available` : "Out of stock"}
+          {!inStock
+            ? "Out of Stock"
+            : isLowStock
+              ? `Only ${product.stock} left`
+              : `In stock — ${product.stock} available`}
         </span>
 
         {product.description ? (

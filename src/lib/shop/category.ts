@@ -42,6 +42,7 @@ function toProductCard(product: {
   compareAtPrice: { toString(): string } | null;
   currency: string;
   images: { url: string; altText: string | null }[];
+  variants: { stock: number }[];
 }): ProductCardData {
   return {
     id: product.id,
@@ -54,6 +55,7 @@ function toProductCard(product: {
     currency: product.currency,
     imageUrl: product.images[0]?.url ?? null,
     imageAlt: product.images[0]?.altText ?? null,
+    stock: product.variants.reduce((total, variant) => total + variant.stock, 0),
   };
 }
 
@@ -87,6 +89,7 @@ export async function getCategoryBySlug(
               take: 1,
               select: { url: true, altText: true },
             },
+            variants: { select: { stock: true } },
           },
         },
       },

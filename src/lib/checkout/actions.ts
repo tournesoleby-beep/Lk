@@ -55,7 +55,14 @@ export async function placeOrder(
   try {
     const products = await prisma.product.findMany({
       where: { id: { in: lines.map((line) => line.id) } },
-      select: { id: true, name: true, price: true, currency: true, status: true },
+      select: {
+        id: true,
+        name: true,
+        price: true,
+        currency: true,
+        status: true,
+        variants: { select: { stock: true } },
+      },
     });
     const productsById = new Map(products.map((product) => [product.id, product]));
 
@@ -66,6 +73,18 @@ export async function placeOrder(
         return { success: false, error: "One of the items in your bag is no longer available." };
       }
       const quantity = Math.max(1, Math.floor(line.quantity) || 1);
+      // Stock is tracked per `ProductVariant` (see prisma/schema.prisma);
+      // sum across variants the same way the storefront displays it.
+      const stock = product.variants.reduce((total, variant) => total + variant.stock, 0);
+      if (quantity > stock) {
+        return {
+          success: false,
+          error:
+            stock === 0
+              ? `"${product.name}" is out of stock.`
+              : `Only ${stock} of "${product.name}" left in stock.`,
+        };
+      }
       orderItemsData.push({
         productId: product.id,
         name: product.name,

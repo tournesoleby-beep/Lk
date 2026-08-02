@@ -9,17 +9,17 @@ export function HeroBanner() {
     <section className="relative isolate overflow-hidden bg-cloud">
       <HeroGlow />
 
-      <Container className="relative grid grid-cols-1 items-center gap-10 py-14 sm:gap-12 sm:py-20 md:py-28 lg:min-h-[80svh] lg:grid-cols-2 lg:gap-16">
-        <div className="animate-fade-up flex flex-col gap-5 sm:gap-7">
-          <span className="font-mono text-[11px] font-medium uppercase tracking-[0.2em] text-signal">
+      <Container className="relative grid grid-cols-1 items-center gap-6 py-8 sm:gap-12 sm:py-20 md:py-28 lg:min-h-[80svh] lg:grid-cols-2 lg:gap-16">
+        <div className="animate-fade-up flex flex-col gap-4 sm:gap-7">
+          <span className="font-mono text-[10px] font-medium uppercase tracking-[0.14em] text-signal sm:text-[11px] sm:tracking-[0.2em]">
             Lapas Perempuan Kelas II A Jakarta
           </span>
-          <h1 className="max-w-xl text-balance font-serif text-[2.25rem] font-semibold leading-[1.1] tracking-tight text-ink sm:text-6xl md:text-[4.25rem]">
+          <h1 className="max-w-xl text-balance font-serif text-[1.875rem] font-semibold leading-[1.15] tracking-tight text-ink sm:text-6xl sm:leading-[1.1] md:text-[4.25rem]">
             Mengenal,
             <br />
             Lapiita Karya
           </h1>
-          <p className="max-w-md text-balance text-base leading-relaxed text-slate sm:text-lg">
+          <p className="max-w-md text-balance text-[15px] leading-normal text-slate sm:text-lg sm:leading-relaxed">
             Balai Latihan Kerja bagi warga binaan di Lapas Perempuan Kelas
             IIA Jakarta yang menghasilkan berbagai kerajinan tangan, batik,
             dan produk hasil pertanian berkualitas sebagai wujud pembinaan,
@@ -27,14 +27,14 @@ export function HeroBanner() {
           </p>
 
           <div
-            className="flex flex-col gap-3 pt-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4 [animation-delay:150ms]"
+            className="flex flex-col gap-2.5 pt-1 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4 sm:pt-2 [animation-delay:150ms]"
             style={{ animation: "var(--animate-fade-up)" }}
           >
             <Link
               href="/shop"
-              className="group inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-ink px-7 py-3.5 text-sm font-medium text-paper shadow-sm transition-all duration-200 hover:bg-ink/85 hover:shadow-md active:scale-[0.98]"
+              className="group inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full bg-ink px-7 py-3.5 text-sm font-medium text-paper shadow-sm transition-all duration-200 hover:bg-ink/85 hover:shadow-md active:scale-[0.98] sm:w-auto"
             >
-              Shop the collection
+              Jelajahi Produk
               <ArrowRight
                 className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5"
                 strokeWidth={2}
@@ -42,13 +42,45 @@ export function HeroBanner() {
             </Link>
             <a
               href="#new-arrivals"
-              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-ink/15 px-7 py-3.5 text-sm font-medium text-ink transition-all duration-200 hover:border-ink/35 hover:bg-paper hover:shadow-sm active:scale-[0.98]"
+              className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full border border-ink/15 px-7 py-3 text-sm font-medium text-ink transition-all duration-200 hover:border-ink/35 hover:bg-paper hover:shadow-sm active:scale-[0.98] sm:w-auto sm:py-3.5"
             >
-              See what&apos;s new
+              Tentang Kami
             </a>
           </div>
 
-          <dl className="mt-2 flex flex-wrap items-center gap-x-6 gap-y-3 border-t border-line pt-6 sm:mt-4 sm:gap-x-8">
+          <div className="grid grid-cols-2 gap-3 pt-1 sm:max-w-md sm:gap-4 lg:hidden">
+            <div
+              className="aspect-square w-full overflow-hidden rounded-2xl shadow-lg transition-transform duration-700 ease-out hover:-translate-y-1"
+              style={{
+                background:
+                  "linear-gradient(145deg, #efe3d8 0%, #d9c4ae 55%, #a9843f 100%)",
+              }}
+              aria-hidden="true"
+            />
+            <div
+              className="aspect-square w-full overflow-hidden rounded-2xl shadow-lg transition-transform duration-700 ease-out hover:-translate-y-1"
+              style={{
+                background: "linear-gradient(160deg, #2c232a 0%, #17151a 100%)",
+              }}
+              aria-hidden="true"
+            />
+            <div
+              className="aspect-square w-full overflow-hidden rounded-2xl shadow-lg transition-transform duration-700 ease-out hover:-translate-y-1"
+              style={{
+                background: "linear-gradient(160deg, #fbebee 0%, #a8324f 100%)",
+              }}
+              aria-hidden="true"
+            />
+            <div
+              className="aspect-square w-full overflow-hidden rounded-2xl shadow-lg transition-transform duration-700 ease-out hover:-translate-y-1"
+              style={{
+                background: "linear-gradient(150deg, #eef1ea 0%, #7c8b6f 100%)",
+              }}
+              aria-hidden="true"
+            />
+          </div>
+
+          <dl className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-2.5 border-t border-line pt-4 sm:mt-4 sm:gap-x-8 sm:gap-y-3 sm:pt-6">
             <div className="flex flex-col">
               <dt className="font-mono text-[10px] uppercase tracking-[0.14em] text-slate">
                 Free shipping
@@ -70,9 +102,11 @@ export function HeroBanner() {
           </dl>
         </div>
 
-        {/* Editorial visual: an offset tile arrangement standing in for a
-            campaign photo grid, built from the shop's placeholder-gradient
-            system so it never depends on external imagery. */}
+        {/* Desktop only (lg+): editorial offset tile arrangement standing in
+            for a campaign photo grid, built from the shop's
+            placeholder-gradient system so it never depends on external
+            imagery. Mobile/tablet get their own compact 2x2 grid above,
+            right below the CTA buttons. */}
         <div
           className="relative hidden aspect-[4/5] w-full lg:block"
           aria-hidden="true"

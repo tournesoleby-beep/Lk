@@ -5,6 +5,7 @@ import type { OrderStatus } from "@prisma/client";
 
 import { prisma } from "@/lib/prisma";
 import { sendOrderStatusEmail } from "@/lib/email/order-emails";
+import { recordStockChange } from "@/lib/admin/stock-history";
 
 export type UpdateOrderStatusResult =
   | { success: true }
@@ -39,6 +40,20 @@ export async function updateOrderStatus(
   }
 
   try {
+    const existing = await prisma.order.findUnique({
+      where: { id: orderId },
+      select: { status: true },
+    });
+
+    if (!existing) {
+      return { success: false, error: "This order no longer exists." };
+    }
+
+    // Stock is only ever reduced once, the moment an order first becomes
+    // PAID — not on every subsequent status change (e.g. PAID -> SHIPPED
+    // shouldn't deduct again).
+    const shouldReduceStock = status === "PAID" && existing.status !== "PAID";
+
     const order = await prisma.order.update({
       where: { id: orderId },
       data: { status },
@@ -46,8 +61,42 @@ export async function updateOrderStatus(
         orderNumber: true,
         user: { select: { email: true, name: true } },
         shippingAddress: { select: { fullName: true } },
+        items: { select: { productId: true, quantity: true } },
       },
     });
+
+    if (shouldReduceStock) {
+      // Stock lives on `ProductVariant`, not `Product` directly (see
+      // prisma/schema.prisma and src/lib/admin/actions.ts) — every product
+      // created/edited from the admin form has a single "Default" variant
+      // holding its stock count, so deduct from that. Items whose product
+      // was since deleted (productId is nullable via onDelete: SetNull)
+      // have nothing left to deduct from and are skipped.
+      for (const item of order.items) {
+        if (!item.productId) continue;
+        const variant = await prisma.productVariant.findFirst({
+          where: { productId: item.productId },
+          select: { id: true, stock: true },
+        });
+        if (!variant) continue;
+        const newStock = Math.max(0, variant.stock - item.quantity);
+        await prisma.productVariant.update({
+          where: { id: variant.id },
+          data: { stock: newStock },
+        });
+        try {
+          await recordStockChange({
+            productId: item.productId,
+            previousStock: variant.stock,
+            newStock,
+            reason: "ORDER_PAID",
+            orderId,
+          });
+        } catch (error) {
+          console.error("[admin orders] failed to log stock reduction:", error);
+        }
+      }
+    }
 
     const customerEmail = order.user.email;
     const customerName = order.shippingAddress?.fullName ?? order.user.name ?? "there";
@@ -80,5 +129,6 @@ export async function updateOrderStatus(
   } finally {
     revalidatePath("/admin/orders");
     revalidatePath(`/admin/orders/${orderId}`);
+    revalidatePath("/admin/products");
   }
 }

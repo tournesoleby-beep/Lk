@@ -41,6 +41,7 @@ export async function getShopProducts(): Promise<ShopProductCardData[]> {
           take: 1,
           select: { url: true, altText: true },
         },
+        variants: { select: { stock: true } },
       },
     });
 
@@ -56,6 +57,7 @@ export async function getShopProducts(): Promise<ShopProductCardData[]> {
       imageUrl: product.images[0]?.url ?? null,
       imageAlt: product.images[0]?.altText ?? null,
       category: product.category,
+      stock: product.variants.reduce((total, variant) => total + variant.stock, 0),
     }));
   }, []);
 }

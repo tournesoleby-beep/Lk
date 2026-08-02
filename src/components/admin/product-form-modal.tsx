@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, type ChangeEvent, type FormEvent } from "react";
+import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
 import {
   ChevronLeft,
   ChevronRight,
+  History,
   Image as ImageIcon,
   Loader2,
   Star,
@@ -11,8 +12,16 @@ import {
   X,
 } from "lucide-react";
 
-import { cn, slugify } from "@/lib/utils";
-import { uploadProductImage } from "@/lib/admin/actions";
+import { cn, formatDate, slugify } from "@/lib/utils";
+import {
+  getProductStockHistory,
+  uploadProductImage,
+} from "@/lib/admin/actions";
+import {
+  STOCK_CHANGE_REASON_LABELS,
+  type StockHistoryEntry,
+} from "@/lib/admin/stock-history.types";
+import { StockChangeBadge } from "@/components/admin/stock-change-badge";
 import type {
   AdminProductImage,
   MockProduct,
@@ -67,6 +76,30 @@ export function ProductFormModal({
   const [uploadingIds, setUploadingIds] = useState<Set<string>>(new Set());
   const [imageError, setImageError] = useState<string | null>(null);
   const isUploadingImage = uploadingIds.size > 0;
+  // Read-only ledger for this product, fetched once when editing an
+  // existing product — a brand-new (unsaved) product has no history yet.
+  const [stockHistory, setStockHistory] = useState<StockHistoryEntry[]>([]);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(product !== null);
+
+  useEffect(() => {
+    if (!product) return;
+    let cancelled = false;
+
+    getProductStockHistory(product.id)
+      .then((entries) => {
+        if (!cancelled) setStockHistory(entries);
+      })
+      .catch((error) => {
+        console.error("[admin products] failed to load stock history:", error);
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoadingHistory(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [product]);
 
   async function handleImagesChange(event: ChangeEvent<HTMLInputElement>) {
     const files = Array.from(event.target.files ?? []);
@@ -437,6 +470,55 @@ export function ProductFormModal({
             />
             <span className="text-sm text-ink">Featured on homepage</span>
           </label>
+
+          {product ? (
+            <div className="flex flex-col gap-2 border-t border-line pt-4">
+              <span className="inline-flex items-center gap-1.5 font-mono text-[11px] font-medium uppercase tracking-[0.14em] text-slate">
+                <History className="h-3.5 w-3.5" strokeWidth={1.75} />
+                Stock history
+              </span>
+
+              {isLoadingHistory ? (
+                <div className="flex items-center gap-2 py-3 text-sm text-slate">
+                  <Loader2 className="h-4 w-4 animate-spin" strokeWidth={2} />
+                  Loading history…
+                </div>
+              ) : stockHistory.length === 0 ? (
+                <p className="py-2 text-sm text-slate">
+                  No stock changes recorded yet.
+                </p>
+              ) : (
+                <ul className="flex max-h-56 flex-col gap-2 overflow-y-auto pr-1">
+                  {stockHistory.map((entry) => (
+                    <li
+                      key={entry.id}
+                      className="flex items-center justify-between gap-3 rounded-xl border border-line bg-cloud/40 px-3.5 py-2.5"
+                    >
+                      <div className="flex min-w-0 flex-col gap-0.5">
+                        <span className="text-sm text-ink">
+                          {STOCK_CHANGE_REASON_LABELS[entry.reason]}
+                          {entry.orderNumber ? (
+                            <span className="text-slate"> · #{entry.orderNumber}</span>
+                          ) : null}
+                        </span>
+                        <span className="font-mono text-[11px] text-slate">
+                          {entry.previousStock} → {entry.newStock} ·{" "}
+                          {formatDate(entry.createdAt, {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                            hour: "numeric",
+                            minute: "2-digit",
+                          })}
+                        </span>
+                      </div>
+                      <StockChangeBadge quantityChange={entry.quantityChange} />
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          ) : null}
 
           {error ? (
             <p className="rounded-xl bg-accent-soft px-3.5 py-2.5 text-sm text-signal">

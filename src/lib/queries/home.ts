@@ -9,6 +9,7 @@ export type ProductCardData = {
   currency: string;
   imageUrl: string | null;
   imageAlt: string | null;
+  stock: number;
 };
 
 export type CategoryCardData = {
@@ -41,6 +42,7 @@ function toProductCard(product: {
   compareAtPrice: { toString(): string } | null;
   currency: string;
   images: { url: string; altText: string | null }[];
+  variants: { stock: number }[];
 }): ProductCardData {
   return {
     id: product.id,
@@ -53,6 +55,10 @@ function toProductCard(product: {
     currency: product.currency,
     imageUrl: product.images[0]?.url ?? null,
     imageAlt: product.images[0]?.altText ?? null,
+    // Stock is tracked per `ProductVariant` (see prisma/schema.prisma), same
+    // as src/lib/shop/product.ts — sum across variants for the simple,
+    // single-variant products this storefront uses today.
+    stock: product.variants.reduce((total, variant) => total + variant.stock, 0),
   };
 }
 
@@ -75,6 +81,7 @@ export async function getFeaturedProducts(limit = 8): Promise<ProductCardData[]>
           take: 1,
           select: { url: true, altText: true },
         },
+        variants: { select: { stock: true } },
       },
     });
     return products.map(toProductCard);
@@ -100,6 +107,7 @@ export async function getNewArrivals(limit = 8): Promise<ProductCardData[]> {
           take: 1,
           select: { url: true, altText: true },
         },
+        variants: { select: { stock: true } },
       },
     });
     return products.map(toProductCard);

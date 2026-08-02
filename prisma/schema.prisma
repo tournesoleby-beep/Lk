@@ -135,6 +135,7 @@ model Product {
   reviews    Review[]
   cartItems  CartItem[]
   orderItems OrderItem[]
+  stockHistory StockHistory[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -175,6 +176,40 @@ model ProductVariant {
 
   @@index([productId])
   @@map("product_variants")
+}
+
+enum StockChangeReason {
+  INITIAL_STOCK // set when a product (or its first variant) is created
+  RESTOCK // admin edit that increases stock
+  MANUAL_ADJUSTMENT // admin edit that decreases stock (correction, damage, etc.)
+  ORDER_PAID // automatic deduction when an order is marked PAID
+}
+
+// A running ledger of every stock change for a product — see
+// src/lib/admin/stock-history.ts for the write helper used by product
+// create/update (src/lib/admin/actions.ts) and the order-paid deduction
+// (src/lib/admin/order-actions.ts), and getProductStockHistory for the read
+// side that powers the admin product edit modal's Stock History section.
+model StockHistory {
+  id             String            @id @default(cuid())
+  productId      String            @map("product_id")
+  quantityChange Int               @map("quantity_change") // signed: positive = stock in, negative = stock out
+  previousStock  Int               @map("previous_stock")
+  newStock       Int               @map("new_stock")
+  reason         StockChangeReason
+
+  // Set only for ORDER_PAID entries, so the admin ledger can link back to
+  // the order that caused the deduction.
+  orderId String? @map("order_id")
+  order   Order?  @relation(fields: [orderId], references: [id], onDelete: SetNull)
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([productId])
+  @@index([orderId])
+  @@map("stock_history")
 }
 
 model Review {
@@ -305,6 +340,7 @@ model Order {
 
   user  User        @relation(fields: [userId], references: [id], onDelete: Restrict)
   items OrderItem[]
+  stockHistory StockHistory[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
