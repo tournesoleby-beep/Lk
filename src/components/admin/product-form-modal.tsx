@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
-import { X } from "lucide-react";
+import { useState, type ChangeEvent, type FormEvent } from "react";
+import { Image as ImageIcon, X } from "lucide-react";
 
 import { slugify } from "@/lib/utils";
+import { uploadProductImage } from "@/lib/admin/actions";
 import type { MockProduct, MockProductStatus } from "@/lib/mock/products";
 
 const STATUS_OPTIONS: MockProductStatus[] = ["DRAFT", "ACTIVE", "ARCHIVED"];
@@ -31,15 +32,59 @@ export function ProductFormModal({
 }: {
   product: MockProduct | null;
   onClose: () => void;
-  onSave: (values: ProductFormValues) => void;
+  onSave: (
+    values: ProductFormValues
+  ) => Promise<{ success: boolean; error?: string } | void> | void;
 }) {
   const [values, setValues] = useState<ProductFormValues>(
     product ? { ...product } : EMPTY_VALUES
   );
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(
+    product?.imageUrl ?? null
+  );
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [imageError, setImageError] = useState<string | null>(null);
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleImageChange(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setImageError(null);
+    setImagePreview(URL.createObjectURL(file));
+    setIsUploadingImage(true);
+
+    const uploadForm = new FormData();
+    uploadForm.append("file", file);
+    const result = await uploadProductImage(uploadForm);
+
+    setIsUploadingImage(false);
+
+    if (!result.success) {
+      setImageError(result.error);
+      return;
+    }
+
+    setValues((v) => ({ ...v, imageUrl: result.url }));
+    setImagePreview(result.url);
+  }
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    onSave({ ...values, slug: values.slug || slugify(values.name) });
+    setError(null);
+    setIsSubmitting(true);
+
+    const result = await onSave({
+      ...values,
+      slug: values.slug || slugify(values.name),
+    });
+
+    setIsSubmitting(false);
+
+    if (result && result.success === false) {
+      setError(result.error ?? "Something went wrong. Please try again.");
+    }
   }
 
   return (
@@ -153,6 +198,42 @@ export function ProductFormModal({
 
           <label className="flex flex-col gap-1.5">
             <span className="font-mono text-[11px] font-medium uppercase tracking-[0.14em] text-slate">
+              Product image
+            </span>
+            <div className="flex items-center gap-4">
+              <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-line bg-cloud">
+                {imagePreview ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={imagePreview}
+                    alt="Product preview"
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <ImageIcon className="h-6 w-6 text-slate" strokeWidth={1.5} />
+                )}
+              </div>
+              <div className="flex flex-1 flex-col gap-1.5">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="w-full text-sm text-ink file:mr-3 file:rounded-full file:border-0 file:bg-ink file:px-3.5 file:py-2 file:text-xs file:font-medium file:uppercase file:tracking-[0.1em] file:text-paper file:transition-colors hover:file:bg-ink/85"
+                />
+                {isUploadingImage ? (
+                  <span className="font-mono text-xs text-slate">
+                    Uploading…
+                  </span>
+                ) : null}
+                {imageError ? (
+                  <span className="text-xs text-signal">{imageError}</span>
+                ) : null}
+              </div>
+            </div>
+          </label>
+
+          <label className="flex flex-col gap-1.5">
+            <span className="font-mono text-[11px] font-medium uppercase tracking-[0.14em] text-slate">
               Status
             </span>
             <select
@@ -185,6 +266,12 @@ export function ProductFormModal({
             <span className="text-sm text-ink">Featured on homepage</span>
           </label>
 
+          {error ? (
+            <p className="rounded-xl bg-accent-soft px-3.5 py-2.5 text-sm text-signal">
+              {error}
+            </p>
+          ) : null}
+
           <div className="mt-2 flex items-center justify-end gap-3 border-t border-line pt-4">
             <button
               type="button"
@@ -195,9 +282,14 @@ export function ProductFormModal({
             </button>
             <button
               type="submit"
-              className="rounded-full bg-ink px-5 py-2.5 text-xs font-medium uppercase tracking-[0.1em] text-paper transition-colors hover:bg-ink/85"
+              disabled={isSubmitting || isUploadingImage}
+              className="rounded-full bg-ink px-5 py-2.5 text-xs font-medium uppercase tracking-[0.1em] text-paper transition-colors hover:bg-ink/85 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {product ? "Save changes" : "Add product"}
+              {isSubmitting
+                ? "Saving…"
+                : product
+                  ? "Save changes"
+                  : "Add product"}
             </button>
           </div>
         </form>

@@ -1,10 +1,12 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Pencil, Plus, Search, Star, Trash2 } from "lucide-react";
 
 import { cn, formatCurrency, formatDate } from "@/lib/utils";
-import { MOCK_PRODUCTS, type MockProduct } from "@/lib/mock/products";
+import type { MockProduct } from "@/lib/mock/products";
+import { createProduct } from "@/lib/admin/actions";
 import { EmptyState } from "@/components/home/empty-state";
 import { PlaceholderTile } from "@/components/home/placeholder-tile";
 import { StatusBadge } from "@/components/admin/status-badge";
@@ -13,12 +15,13 @@ import {
   type ProductFormValues,
 } from "@/components/admin/product-form-modal";
 
-function generateId() {
-  return `prod_${Math.random().toString(36).slice(2, 9)}`;
-}
-
-export function ProductsManager() {
-  const [products, setProducts] = useState<MockProduct[]>(MOCK_PRODUCTS);
+export function ProductsManager({
+  initialProducts,
+}: {
+  initialProducts: MockProduct[];
+}) {
+  const router = useRouter();
+  const [products, setProducts] = useState<MockProduct[]>(initialProducts);
   const [query, setQuery] = useState("");
   const [editing, setEditing] = useState<MockProduct | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
@@ -45,10 +48,11 @@ export function ProductsManager() {
     setModalOpen(true);
   }
 
-  function handleSave(values: ProductFormValues) {
-    const today = new Date().toISOString().slice(0, 10);
-
+  async function handleSave(values: ProductFormValues) {
+    // Editing isn't wired up to Prisma yet — keep the existing local-only
+    // behavior so the Edit flow continues to work exactly as before.
     if (editing) {
+      const today = new Date().toISOString().slice(0, 10);
       setProducts((prev) =>
         prev.map((product) =>
           product.id === editing.id
@@ -56,14 +60,24 @@ export function ProductsManager() {
             : product
         )
       );
-    } else {
-      setProducts((prev) => [
-        { ...values, id: generateId(), updatedAt: today },
-        ...prev,
-      ]);
+      setModalOpen(false);
+      setEditing(null);
+      return { success: true as const };
     }
+
+    const result = await createProduct(values);
+
+    if (!result.success) {
+      return result;
+    }
+
+    setProducts((prev) => [result.product, ...prev]);
     setModalOpen(false);
     setEditing(null);
+    // Re-sync the server-rendered list too, so a fresh page load (or another
+    // tab) reflects the new product as well.
+    router.refresh();
+    return result;
   }
 
   function confirmDelete() {
