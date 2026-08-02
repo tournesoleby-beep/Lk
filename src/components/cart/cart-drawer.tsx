@@ -160,10 +160,17 @@ export function CartDrawer() {
               >
                 Checkout
               </Link>
+              <Link
+                href="/cart"
+                onClick={cart.close}
+                className="text-center text-sm font-medium text-ink underline underline-offset-4 transition-colors hover:text-signal"
+              >
+                View full bag
+              </Link>
               <button
                 type="button"
                 onClick={cart.close}
-                className="text-center text-sm font-medium text-ink underline underline-offset-4 transition-colors hover:text-signal"
+                className="text-center text-sm text-slate transition-colors hover:text-ink"
               >
                 Continue shopping
               </button>

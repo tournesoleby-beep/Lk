@@ -99,6 +99,26 @@ type CreatedProductRow = {
   variants: { stock: number }[];
 };
 
+const PRODUCT_SELECT = {
+  id: true,
+  name: true,
+  slug: true,
+  sku: true,
+  price: true,
+  compareAtPrice: true,
+  currency: true,
+  status: true,
+  featured: true,
+  updatedAt: true,
+  category: { select: { name: true } },
+  images: {
+    orderBy: { position: "asc" as const },
+    take: 1,
+    select: { url: true },
+  },
+  variants: { select: { stock: true } },
+} as const;
+
 function toMockProduct(product: CreatedProductRow): MockProduct {
   return {
     id: product.id,
@@ -174,25 +194,7 @@ export async function createProduct(
           ],
         },
       },
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        sku: true,
-        price: true,
-        compareAtPrice: true,
-        currency: true,
-        status: true,
-        featured: true,
-        updatedAt: true,
-        category: { select: { name: true } },
-        images: {
-          orderBy: { position: "asc" },
-          take: 1,
-          select: { url: true },
-        },
-        variants: { select: { stock: true } },
-      },
+      select: PRODUCT_SELECT,
     });
 
     return { success: true, product: toMockProduct(product) };
@@ -214,6 +216,137 @@ export async function createProduct(
   } finally {
     // Keep the server-rendered admin products list (and any other view of
     // this data) in sync with what was just written.
+    revalidatePath("/admin/products");
+  }
+}
+
+/**
+ * Update an existing product from the admin "Edit product" modal.
+ *
+ * Reuses the same field-mapping and category-resolution logic as
+ * `createProduct`. The image is replaced only when `values.imageUrl`
+ * differs from what's already stored — since `ProductFormModal` always
+ * pre-fills `imageUrl` with the product's current image, submitting the
+ * form without picking a new file naturally keeps the old image.
+ */
+export async function updateProduct(
+  id: string,
+  values: ProductFormValues
+): Promise<SaveProductResult> {
+  try {
+    const slug = values.slug || slugify(values.name);
+    const categorySlug = slugify(values.category);
+
+    const category = await prisma.category.upsert({
+      where: { slug: categorySlug },
+      update: {},
+      create: { name: values.category, slug: categorySlug },
+    });
+
+    // Stock is tracked on `ProductVariant`, not `Product` directly, so
+    // update the existing "Default" variant if there is one, or create it
+    // if this product somehow doesn't have one yet.
+    const existingVariant = await prisma.productVariant.findFirst({
+      where: { productId: id },
+      select: { id: true },
+    });
+
+    const product = await prisma.product.update({
+      where: { id },
+      data: {
+        name: values.name,
+        slug,
+        sku: values.sku || null,
+        price: values.price,
+        compareAtPrice: values.compareAtPrice ?? null,
+        currency: values.currency,
+        status: values.status,
+        featured: values.featured,
+        categoryId: category.id,
+        images: {
+          deleteMany: {},
+          create: values.imageUrl
+            ? [{ url: values.imageUrl, position: 0 }]
+            : [],
+        },
+        variants: existingVariant
+          ? {
+              update: {
+                where: { id: existingVariant.id },
+                data: { stock: values.stock, sku: values.sku || null },
+              },
+            }
+          : {
+              create: [
+                {
+                  name: "Default",
+                  sku: values.sku || null,
+                  stock: values.stock,
+                  options: {},
+                },
+              ],
+            },
+      },
+      select: PRODUCT_SELECT,
+    });
+
+    return { success: true, product: toMockProduct(product) };
+  } catch (error) {
+    console.error("[admin products] failed to update product:", error);
+
+    const code =
+      typeof error === "object" && error !== null && "code" in error
+        ? (error as { code?: unknown }).code
+        : undefined;
+
+    return {
+      success: false,
+      error:
+        code === "P2002"
+          ? "A product with that slug or SKU already exists."
+          : code === "P2025"
+            ? "This product no longer exists. It may have already been deleted."
+            : "Something went wrong saving this product. Please try again.",
+    };
+  } finally {
+    revalidatePath("/admin/products");
+  }
+}
+
+export type DeleteProductResult =
+  | { success: true }
+  | { success: false; error: string };
+
+/**
+ * Delete a product from the admin products table.
+ *
+ * `ProductImage` and `ProductVariant` rows cascade-delete with the product.
+ * `OrderItem` uses `onDelete: Restrict`, so deleting a product that appears
+ * in an existing order fails with a foreign-key error (P2003) — surfaced
+ * here as a friendly message rather than a crash.
+ */
+export async function deleteProduct(id: string): Promise<DeleteProductResult> {
+  try {
+    await prisma.product.delete({ where: { id } });
+    return { success: true };
+  } catch (error) {
+    console.error("[admin products] failed to delete product:", error);
+
+    const code =
+      typeof error === "object" && error !== null && "code" in error
+        ? (error as { code?: unknown }).code
+        : undefined;
+
+    return {
+      success: false,
+      error:
+        code === "P2003"
+          ? "This product can't be deleted because it's part of an existing order. Archive it instead."
+          : code === "P2025"
+            ? "This product no longer exists. It may have already been deleted."
+            : "Something went wrong deleting this product. Please try again.",
+    };
+  } finally {
     revalidatePath("/admin/products");
   }
 }

@@ -1,31 +1,42 @@
 import type { Metadata } from "next";
 
 import { getCategoryBySlug } from "@/lib/shop/category";
+import { getProductBySlug } from "@/lib/shop/product";
 import { Container } from "@/components/home/container";
 import { SectionHeading } from "@/components/home/section-heading";
 import { ProductCard } from "@/components/home/product-card";
+import { ProductDetail } from "@/components/shop/product-detail";
 import { EmptyState } from "@/components/home/empty-state";
 
 type CategoryPageProps = {
   params: Promise<{ category: string }>;
 };
 
+// This route resolves the same `/shop/:slug` URL two ways: first as a
+// category slug (the existing listing below), and — if that doesn't match —
+// as a product slug (`ProductCard` already links to `/shop/${product.slug}`).
+// That keeps both existing links working without adding a second route.
 export async function generateMetadata({
   params,
 }: CategoryPageProps): Promise<Metadata> {
   const { category: slug } = await params;
   const category = await getCategoryBySlug(slug);
+  if (category) {
+    return { title: `${category.name} — Lapiita Karya` };
+  }
 
-  return {
-    title: category
-      ? `${category.name} — Lapiita Karya`
-      : "Category not found — Lapiita Karya",
-  };
+  const product = await getProductBySlug(slug);
+  if (product) {
+    return { title: `${product.name} — Lapiita Karya` };
+  }
+
+  return { title: "Not found — Lapiita Karya" };
 }
 
 export default async function ShopCategoryPage({ params }: CategoryPageProps) {
   const { category: slug } = await params;
   const category = await getCategoryBySlug(slug);
+  const product = category ? null : await getProductBySlug(slug);
 
   return (
     <div className="flex flex-1 flex-col">
@@ -49,19 +60,21 @@ export default async function ShopCategoryPage({ params }: CategoryPageProps) {
 
                 {category.products.length > 0 ? (
                   <div className="grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-3 lg:grid-cols-4">
-                    {category.products.map((product) => (
-                      <ProductCard key={product.id} product={product} />
+                    {category.products.map((item) => (
+                      <ProductCard key={item.id} product={item} />
                     ))}
                   </div>
                 ) : (
                   <EmptyState message="No pieces are live in this category just yet — check back shortly." />
                 )}
               </>
+            ) : product ? (
+              <ProductDetail product={product} />
             ) : (
               <>
                 <SectionHeading
                   eyebrow="Shop"
-                  title="We couldn't find that category"
+                  title="We couldn't find that page"
                   description="It may have moved, or it might not exist yet. Take a look at our full shop instead."
                 />
                 <EmptyState message="Try Fashion, Food, or Production from the menu above — or head back to the homepage to browse everything we carry." />

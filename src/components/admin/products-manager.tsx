@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation";
 import { Pencil, Plus, Search, Star, Trash2 } from "lucide-react";
 
 import { cn, formatCurrency, formatDate } from "@/lib/utils";
-import type { MockProduct } from "@/lib/mock/products";
-import { createProduct } from "@/lib/admin/actions";
+import type { MockProduct, MockProductStatus } from "@/lib/mock/products";
+import { createProduct, deleteProduct, updateProduct } from "@/lib/admin/actions";
 import { EmptyState } from "@/components/home/empty-state";
 import { PlaceholderTile } from "@/components/home/placeholder-tile";
 import { StatusBadge } from "@/components/admin/status-badge";
@@ -14,6 +14,12 @@ import {
   ProductFormModal,
   type ProductFormValues,
 } from "@/components/admin/product-form-modal";
+
+const STATUS_FILTERS: { label: string; value: MockProductStatus | "ALL" }[] = [
+  { label: "All", value: "ALL" },
+  { label: "Active", value: "ACTIVE" },
+  { label: "Draft", value: "DRAFT" },
+];
 
 export function ProductsManager({
   initialProducts,
@@ -23,20 +29,28 @@ export function ProductsManager({
   const router = useRouter();
   const [products, setProducts] = useState<MockProduct[]>(initialProducts);
   const [query, setQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<MockProductStatus | "ALL">(
+    "ALL"
+  );
   const [editing, setEditing] = useState<MockProduct | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [pendingDelete, setPendingDelete] = useState<MockProduct | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const filtered = useMemo(() => {
     const trimmed = query.trim().toLowerCase();
-    if (!trimmed) return products;
-    return products.filter(
-      (product) =>
+    return products.filter((product) => {
+      const matchesQuery =
+        !trimmed ||
         product.name.toLowerCase().includes(trimmed) ||
         product.sku?.toLowerCase().includes(trimmed) ||
-        product.category.toLowerCase().includes(trimmed)
-    );
-  }, [products, query]);
+        product.category.toLowerCase().includes(trimmed);
+      const matchesStatus =
+        statusFilter === "ALL" || product.status === statusFilter;
+      return matchesQuery && matchesStatus;
+    });
+  }, [products, query, statusFilter]);
 
   function openAddModal() {
     setEditing(null);
@@ -49,41 +63,46 @@ export function ProductsManager({
   }
 
   async function handleSave(values: ProductFormValues) {
-    // Editing isn't wired up to Prisma yet — keep the existing local-only
-    // behavior so the Edit flow continues to work exactly as before.
-    if (editing) {
-      const today = new Date().toISOString().slice(0, 10);
-      setProducts((prev) =>
-        prev.map((product) =>
-          product.id === editing.id
-            ? { ...product, ...values, updatedAt: today }
-            : product
-        )
-      );
-      setModalOpen(false);
-      setEditing(null);
-      return { success: true as const };
-    }
-
-    const result = await createProduct(values);
+    const result = editing
+      ? await updateProduct(editing.id, values)
+      : await createProduct(values);
 
     if (!result.success) {
       return result;
     }
 
-    setProducts((prev) => [result.product, ...prev]);
+    setProducts((prev) =>
+      editing
+        ? prev.map((product) =>
+            product.id === result.product.id ? result.product : product
+          )
+        : [result.product, ...prev]
+    );
     setModalOpen(false);
     setEditing(null);
     // Re-sync the server-rendered list too, so a fresh page load (or another
-    // tab) reflects the new product as well.
+    // tab) reflects the change as well.
     router.refresh();
     return result;
   }
 
-  function confirmDelete() {
+  async function confirmDelete() {
     if (!pendingDelete) return;
+    setIsDeleting(true);
+    setDeleteError(null);
+
+    const result = await deleteProduct(pendingDelete.id);
+
+    setIsDeleting(false);
+
+    if (!result.success) {
+      setDeleteError(result.error);
+      return;
+    }
+
     setProducts((prev) => prev.filter((product) => product.id !== pendingDelete.id));
     setPendingDelete(null);
+    router.refresh();
   }
 
   return (
@@ -109,24 +128,45 @@ export function ProductsManager({
         </button>
       </div>
 
-      {/* Search */}
-      <div className="relative w-full max-w-sm">
-        <Search
-          className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate"
-          strokeWidth={1.75}
-        />
-        <input
-          type="search"
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          placeholder="Search by name, SKU, or category…"
-          aria-label="Search products"
-          className="w-full rounded-full border border-line bg-cloud/60 py-2.5 pl-10 pr-4 text-sm text-ink outline-none transition-colors placeholder:text-slate focus:border-signal/50 focus:bg-paper"
-        />
+      {/* Search + status filter */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="relative w-full max-w-sm">
+          <Search
+            className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate"
+            strokeWidth={1.75}
+          />
+          <input
+            type="search"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Search by name, SKU, or category…"
+            aria-label="Search products"
+            className="w-full rounded-full border border-line bg-cloud/60 py-2.5 pl-10 pr-4 text-sm text-ink outline-none transition-colors placeholder:text-slate focus:border-signal/50 focus:bg-paper"
+          />
+        </div>
+
+        <div className="flex items-center gap-1.5">
+          {STATUS_FILTERS.map((filter) => (
+            <button
+              key={filter.value}
+              type="button"
+              onClick={() => setStatusFilter(filter.value)}
+              aria-pressed={statusFilter === filter.value}
+              className={cn(
+                "rounded-full px-4 py-2 text-xs font-medium uppercase tracking-[0.1em] transition-colors",
+                statusFilter === filter.value
+                  ? "bg-ink text-paper"
+                  : "border border-line text-slate hover:bg-cloud/60"
+              )}
+            >
+              {filter.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {filtered.length === 0 ? (
-        <EmptyState message="No products match your search. Try a different name, SKU, or category." />
+        <EmptyState message="No products match your search or filter. Try a different name, SKU, category, or status." />
       ) : (
         <>
           {/* Desktop / tablet table */}
@@ -165,11 +205,20 @@ export function ProductsManager({
                   >
                     <td className="px-5 py-3">
                       <div className="flex items-center gap-3">
-                        <PlaceholderTile
-                          seed={product.id}
-                          label={product.name}
-                          className="h-10 w-10 shrink-0 overflow-hidden rounded-lg"
-                        />
+                        {product.imageUrl ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={product.imageUrl}
+                            alt={product.name}
+                            className="h-10 w-10 shrink-0 rounded-lg object-cover"
+                          />
+                        ) : (
+                          <PlaceholderTile
+                            seed={product.id}
+                            label={product.name}
+                            className="h-10 w-10 shrink-0 overflow-hidden rounded-lg"
+                          />
+                        )}
                         <div className="flex flex-col">
                           <span className="inline-flex items-center gap-1.5 font-medium text-ink">
                             {product.name}
@@ -231,7 +280,10 @@ export function ProductsManager({
                         </button>
                         <button
                           type="button"
-                          onClick={() => setPendingDelete(product)}
+                          onClick={() => {
+                            setDeleteError(null);
+                            setPendingDelete(product);
+                          }}
                           aria-label={`Delete ${product.name}`}
                           className="flex h-8 w-8 items-center justify-center rounded-full text-ink transition-colors hover:bg-accent-soft hover:text-signal"
                         >
@@ -253,11 +305,20 @@ export function ProductsManager({
                 className="flex flex-col gap-3 rounded-2xl border border-line bg-paper p-4"
               >
                 <div className="flex items-start gap-3">
-                  <PlaceholderTile
-                    seed={product.id}
-                    label={product.name}
-                    className="h-12 w-12 shrink-0 overflow-hidden rounded-lg"
-                  />
+                  {product.imageUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={product.imageUrl}
+                      alt={product.name}
+                      className="h-12 w-12 shrink-0 rounded-lg object-cover"
+                    />
+                  ) : (
+                    <PlaceholderTile
+                      seed={product.id}
+                      label={product.name}
+                      className="h-12 w-12 shrink-0 overflow-hidden rounded-lg"
+                    />
+                  )}
                   <div className="flex flex-1 flex-col gap-0.5">
                     <span className="inline-flex items-center gap-1.5 font-medium text-ink">
                       {product.name}
@@ -307,7 +368,10 @@ export function ProductsManager({
                   </button>
                   <button
                     type="button"
-                    onClick={() => setPendingDelete(product)}
+                    onClick={() => {
+                      setDeleteError(null);
+                      setPendingDelete(product);
+                    }}
                     className="inline-flex flex-1 items-center justify-center gap-2 rounded-full border border-line py-2 text-xs font-medium uppercase tracking-[0.1em] text-signal transition-colors hover:bg-accent-soft"
                   >
                     <Trash2 className="h-3.5 w-3.5" strokeWidth={1.75} />
@@ -340,7 +404,11 @@ export function ProductsManager({
       {pendingDelete ? (
         <>
           <div
-            onClick={() => setPendingDelete(null)}
+            onClick={() => {
+              if (isDeleting) return;
+              setPendingDelete(null);
+              setDeleteError(null);
+            }}
             aria-hidden="true"
             className="fixed inset-0 z-50 bg-ink/40 backdrop-blur-[2px]"
           />
@@ -358,20 +426,30 @@ export function ProductsManager({
               <span className="font-medium text-ink">{pendingDelete.name}</span> from
               the catalog. This action can&apos;t be undone.
             </p>
+            {deleteError ? (
+              <p className="mt-3 rounded-xl bg-accent-soft px-3.5 py-2.5 text-sm text-signal">
+                {deleteError}
+              </p>
+            ) : null}
             <div className="mt-5 flex items-center justify-end gap-3">
               <button
                 type="button"
-                onClick={() => setPendingDelete(null)}
-                className="rounded-full border border-ink/15 px-4 py-2.5 text-xs font-medium uppercase tracking-[0.1em] text-ink transition-colors hover:bg-cloud"
+                onClick={() => {
+                  setPendingDelete(null);
+                  setDeleteError(null);
+                }}
+                disabled={isDeleting}
+                className="rounded-full border border-ink/15 px-4 py-2.5 text-xs font-medium uppercase tracking-[0.1em] text-ink transition-colors hover:bg-cloud disabled:cursor-not-allowed disabled:opacity-60"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={confirmDelete}
-                className="rounded-full bg-signal px-4 py-2.5 text-xs font-medium uppercase tracking-[0.1em] text-paper transition-colors hover:bg-signal/90"
+                disabled={isDeleting}
+                className="rounded-full bg-signal px-4 py-2.5 text-xs font-medium uppercase tracking-[0.1em] text-paper transition-colors hover:bg-signal/90 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                Delete
+                {isDeleting ? "Deleting…" : "Delete"}
               </button>
             </div>
           </div>
