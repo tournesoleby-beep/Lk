@@ -11,9 +11,9 @@ export async function CategoriesSection() {
     <section className="bg-paper py-14 sm:py-32">
       <Container className="flex flex-col gap-7 px-5 sm:gap-12 sm:px-6">
         <SectionHeading
-          eyebrow="Browse"
+          eyebrow="Our collections"
           title="Shop by category"
-          description="From everyday essentials to statement pieces — organized the way you'd actually go looking for it."
+          description="Fashion, food, and production — every piece handmade by women building new skills through our vocational training program."
           compact
         />
 

@@ -4,6 +4,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
   type ReactNode,
@@ -33,15 +34,56 @@ type WishlistContextValue = {
 
 const WishlistContext = createContext<WishlistContextValue | null>(null);
 
+const WISHLIST_STORAGE_KEY = "lapiita-karya:wishlist";
+
 /**
  * Frontend-only wishlist (no `Wishlist` model exists in the Prisma schema
  * yet). Tracks liked products (keyed by id) in memory so the heart toggle on
  * product cards, the navbar badge, and the /wishlist page are all
  * interactive without needing a database round-trip to re-fetch products.
+ * Persists to `localStorage` the same way the cart does, so saved items
+ * survive a page refresh.
  */
 export function WishlistProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<Map<string, WishlistProduct>>(new Map());
+  const [hasHydrated, setHasHydrated] = useState(false);
   const { toast } = useToast();
+
+  // Load any saved wishlist once, after mount — reading localStorage during
+  // the initial render would return different results on the server vs.
+  // the client and trigger a hydration mismatch. This is a deliberate
+  // one-time restore (guarded by hasHydrated below), not an external-store
+  // sync, so it's safe to opt out of the effect lint rule here.
+  useEffect(() => {
+    try {
+      const stored = window.localStorage.getItem(WISHLIST_STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored) as WishlistProduct[];
+        if (Array.isArray(parsed)) {
+          // eslint-disable-next-line react-hooks/set-state-in-effect
+          setItems(new Map(parsed.map((product) => [product.id, product])));
+        }
+      }
+    } catch (error) {
+      console.error("[wishlist] failed to read saved wishlist:", error);
+    } finally {
+      setHasHydrated(true);
+    }
+  }, []);
+
+  // Keep localStorage in sync — but only once the load above has run, so we
+  // don't blow away a saved wishlist with the initial empty state.
+  useEffect(() => {
+    if (!hasHydrated) return;
+    try {
+      window.localStorage.setItem(
+        WISHLIST_STORAGE_KEY,
+        JSON.stringify(Array.from(items.values()))
+      );
+    } catch (error) {
+      console.error("[wishlist] failed to save wishlist:", error);
+    }
+  }, [items, hasHydrated]);
 
   const toggle = useCallback(
     (product: WishlistProduct) => {

@@ -22,7 +22,7 @@ export async function NewArrivals() {
             <SectionHeading
               eyebrow="Just landed"
               title="New arrivals"
-              description="Fresh into the shop, in the order they came off the line."
+              description="Fresh from the workshop — the newest pieces made by hand, ready for their next home."
               compact
             />
           </Reveal>

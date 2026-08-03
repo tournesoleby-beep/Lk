@@ -13,7 +13,7 @@ export function HeroBanner() {
       <Container className="relative grid grid-cols-1 items-center gap-5 px-5 py-8 sm:gap-12 sm:px-6 sm:py-14 md:py-16 lg:min-h-[80svh] lg:grid-cols-2 lg:gap-16 lg:py-28">
         <div className="animate-fade-up flex flex-col gap-3.5 sm:gap-7">
           <span className="font-mono text-[10px] font-medium uppercase tracking-[0.14em] text-signal sm:text-[11px] sm:tracking-[0.2em]">
-            Lapas Perempuan Kelas II A Jakarta
+            Social Enterprise · Lapas Perempuan Kelas IIA Jakarta
           </span>
           <h1 className="max-w-xl text-balance font-serif text-4xl font-semibold leading-[1.08] tracking-tight text-ink sm:text-6xl sm:leading-[1.1] md:max-w-2xl md:text-[4.25rem] lg:max-w-xl">
             Mengenal,
@@ -68,9 +68,9 @@ export function HeroBanner() {
             </div>
             <div className="flex flex-col">
               <dt className="font-mono text-[10px] uppercase tracking-[0.14em] text-slate">
-                Authenticity
+                Handcrafted
               </dt>
-              <dd className="text-sm font-medium text-ink">100% guaranteed</dd>
+              <dd className="text-sm font-medium text-ink">By women in training</dd>
             </div>
           </dl>
         </div>
