@@ -103,18 +103,16 @@ export function Reveal({
   ...rest
 }: RevealProps) {
   const ref = useRef<HTMLElement | null>(null);
-  // Lazy initializer runs during render, not in an effect — this is how
-  // the prefers-reduced-motion case is decided, so there's no
-  // setState-in-effect call for it (that pattern trips the
-  // react-hooks/set-state-in-effect rule and fails a strict build).
-  const prefersReducedMotionRef = useRef(false);
-  const [isVisible, setIsVisible] = useState(() => {
-    const reduced =
-      typeof window !== "undefined" &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    prefersReducedMotionRef.current = reduced;
-    return reduced;
-  });
+  // Lazy initializer runs once during render (not in an effect), so
+  // deciding prefers-reduced-motion here never calls setState from an
+  // effect body (react-hooks/set-state-in-effect) — and, unlike an
+  // earlier version of this fix, it doesn't write to a ref during
+  // render either (react-hooks/refs). isVisible itself is what the
+  // observer effect below checks to decide whether it's still needed.
+  const [isVisible, setIsVisible] = useState(() =>
+    typeof window !== "undefined" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  );
   const scopeId = useId().replace(/[^a-zA-Z0-9]/g, "");
   const scopeClass = `reveal-${scopeId}`;
 
@@ -122,7 +120,7 @@ export function Reveal({
     const node = ref.current;
     // Reduced motion already made this visible at initial state above —
     // content is shown as-is, no animation, no observer needed.
-    if (!node || prefersReducedMotionRef.current) return;
+    if (!node || isVisible) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -139,7 +137,7 @@ export function Reveal({
 
     observer.observe(node);
     return () => observer.disconnect();
-  }, [threshold, rootMargin]);
+  }, [threshold, rootMargin, isVisible]);
 
   const offset = OFFSETS[variant];
   const Comp = Tag as ElementType;
