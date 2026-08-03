@@ -7,6 +7,16 @@
  * losing it (private browsing, a cleared cache, a different device) simply
  * means the list is empty — the customer can still use "Track an order"
  * with their order number from the confirmation email.
+ *
+ * Exposed as a `getSnapshot`/`subscribe` pair (see the bottom of this file)
+ * rather than a plain getter, so components read it via
+ * `useSyncExternalStore` instead of `useState` + `useEffect`. localStorage
+ * is an external system, and syncing external state into React by calling
+ * `setState` inside an effect is exactly the pattern
+ * `react-hooks/set-state-in-effect` flags — `useSyncExternalStore` is the
+ * React-native way to subscribe to a source like this without that problem,
+ * and it comes with correct SSR/hydration behavior and cross-tab updates
+ * for free.
  */
 
 const STORAGE_KEY = "lapiita:recent-orders";
@@ -27,12 +37,7 @@ function isBrowser(): boolean {
   return typeof window !== "undefined";
 }
 
-/**
- * Returns saved orders, most recently saved first. Always safe to call —
- * returns `[]` on the server, in private-browsing lockouts, or if the
- * stored value is missing/corrupt.
- */
-export function getRecentOrders(): RecentOrder[] {
+function readFromStorage(): RecentOrder[] {
   if (!isBrowser()) return [];
 
   try {
@@ -58,6 +63,18 @@ export function getRecentOrders(): RecentOrder[] {
 }
 
 /**
+ * Returns saved orders, most recently saved first. Always safe to call —
+ * returns `[]` on the server, in private-browsing lockouts, or if the
+ * stored value is missing/corrupt. Reads storage fresh every call — for
+ * reactive UI, use `getRecentOrdersSnapshot` + `subscribeToRecentOrders`
+ * (via `useSyncExternalStore`) instead, so re-renders happen when the data
+ * actually changes rather than not at all.
+ */
+export function getRecentOrders(): RecentOrder[] {
+  return readFromStorage();
+}
+
+/**
  * Save (or update) an order in this device's recent-orders list. Re-saving
  * an order that's already there — e.g. a repeat visit to the success page —
  * moves it to the front and refreshes its saved fields rather than
@@ -68,7 +85,7 @@ export function saveRecentOrder(order: Omit<RecentOrder, "savedAt">): void {
   if (!isBrowser()) return;
 
   try {
-    const existing = getRecentOrders().filter(
+    const existing = readFromStorage().filter(
       (entry) => entry.orderNumber !== order.orderNumber
     );
 
@@ -78,8 +95,54 @@ export function saveRecentOrder(order: Omit<RecentOrder, "savedAt">): void {
     ].slice(0, MAX_ENTRIES);
 
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+    invalidateRecentOrdersSnapshot();
   } catch {
     // Best-effort only — recent orders is a convenience, never a
     // requirement for checkout or order tracking to work.
   }
+}
+
+// --- useSyncExternalStore support -----------------------------------------
+
+// Cached so repeated calls between actual changes return the same array
+// reference — useSyncExternalStore re-renders whenever getSnapshot returns
+// a new reference, so a fresh array on every call would re-render forever.
+let cachedSnapshot: RecentOrder[] | null = null;
+const listeners = new Set<() => void>();
+
+function invalidateRecentOrdersSnapshot(): void {
+  cachedSnapshot = null;
+  listeners.forEach((listener) => listener());
+}
+
+/** `getSnapshot` for `useSyncExternalStore`. */
+export function getRecentOrdersSnapshot(): RecentOrder[] {
+  if (cachedSnapshot === null) {
+    cachedSnapshot = readFromStorage();
+  }
+  return cachedSnapshot;
+}
+
+/** `getServerSnapshot` for `useSyncExternalStore` — always empty on the server. */
+export function getRecentOrdersServerSnapshot(): RecentOrder[] {
+  return [];
+}
+
+/**
+ * `subscribe` for `useSyncExternalStore`. Also listens for the native
+ * `storage` event, so a save made in another tab (or another success page
+ * for a second order) shows up here without a manual refresh.
+ */
+export function subscribeToRecentOrders(onStoreChange: () => void): () => void {
+  listeners.add(onStoreChange);
+
+  function handleStorageEvent(event: StorageEvent) {
+    if (event.key === STORAGE_KEY) invalidateRecentOrdersSnapshot();
+  }
+  if (isBrowser()) window.addEventListener("storage", handleStorageEvent);
+
+  return () => {
+    listeners.delete(onStoreChange);
+    if (isBrowser()) window.removeEventListener("storage", handleStorageEvent);
+  };
 }
