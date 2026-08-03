@@ -67,8 +67,7 @@ export function Footer() {
               </span>
             </div>
             <p className="max-w-[220px] text-sm leading-relaxed text-slate">
-              Handmade with purpose — a social enterprise built on
-              vocational training.
+              Handmade with purpose, built on vocational training.
             </p>
             <div className="flex items-center gap-3 pt-1 sm:pt-2">
               {socialLinks.map(({ label, href, icon: Icon }) => (

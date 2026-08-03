@@ -1,19 +1,18 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Search } from "lucide-react";
+import { Search, Download } from "lucide-react";
 
-import { getOrderForPayment } from "@/lib/checkout/orders";
+import { getOrderForPayment, PAID_EQUIVALENT_STATUSES } from "@/lib/checkout/orders";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { Container } from "@/components/home/container";
 import { SectionHeading } from "@/components/home/section-heading";
 import { EmptyState } from "@/components/home/empty-state";
 import { OrderStatusBadge } from "@/components/admin/order-status-badge";
+import { CopyOrderNumberButton } from "@/components/checkout/copy-order-number-button";
 
 export const metadata: Metadata = {
   title: "Track an order — Lapiita Karya",
 };
-
-const CONFIRMED_STATUSES = new Set(["PAID", "PROCESSING", "SHIPPED", "DELIVERED"]);
 
 export default async function OrderLookupPage({
   searchParams,
@@ -66,9 +65,12 @@ export default async function OrderLookupPage({
             {order ? (
               <div className="flex max-w-md flex-col gap-4 rounded-2xl border border-line p-6 shadow-xs">
                 <div className="flex items-center justify-between">
-                  <span className="font-mono text-sm text-ink">
-                    {order.orderNumber}
-                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-mono text-sm text-ink">
+                      {order.orderNumber}
+                    </span>
+                    <CopyOrderNumberButton orderNumber={order.orderNumber} />
+                  </div>
                   <OrderStatusBadge status={order.status} />
                 </div>
                 <div className="flex items-center justify-between border-t border-line pt-4 text-sm">
@@ -82,14 +84,22 @@ export default async function OrderLookupPage({
                   </span>
                 </div>
 
-                {!CONFIRMED_STATUSES.has(order.status) ? (
+                {!PAID_EQUIVALENT_STATUSES.has(order.status) ? (
                   <Link
                     href={`/checkout/payment?order=${encodeURIComponent(order.orderNumber)}`}
                     className="mt-2 inline-flex min-h-11 items-center justify-center rounded-full bg-ink px-6 py-3 text-sm font-medium text-paper shadow-sm transition-all duration-200 hover:bg-ink/85 hover:shadow-md active:scale-[0.98]"
                   >
                     View payment details
                   </Link>
-                ) : null}
+                ) : (
+                  <a
+                    href={`/api/orders/${encodeURIComponent(order.orderNumber)}/invoice`}
+                    className="mt-2 inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-ink px-6 py-3 text-sm font-medium text-paper shadow-sm transition-all duration-200 hover:bg-ink/85 hover:shadow-md active:scale-[0.98]"
+                  >
+                    <Download className="h-4 w-4" strokeWidth={1.75} />
+                    Download Invoice
+                  </a>
+                )}
               </div>
             ) : notFound ? (
               <EmptyState message="We couldn't find an order with that number. Double check the order number from your confirmation email and try again." />

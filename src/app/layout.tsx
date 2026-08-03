@@ -28,7 +28,7 @@ const playfairDisplay = Playfair_Display({
 export const metadata: Metadata = {
   title: "Lapiita Karya — Handmade goods from a vocational training program",
   description:
-    "Lapiita Karya is a social enterprise: premium handmade fashion, food, and production pieces made by women building new skills through vocational training.",
+    "Lapiita Karya offers premium handmade fashion, food, and production pieces made by women building new skills through vocational training.",
 };
 
 // viewportFit: "cover" lets the safe-area-inset-* env() variables populate

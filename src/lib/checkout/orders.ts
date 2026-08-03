@@ -1,6 +1,20 @@
 import { prisma } from "@/lib/prisma";
 import type { OrderStatus } from "@prisma/client";
 
+/**
+ * Statuses that mean "payment has been received/verified" — shared by the
+ * /orders/lookup page (to decide which of the confirmed-vs-pending UI to
+ * show, including the Download Invoice button) and the invoice PDF route
+ * (to refuse generating an invoice for an order that hasn't actually been
+ * paid yet, even if someone guesses/bookmarks the invoice URL).
+ */
+export const PAID_EQUIVALENT_STATUSES = new Set<OrderStatus>([
+  "PAID",
+  "PROCESSING",
+  "SHIPPED",
+  "DELIVERED",
+]);
+
 export type PaymentOrder = {
   id: string;
   orderNumber: string;
@@ -47,6 +61,107 @@ export async function getOrderForPayment(orderNumber: string): Promise<PaymentOr
     };
   } catch (error) {
     console.error("[checkout] failed to load order for payment:", error);
+    return null;
+  }
+}
+
+export type InvoiceOrderItem = {
+  id: string;
+  name: string;
+  price: number;
+  quantity: number;
+};
+
+export type InvoiceOrder = {
+  orderNumber: string;
+  status: OrderStatus;
+  createdAt: string;
+  customerName: string;
+  shippingAddress: {
+    line1: string;
+    line2: string | null;
+    city: string;
+    state: string | null;
+    postalCode: string;
+    country: string;
+    phone: string | null;
+  } | null;
+  items: InvoiceOrderItem[];
+  subtotal: number;
+  shippingTotal: number;
+  taxTotal: number;
+  total: number;
+  currency: string;
+};
+
+/**
+ * Look up everything the /orders/[orderNumber]/invoice PDF route needs.
+ * Same public, unauth'd-by-orderNumber lookup model as getOrderForPayment
+ * above — the invoice route itself is what enforces the paid-only check
+ * (see PAID_EQUIVALENT_STATUSES), not this query.
+ */
+export async function getOrderForInvoice(orderNumber: string): Promise<InvoiceOrder | null> {
+  try {
+    const order = await prisma.order.findUnique({
+      where: { orderNumber },
+      select: {
+        orderNumber: true,
+        status: true,
+        createdAt: true,
+        subtotal: true,
+        shippingTotal: true,
+        taxTotal: true,
+        total: true,
+        currency: true,
+        user: { select: { name: true } },
+        shippingAddress: {
+          select: {
+            fullName: true,
+            line1: true,
+            line2: true,
+            city: true,
+            state: true,
+            postalCode: true,
+            country: true,
+            phone: true,
+          },
+        },
+        items: { select: { id: true, name: true, price: true, quantity: true } },
+      },
+    });
+
+    if (!order) return null;
+
+    return {
+      orderNumber: order.orderNumber,
+      status: order.status,
+      createdAt: order.createdAt.toISOString(),
+      customerName: order.shippingAddress?.fullName ?? order.user.name ?? "—",
+      shippingAddress: order.shippingAddress
+        ? {
+            line1: order.shippingAddress.line1,
+            line2: order.shippingAddress.line2,
+            city: order.shippingAddress.city,
+            state: order.shippingAddress.state,
+            postalCode: order.shippingAddress.postalCode,
+            country: order.shippingAddress.country,
+            phone: order.shippingAddress.phone,
+          }
+        : null,
+      items: order.items.map((item) => ({
+        id: item.id,
+        name: item.name,
+        price: Number(item.price.toString()),
+        quantity: item.quantity,
+      })),
+      subtotal: Number(order.subtotal.toString()),
+      shippingTotal: Number(order.shippingTotal.toString()),
+      taxTotal: Number(order.taxTotal.toString()),
+      total: Number(order.total.toString()),
+      currency: order.currency,
+    };
+  } catch (error) {
+    console.error("[checkout] failed to load order for invoice:", error);
     return null;
   }
 }
