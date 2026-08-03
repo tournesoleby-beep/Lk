@@ -50,7 +50,23 @@ export async function placeOrder(
     return { success: false, error: "Your bag is empty." };
   }
 
-  const { fullName, phone, email, address, notes } = parsed.data;
+  const {
+    fullName,
+    phone,
+    email,
+    address,
+    notes,
+    shippingMethod,
+    // Selected Biteship option (see checkoutSchema in
+    // src/lib/validations/checkout.ts). `courier` and `shippingCost` are
+    // persisted below (as `shippingCarrier` / `shippingTotal`). `courierCode`
+    // and `service` are accepted for validation but have no dedicated
+    // column on `Order` yet, so they aren't stored.
+    courierCode,
+    courier,
+    service,
+    shippingCost,
+  } = parsed.data;
 
   try {
     const products = await prisma.product.findMany({
@@ -61,12 +77,14 @@ export async function placeOrder(
         price: true,
         currency: true,
         status: true,
+        weightGrams: true,
         variants: { select: { stock: true } },
       },
     });
     const productsById = new Map(products.map((product) => [product.id, product]));
 
     const orderItemsData: { productId: string; name: string; price: number; quantity: number }[] = [];
+    let shippingWeightGrams = 0;
     for (const line of lines) {
       const product = productsById.get(line.id);
       if (!product || product.status !== "ACTIVE") {
@@ -91,6 +109,7 @@ export async function placeOrder(
         price: Number(product.price.toString()),
         quantity,
       });
+      shippingWeightGrams += product.weightGrams * quantity;
     }
 
     const subtotal = orderItemsData.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -128,9 +147,13 @@ export async function placeOrder(
             orderNumber,
             userId: user.id,
             subtotal,
-            total: subtotal,
+            shippingTotal: shippingCost,
+            total: subtotal + shippingCost,
             currency,
             shippingAddressId: shippingAddress.id,
+            shippingMethod,
+            shippingWeightGrams,
+            shippingCarrier: courier,
             items: { create: orderItemsData },
           },
         });

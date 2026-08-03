@@ -9,6 +9,7 @@ import { SectionHeading } from "@/components/home/section-heading";
 import { EmptyState } from "@/components/home/empty-state";
 import { OrderStatusBadge } from "@/components/admin/order-status-badge";
 import { CopyOrderNumberButton } from "@/components/checkout/copy-order-number-button";
+import { RecentOrders } from "@/components/checkout/recent-orders";
 
 export const metadata: Metadata = {
   title: "Track an order — Lapiita Karya",
@@ -104,6 +105,8 @@ export default async function OrderLookupPage({
             ) : notFound ? (
               <EmptyState message="We couldn't find an order with that number. Double check the order number from your confirmation email and try again." />
             ) : null}
+
+            <RecentOrders />
           </Container>
         </section>
       </main>

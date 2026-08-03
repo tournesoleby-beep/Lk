@@ -198,7 +198,9 @@ export default async function CheckoutPaymentPage({
                       </div>
                     </div>
 
-                    {canUploadProof ? <PaymentProofUpload orderId={order.id} /> : null}
+                    {canUploadProof ? (
+                      <PaymentProofUpload orderId={order.id} orderNumber={order.orderNumber} />
+                    ) : null}
                   </>
                 )}
               </div>

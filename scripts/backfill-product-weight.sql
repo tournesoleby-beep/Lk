@@ -1,0 +1,29 @@
+-- One-time, standalone backfill for the weightGrams feature.
+--
+-- This project uses `prisma db push` (no migrations history), so this is a
+-- plain SQL script to run once by hand against the database — it is NOT a
+-- Prisma migration and does not belong in a prisma/migrations folder.
+--
+-- What it does:
+--   Updates any product still sitting at the *old* default (0g) up to the
+--   *new* default (500g). `npx prisma db push` only syncs schema shape
+--   (column type/default) — it does not touch existing row data — so this
+--   script is what actually applies the 500g default to products that
+--   already exist in the database.
+--
+-- What it does NOT do:
+--   - Does not touch any product that already has a real, nonzero weight
+--     entered (WHERE weight_grams = 0 only matches rows that were never
+--     given a real value).
+--   - Does not add, remove, or modify any other column or row.
+--
+-- How to run (pick whichever fits your setup):
+--   psql "$DATABASE_URL" -f scripts/backfill-product-weight.sql
+--   -- or paste the UPDATE statement below into the Supabase SQL editor.
+--
+-- Order of operations:
+--   1. npx prisma db push        (applies the new @default(500) to the column)
+--   2. npx prisma generate       (regenerates the Prisma client)
+--   3. Run this script once      (backfills existing 0g rows to 500g)
+
+UPDATE "products" SET "weight_grams" = 500 WHERE "weight_grams" = 0;

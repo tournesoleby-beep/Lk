@@ -8,6 +8,8 @@ import { Loader2 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import { useCart } from "@/components/cart/cart-provider";
 import { placeOrder } from "@/lib/checkout/actions";
+import { getCheckoutShippingRates, type CheckoutShippingRate } from "@/lib/checkout/shipping";
+import type { ShippingMethod } from "@/lib/validations/checkout";
 import { Container } from "@/components/home/container";
 import { SectionHeading } from "@/components/home/section-heading";
 import { EmptyState } from "@/components/home/empty-state";
@@ -21,16 +23,26 @@ type FormValues = {
   fullName: string;
   phone: string;
   email: string;
-  address: string;
+  province: string;
+  city: string;
+  district: string;
+  postalCode: string;
+  streetAddress: string;
   notes: string;
+  shippingMethod: ShippingMethod;
 };
 
 const EMPTY_VALUES: FormValues = {
   fullName: "",
   phone: "",
   email: "",
-  address: "",
+  province: "",
+  city: "",
+  district: "",
+  postalCode: "",
+  streetAddress: "",
   notes: "",
+  shippingMethod: "standard",
 };
 
 export default function CheckoutPage() {
@@ -43,8 +55,53 @@ export default function CheckoutPage() {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  function update(field: keyof FormValues, value: string) {
+  const [shippingRates, setShippingRates] = useState<CheckoutShippingRate[]>([]);
+  const [selectedRateIndex, setSelectedRateIndex] = useState<number | null>(null);
+  const [isLoadingRates, setIsLoadingRates] = useState(false);
+  const [shippingRatesError, setShippingRatesError] = useState<string | null>(null);
+
+  function update(field: keyof Omit<FormValues, "shippingMethod">, value: string) {
     setValues((current) => ({ ...current, [field]: value }));
+  }
+
+  async function handleCalculateShipping() {
+    setShippingRatesError(null);
+
+    const destination = [values.district, values.city, values.province, values.postalCode]
+      .map((part) => part.trim())
+      .filter(Boolean)
+      .join(", ");
+
+    if (!destination) {
+      setShippingRatesError("Enter your province, city, district, and postal code first.");
+      return;
+    }
+    if (cart.lines.length === 0) {
+      setShippingRatesError("Your bag is empty.");
+      return;
+    }
+
+    setIsLoadingRates(true);
+    setShippingRates([]);
+    setSelectedRateIndex(null);
+
+    const result = await getCheckoutShippingRates(
+      destination,
+      cart.lines.map((line) => ({ id: line.id, quantity: line.quantity }))
+    );
+
+    setIsLoadingRates(false);
+
+    if (!result.success) {
+      setShippingRatesError(result.error);
+      return;
+    }
+
+    setShippingRates(result.rates);
+    setSelectedRateIndex(result.rates.length > 0 ? 0 : null);
+    if (result.rates.length === 0) {
+      setShippingRatesError("No shipping options available for that address.");
+    }
   }
 
   function validate() {
@@ -57,7 +114,12 @@ export default function CheckoutPage() {
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email.trim())) {
       nextErrors.email = "Enter a valid email address.";
     }
-    if (!values.address.trim()) nextErrors.address = "Shipping address is required.";
+    if (!values.province.trim()) nextErrors.province = "Province is required.";
+    if (!values.city.trim()) nextErrors.city = "City is required.";
+    if (!values.district.trim()) nextErrors.district = "District is required.";
+    if (!values.postalCode.trim()) nextErrors.postalCode = "Postal code is required.";
+    if (!values.streetAddress.trim())
+      nextErrors.streetAddress = "Street address is required.";
 
     setErrors(nextErrors);
     return Object.keys(nextErrors).length === 0;
@@ -73,9 +135,39 @@ export default function CheckoutPage() {
     }
     if (!validate()) return;
 
+    const selectedRate = selectedRateIndex !== null ? shippingRates[selectedRateIndex] : null;
+    if (!selectedRate) {
+      setSubmitError("Select a shipping option.");
+      return;
+    }
+
     setIsSubmitting(true);
+    // placeOrder still expects a single combined shipping address string —
+    // join the split fields together here without changing the checkout
+    // schema or the server action.
+    const address = [
+      values.streetAddress.trim(),
+      values.district.trim(),
+      values.city.trim(),
+      values.province.trim(),
+      values.postalCode.trim(),
+    ]
+      .filter(Boolean)
+      .join(", ");
+
     const result = await placeOrder(
-      values,
+      {
+        fullName: values.fullName,
+        phone: values.phone,
+        email: values.email,
+        address,
+        notes: values.notes,
+        shippingMethod: values.shippingMethod,
+        courierCode: selectedRate.courierCode,
+        courier: selectedRate.courier,
+        service: selectedRate.service,
+        shippingCost: selectedRate.cost,
+      },
       cart.lines.map((line) => ({ id: line.id, quantity: line.quantity }))
     );
 
@@ -121,11 +213,13 @@ export default function CheckoutPage() {
               onSubmit={handleSubmit}
               className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_340px] lg:items-start"
             >
-              {/* Contact + shipping details */}
-              <div className="flex flex-col gap-5 rounded-2xl border border-line p-5 shadow-xs sm:p-6">
-                <h2 className="font-serif text-lg font-semibold text-ink">
-                  Delivery details
-                </h2>
+              {/* Left column: contact/delivery details + shipping */}
+              <div className="flex flex-col gap-8">
+                {/* Contact + shipping details */}
+                <div className="flex flex-col gap-5 rounded-2xl border border-line p-5 shadow-xs sm:p-6">
+                  <h2 className="font-serif text-lg font-semibold text-ink">
+                    Delivery details
+                  </h2>
 
                 <label className="flex flex-col gap-1.5">
                   <span className={LABEL_CLASS}>Full name</span>
@@ -173,17 +267,79 @@ export default function CheckoutPage() {
                   </label>
                 </div>
 
+                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                  <label className="flex flex-col gap-1.5">
+                    <span className={LABEL_CLASS}>Province</span>
+                    <input
+                      value={values.province}
+                      onChange={(e) => update("province", e.target.value)}
+                      placeholder="Central Java"
+                      autoComplete="address-level1"
+                      className={INPUT_CLASS}
+                    />
+                    {errors.province ? (
+                      <span className="text-xs text-signal">{errors.province}</span>
+                    ) : null}
+                  </label>
+
+                  <label className="flex flex-col gap-1.5">
+                    <span className={LABEL_CLASS}>City</span>
+                    <input
+                      value={values.city}
+                      onChange={(e) => update("city", e.target.value)}
+                      placeholder="Magelang"
+                      autoComplete="address-level2"
+                      className={INPUT_CLASS}
+                    />
+                    {errors.city ? (
+                      <span className="text-xs text-signal">{errors.city}</span>
+                    ) : null}
+                  </label>
+                </div>
+
+                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                  <label className="flex flex-col gap-1.5">
+                    <span className={LABEL_CLASS}>District</span>
+                    <input
+                      value={values.district}
+                      onChange={(e) => update("district", e.target.value)}
+                      placeholder="Magelang Utara"
+                      autoComplete="address-level3"
+                      className={INPUT_CLASS}
+                    />
+                    {errors.district ? (
+                      <span className="text-xs text-signal">{errors.district}</span>
+                    ) : null}
+                  </label>
+
+                  <label className="flex flex-col gap-1.5">
+                    <span className={LABEL_CLASS}>Postal code</span>
+                    <input
+                      value={values.postalCode}
+                      onChange={(e) => update("postalCode", e.target.value)}
+                      placeholder="56111"
+                      inputMode="numeric"
+                      autoComplete="postal-code"
+                      className={INPUT_CLASS}
+                    />
+                    {errors.postalCode ? (
+                      <span className="text-xs text-signal">{errors.postalCode}</span>
+                    ) : null}
+                  </label>
+                </div>
+
                 <label className="flex flex-col gap-1.5">
-                  <span className={LABEL_CLASS}>Shipping address</span>
+                  <span className={LABEL_CLASS}>Street address</span>
                   <textarea
-                    value={values.address}
-                    onChange={(e) => update("address", e.target.value)}
-                    placeholder="Street, city, postal code, country"
+                    value={values.streetAddress}
+                    onChange={(e) => update("streetAddress", e.target.value)}
+                    placeholder="Street name, building, house number"
                     rows={3}
+                    autoComplete="street-address"
                     className={INPUT_CLASS}
                   />
-                  {errors.address ? (
-                    <span className="text-xs text-signal">{errors.address}</span>
+                  {errors.streetAddress ? (
+                    <span className="text-xs text-signal">{errors.streetAddress}</span>
                   ) : null}
                 </label>
 
@@ -198,11 +354,73 @@ export default function CheckoutPage() {
                   />
                 </label>
 
+              </div>
+
+              {/* Shipping */}
+              <div className="flex flex-col gap-4 rounded-2xl border border-line p-5 shadow-xs sm:p-6">
+                <h2 className="font-serif text-lg font-semibold text-ink">
+                  Shipping
+                </h2>
+
+                <button
+                  type="button"
+                  onClick={handleCalculateShipping}
+                  disabled={isLoadingRates}
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-line bg-cloud/60 px-3.5 py-3 text-sm font-medium text-ink transition-all duration-200 hover:bg-cloud disabled:cursor-not-allowed disabled:opacity-60 sm:py-2.5"
+                >
+                  {isLoadingRates ? (
+                    <Loader2 className="h-4 w-4 animate-spin" strokeWidth={1.75} />
+                  ) : null}
+                  {isLoadingRates ? "Calculating…" : "Calculate shipping"}
+                </button>
+
+                {shippingRatesError ? (
+                  <p className="rounded-xl bg-accent-soft px-3.5 py-2.5 text-sm text-signal">
+                    {shippingRatesError}
+                  </p>
+                ) : null}
+
+                {shippingRates.length > 0 ? (
+                  <div className="flex flex-col gap-3">
+                    {shippingRates.map((rate, index) => (
+                      <label
+                        key={`${rate.courierCode}-${rate.service}`}
+                        className={`flex cursor-pointer items-start gap-3 rounded-xl border px-3.5 py-3 transition-colors duration-200 ${
+                          selectedRateIndex === index
+                            ? "border-signal/50 bg-signal/5"
+                            : "border-line bg-cloud/60"
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="shippingRate"
+                          value={index}
+                          checked={selectedRateIndex === index}
+                          onChange={() => setSelectedRateIndex(index)}
+                          className="mt-1"
+                        />
+                        <span className="flex flex-1 items-start justify-between gap-3">
+                          <span className="flex flex-col gap-0.5">
+                            <span className="text-sm font-medium text-ink">
+                              {rate.courier} · {rate.service}
+                            </span>
+                            <span className="text-xs text-slate">{rate.eta}</span>
+                          </span>
+                          <span className="font-mono text-sm text-ink">
+                            {formatCurrency(rate.cost, rate.currency)}
+                          </span>
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                ) : null}
+
                 {submitError ? (
                   <p className="rounded-xl bg-accent-soft px-3.5 py-2.5 text-sm text-signal">
                     {submitError}
                   </p>
                 ) : null}
+              </div>
               </div>
 
               {/* Order summary */}

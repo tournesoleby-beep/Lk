@@ -43,6 +43,7 @@ const EMPTY_VALUES: ProductFormValues = {
   status: "DRAFT",
   featured: false,
   stock: 0,
+  weightGrams: 500,
   images: [],
 };
 
@@ -76,6 +77,13 @@ export function ProductFormModal({
   const [uploadingIds, setUploadingIds] = useState<Set<string>>(new Set());
   const [imageError, setImageError] = useState<string | null>(null);
   const isUploadingImage = uploadingIds.size > 0;
+  // Raw text of the weight input, tracked separately from `values.weightGrams`
+  // so the field can sit empty while the admin is typing rather than
+  // snapping to 0 — it's only reconciled back to a number on blur/submit.
+  const [weightInput, setWeightInput] = useState(
+    String(product?.weightGrams ?? EMPTY_VALUES.weightGrams)
+  );
+  const [weightError, setWeightError] = useState<string | null>(null);
   // Read-only ledger for this product, fetched once when editing an
   // existing product — a brand-new (unsaved) product has no history yet.
   const [stockHistory, setStockHistory] = useState<StockHistoryEntry[]>([]);
@@ -193,10 +201,25 @@ export function ProductFormModal({
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
+
+    // An empty field defaults to 500 (handled on blur already, but a
+    // trailing empty value at submit time falls back the same way). A
+    // value the admin actually typed that's negative or zero is rejected
+    // outright rather than silently overwritten.
+    let weightGrams = values.weightGrams;
+    if (weightInput.trim() === "") {
+      weightGrams = EMPTY_VALUES.weightGrams;
+    } else if (weightGrams <= 0) {
+      setWeightError("Weight must be greater than zero.");
+      return;
+    }
+    setWeightError(null);
+
     setIsSubmitting(true);
 
     const result = await onSave({
       ...values,
+      weightGrams,
       slug: values.slug || slugify(values.name),
     });
 
@@ -315,6 +338,43 @@ export function ProductFormModal({
               />
             </label>
           </div>
+
+          <label className="flex flex-col gap-1.5">
+            <span className="font-mono text-[11px] font-medium uppercase tracking-[0.14em] text-slate">
+              Product Weight (grams)
+            </span>
+            <input
+              type="number"
+              min={1}
+              step={1}
+              value={weightInput}
+              onChange={(e) => {
+                const raw = e.target.value;
+                setWeightInput(raw);
+                setWeightError(null);
+                if (raw !== "") {
+                  setValues((v) => ({ ...v, weightGrams: Number(raw) }));
+                }
+              }}
+              onBlur={() => {
+                if (weightInput.trim() === "") {
+                  setWeightInput(String(EMPTY_VALUES.weightGrams));
+                  setValues((v) => ({
+                    ...v,
+                    weightGrams: EMPTY_VALUES.weightGrams,
+                  }));
+                }
+              }}
+              className="w-full rounded-xl border border-line bg-cloud/60 px-3.5 py-2.5 text-sm text-ink outline-none transition-all duration-200 focus:border-signal/50 focus:bg-paper focus:ring-4 focus:ring-signal/10"
+            />
+            {weightError ? (
+              <span className="text-xs text-signal">{weightError}</span>
+            ) : (
+              <span className="font-mono text-[11px] text-slate">
+                Used for Biteship shipping calculation. Defaults to 500 if left blank.
+              </span>
+            )}
+          </label>
 
           <div className="flex flex-col gap-2">
             <span className="font-mono text-[11px] font-medium uppercase tracking-[0.14em] text-slate">

@@ -9,7 +9,13 @@ import { uploadPaymentProof } from "@/lib/checkout/payment-actions";
 const LABEL_CLASS =
   "font-mono text-[11px] font-medium uppercase tracking-[0.14em] text-slate";
 
-export function PaymentProofUpload({ orderId }: { orderId: string }) {
+export function PaymentProofUpload({
+  orderId,
+  orderNumber,
+}: {
+  orderId: string;
+  orderNumber: string;
+}) {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -37,9 +43,11 @@ export function PaymentProofUpload({ orderId }: { orderId: string }) {
       return;
     }
 
-    // Re-fetches the server component so the page switches to the
-    // "waiting for verification" state now that the upload succeeded.
-    router.refresh();
+    // Upload succeeded — take the customer to the success page rather than
+    // just refreshing this page's "waiting for verification" state in
+    // place, so they land somewhere that confirms what happened and gives
+    // them next steps (copy order number, track order, contact us).
+    router.push(`/checkout/payment/success?order=${encodeURIComponent(orderNumber)}`);
   }
 
   return (

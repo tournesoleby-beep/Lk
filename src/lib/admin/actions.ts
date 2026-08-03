@@ -58,6 +58,7 @@ type CreatedProductRow = {
   currency: string;
   status: MockProduct["status"];
   featured: boolean;
+  weightGrams: number;
   updatedAt: Date;
   category: { name: string } | null;
   images: { id: string; url: string; altText: string | null }[];
@@ -74,6 +75,7 @@ const PRODUCT_SELECT = {
   currency: true,
   status: true,
   featured: true,
+  weightGrams: true,
   updatedAt: true,
   category: { select: { name: true } },
   images: {
@@ -101,6 +103,7 @@ function toMockProduct(product: CreatedProductRow): MockProduct {
       (total: number, variant: { stock: number }) => total + variant.stock,
       0
     ),
+    weightGrams: product.weightGrams,
     images: product.images.map((image) => ({
       id: image.id,
       url: image.url,
@@ -108,6 +111,21 @@ function toMockProduct(product: CreatedProductRow): MockProduct {
     })),
     updatedAt: product.updatedAt.toISOString(),
   };
+}
+
+const DEFAULT_WEIGHT_GRAMS = 500;
+
+/**
+ * The admin form already defaults/validates weight on the client (see
+ * ProductFormModal), but a server action should never fully trust client
+ * input — fall back to the same 500g default here for anything missing,
+ * non-numeric, negative, or zero, rather than persisting a bad value.
+ */
+function normalizeWeightGrams(value: number | undefined | null): number {
+  if (typeof value !== "number" || !Number.isFinite(value) || value <= 0) {
+    return DEFAULT_WEIGHT_GRAMS;
+  }
+  return Math.round(value);
 }
 
 /**
@@ -149,6 +167,7 @@ export async function createProduct(
         currency: values.currency,
         status: values.status,
         featured: values.featured,
+        weightGrams: normalizeWeightGrams(values.weightGrams),
         categoryId: category.id,
         images: values.images.length
           ? {
@@ -251,6 +270,7 @@ export async function updateProduct(
         currency: values.currency,
         status: values.status,
         featured: values.featured,
+        weightGrams: normalizeWeightGrams(values.weightGrams),
         categoryId: category.id,
         images: {
           deleteMany: {},

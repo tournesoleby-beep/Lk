@@ -32,6 +32,7 @@ type AdminProductRow = {
   currency: string;
   status: MockProduct["status"];
   featured: boolean;
+  weightGrams: number;
   updatedAt: Date;
   category: { name: string } | null;
   images: { id: string; url: string; altText: string | null }[];
@@ -56,6 +57,7 @@ function toAdminProduct(product: AdminProductRow): MockProduct {
       (total: number, variant: { stock: number }) => total + variant.stock,
       0
     ),
+    weightGrams: product.weightGrams,
     images: product.images.map((image) => ({
       id: image.id,
       url: image.url,
@@ -79,6 +81,7 @@ export async function getAdminProducts(): Promise<MockProduct[]> {
         currency: true,
         status: true,
         featured: true,
+        weightGrams: true,
         updatedAt: true,
         category: { select: { name: true } },
         images: {

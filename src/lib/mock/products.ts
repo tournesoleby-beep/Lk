@@ -26,6 +26,10 @@ export type MockProduct = {
   status: MockProductStatus;
   featured: boolean;
   stock: number;
+  // Weight in grams, used for Biteship shipping-rate calculation at
+  // checkout (see src/lib/checkout/shipping.ts). Mirrors
+  // `Product.weightGrams` on the Prisma model.
+  weightGrams: number;
   // Ordered — index 0 is the cover image shown in listings, matching the
   // `ProductImage.position` convention used throughout the storefront.
   images: AdminProductImage[];
@@ -45,6 +49,7 @@ export const MOCK_PRODUCTS: MockProduct[] = [
     status: "ACTIVE",
     featured: true,
     stock: 42,
+    weightGrams: 500,
     images: [],
     updatedAt: "2026-07-18",
   },
@@ -60,6 +65,7 @@ export const MOCK_PRODUCTS: MockProduct[] = [
     status: "ACTIVE",
     featured: false,
     stock: 15,
+    weightGrams: 500,
     images: [],
     updatedAt: "2026-07-15",
   },
@@ -75,6 +81,7 @@ export const MOCK_PRODUCTS: MockProduct[] = [
     status: "ACTIVE",
     featured: true,
     stock: 120,
+    weightGrams: 500,
     images: [],
     updatedAt: "2026-07-27",
   },
@@ -90,6 +97,7 @@ export const MOCK_PRODUCTS: MockProduct[] = [
     status: "DRAFT",
     featured: false,
     stock: 0,
+    weightGrams: 500,
     images: [],
     updatedAt: "2026-07-30",
   },
@@ -105,6 +113,7 @@ export const MOCK_PRODUCTS: MockProduct[] = [
     status: "ACTIVE",
     featured: false,
     stock: 63,
+    weightGrams: 500,
     images: [],
     updatedAt: "2026-07-10",
   },
@@ -120,6 +129,7 @@ export const MOCK_PRODUCTS: MockProduct[] = [
     status: "ARCHIVED",
     featured: false,
     stock: 0,
+    weightGrams: 500,
     images: [],
     updatedAt: "2026-06-02",
   },
@@ -135,6 +145,7 @@ export const MOCK_PRODUCTS: MockProduct[] = [
     status: "ACTIVE",
     featured: true,
     stock: 8,
+    weightGrams: 500,
     images: [],
     updatedAt: "2026-07-29",
   },
@@ -150,6 +161,7 @@ export const MOCK_PRODUCTS: MockProduct[] = [
     status: "DRAFT",
     featured: false,
     stock: 27,
+    weightGrams: 500,
     images: [],
     updatedAt: "2026-07-22",
   },
