@@ -59,9 +59,9 @@ export default async function CheckoutPaymentSuccessPage({
               total={order.total}
               currency={order.currency}
               createdAt={
-                order.createdAt instanceof Date
-                  ? order.createdAt.toISOString()
-                  : order.createdAt
+                typeof order.createdAt === "string"
+                  ? order.createdAt
+                  : new Date(order.createdAt).toISOString()
               }
             />
 
