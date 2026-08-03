@@ -41,13 +41,14 @@ const steps = [
 
 export function ProcessTimeline() {
   return (
-    <section className="bg-cloud py-24 sm:py-32">
-      <Container className="flex flex-col gap-14">
+    <section className="bg-cloud py-14 sm:py-32">
+      <Container className="flex flex-col gap-8 px-5 sm:gap-14 sm:px-6">
         <Reveal variant="fade-up" duration={DURATION} easing={EASING}>
           <SectionHeading
             eyebrow="Proses kami"
             title="Perjalanan Sebuah Karya"
             description="Setiap produk merupakan hasil proses pembinaan yang bertujuan membangun keterampilan, kreativitas, dan kemandirian warga binaan sebelum sampai ke tangan Anda."
+            compact
           />
         </Reveal>
 
@@ -65,10 +66,10 @@ export function ProcessTimeline() {
           staggerDelay={STAGGER}
         >
           {steps.map(({ icon: Icon, title, description }, index) => (
-            <li key={title} className="group flex gap-5">
+            <li key={title} className="group flex gap-4">
               <div className="flex flex-col items-center">
-                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-ink/10 bg-paper shadow-xs transition-all duration-300 group-hover:-translate-y-0.5 group-hover:border-signal/25 group-hover:shadow-sm">
-                  <Icon className="h-6 w-6 text-signal" strokeWidth={1.75} />
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-ink/10 bg-paper shadow-xs transition-all duration-300 group-hover:-translate-y-0.5 group-hover:border-signal/25 group-hover:shadow-sm">
+                  <Icon className="h-5 w-5 text-signal" strokeWidth={1.75} />
                 </div>
                 {index < steps.length - 1 ? (
                   <div className="w-px flex-1 bg-line" aria-hidden="true" />
@@ -77,13 +78,13 @@ export function ProcessTimeline() {
 
               <div
                 className={cn(
-                  "flex flex-1 flex-col gap-4",
-                  index < steps.length - 1 && "pb-10"
+                  "flex flex-1 flex-col gap-3",
+                  index < steps.length - 1 && "pb-7"
                 )}
               >
                 <Parallax
                   as="div"
-                  className="aspect-[4/3] w-full max-w-xs overflow-hidden rounded-2xl"
+                  className="aspect-[16/10] w-full overflow-hidden rounded-2xl"
                   strength={12}
                 >
                   <div
@@ -92,12 +93,12 @@ export function ProcessTimeline() {
                     aria-hidden="true"
                   />
                 </Parallax>
-                <div className="flex flex-col gap-1.5">
-                  <span className="font-mono text-[11px] font-medium uppercase tracking-[0.14em] text-signal">
+                <div className="flex flex-col gap-1">
+                  <span className="font-mono text-[10px] font-medium uppercase tracking-[0.14em] text-signal">
                     Langkah {String(index + 1).padStart(2, "0")}
                   </span>
-                  <h3 className="text-base font-medium text-ink">{title}</h3>
-                  <p className="max-w-sm text-sm leading-relaxed text-slate">
+                  <h3 className="text-[0.9375rem] font-medium leading-snug text-ink">{title}</h3>
+                  <p className="text-[0.8125rem] leading-relaxed text-slate">
                     {description}
                   </p>
                 </div>

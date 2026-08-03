@@ -61,6 +61,11 @@ export function InstagramHighlights() {
   const dragState = useRef({ active: false, startX: 0, startScroll: 0 });
 
   function handlePointerDown(event: PointerEvent<HTMLDivElement>) {
+    // Touch devices already get native swipe/snap scrolling on this
+    // overflow-x-auto container — only take over for mouse/pen drag so we
+    // don't fight the browser's own touch scrolling with manual
+    // scrollLeft writes (which caused jittery, half-working swipes).
+    if (event.pointerType === "touch") return;
     const scroller = scrollerRef.current;
     if (!scroller) return;
     dragState.current = {
@@ -87,14 +92,15 @@ export function InstagramHighlights() {
   }
 
   return (
-    <section className="bg-paper py-24 sm:py-32">
-      <div className="flex flex-col gap-12">
-        <Container>
+    <section className="bg-paper py-14 sm:py-32">
+      <div className="flex flex-col gap-6 sm:gap-12">
+        <Container className="px-5 sm:px-6">
           <Reveal variant="fade-up" duration={DURATION} easing={EASING}>
             <SectionHeading
               eyebrow="Follow along"
               title="Instagram Highlights"
               description="Lihat karya terbaru dan aktivitas Lapiita Karya."
+              compact
             />
           </Reveal>
         </Container>
@@ -112,7 +118,7 @@ export function InstagramHighlights() {
           onPointerUp={endDrag}
           onPointerLeave={endDrag}
           onPointerCancel={endDrag}
-          className="flex snap-x snap-mandatory gap-4 overflow-x-auto px-6 pb-2 [scrollbar-width:none] sm:gap-6 md:px-10 [&::-webkit-scrollbar]:hidden cursor-grab active:cursor-grabbing"
+          className="flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-2 [scrollbar-width:none] sm:gap-6 sm:px-6 md:px-10 [&::-webkit-scrollbar]:hidden cursor-grab active:cursor-grabbing"
           variant="fade-left"
           stagger
           duration={DURATION}
@@ -141,7 +147,7 @@ export function InstagramHighlights() {
           <div className="w-2 shrink-0 md:w-6" aria-hidden="true" />
         </Reveal>
 
-        <Container className="flex flex-col items-center gap-4 text-center sm:flex-row sm:justify-between sm:text-left">
+        <Container className="flex flex-col items-center gap-4 px-5 text-center sm:flex-row sm:justify-between sm:px-6 sm:text-left">
           <span className="font-mono text-sm font-medium tracking-[0.05em] text-ink">
             {INSTAGRAM_HANDLE}
           </span>

@@ -10,8 +10,8 @@ export function HeroBanner() {
     <section className="relative isolate overflow-hidden bg-cloud">
       <HeroGlow />
 
-      <Container className="relative grid grid-cols-1 items-center gap-6 py-10 sm:gap-12 sm:py-14 md:py-16 lg:min-h-[80svh] lg:grid-cols-2 lg:gap-16 lg:py-28">
-        <div className="animate-fade-up flex flex-col gap-4 sm:gap-7">
+      <Container className="relative grid grid-cols-1 items-center gap-5 px-5 py-8 sm:gap-12 sm:px-6 sm:py-14 md:py-16 lg:min-h-[80svh] lg:grid-cols-2 lg:gap-16 lg:py-28">
+        <div className="animate-fade-up flex flex-col gap-3.5 sm:gap-7">
           <span className="font-mono text-[10px] font-medium uppercase tracking-[0.14em] text-signal sm:text-[11px] sm:tracking-[0.2em]">
             Lapas Perempuan Kelas II A Jakarta
           </span>

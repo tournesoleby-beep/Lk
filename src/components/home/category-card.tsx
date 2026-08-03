@@ -37,12 +37,12 @@ export function CategoryCard({
 
       <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/5 to-transparent transition-opacity duration-300 group-hover:from-black/75" />
 
-      <div className="relative flex flex-col gap-2 p-5">
-        <span className="font-serif text-lg font-semibold text-paper">
+      <div className="relative flex flex-col gap-1.5 p-4 sm:gap-2 sm:p-5">
+        <span className="font-serif text-base font-semibold text-paper sm:text-lg">
           {category.name}
         </span>
         <div className="flex items-center gap-2">
-          <span className="font-mono text-xs text-white/70">
+          <span className="font-mono text-[11px] text-white/70 sm:text-xs">
             {category.productCount}{" "}
             {category.productCount === 1 ? "piece" : "pieces"}
           </span>

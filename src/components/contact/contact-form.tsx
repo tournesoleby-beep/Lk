@@ -9,7 +9,7 @@ import { useToast } from "@/components/providers/toast-provider";
 const LABEL_CLASS =
   "font-mono text-[11px] font-medium uppercase tracking-[0.14em] text-slate";
 const INPUT_CLASS =
-  "w-full rounded-xl border border-line bg-cloud/60 px-3.5 py-2.5 text-sm text-ink outline-none transition-all duration-200 placeholder:text-slate focus:border-signal/50 focus:bg-paper focus:ring-4 focus:ring-signal/10";
+  "w-full rounded-xl border border-line bg-cloud/60 px-3.5 py-2.5 text-base text-ink outline-none transition-all duration-200 placeholder:text-slate focus:border-signal/50 focus:bg-paper focus:ring-4 focus:ring-signal/10 sm:text-sm";
 
 type FormValues = {
   fullName: string;

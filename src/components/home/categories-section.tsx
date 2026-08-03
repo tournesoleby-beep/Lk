@@ -8,16 +8,17 @@ export async function CategoriesSection() {
   const categories = await getTopCategories(6);
 
   return (
-    <section className="bg-paper py-24 sm:py-32">
-      <Container className="flex flex-col gap-12">
+    <section className="bg-paper py-14 sm:py-32">
+      <Container className="flex flex-col gap-7 px-5 sm:gap-12 sm:px-6">
         <SectionHeading
           eyebrow="Browse"
           title="Shop by category"
           description="From everyday essentials to statement pieces — organized the way you'd actually go looking for it."
+          compact
         />
 
         {categories.length > 0 ? (
-          <div className="grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-3">
+          <div className="grid grid-cols-2 gap-3 sm:gap-6 md:grid-cols-3">
             {categories.map((category) => (
               <CategoryCard key={category.id} category={category} />
             ))}

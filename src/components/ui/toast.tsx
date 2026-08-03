@@ -15,7 +15,11 @@ const ToastViewport = React.forwardRef<
   <ToastPrimitives.Viewport
     ref={ref}
     className={cn(
-      "fixed bottom-0 left-1/2 z-[100] flex w-full max-w-[420px] -translate-x-1/2 flex-col gap-2.5 p-4 outline-none sm:bottom-6 sm:left-auto sm:right-6 sm:translate-x-0",
+      // Mobile: rests above the product page's fixed bottom purchase bar
+      // (and the iPhone home-indicator safe area) instead of overlapping
+      // it. Desktop (sm:) keeps its original bottom-6 corner position,
+      // where there's no competing fixed bottom bar.
+      "fixed left-1/2 z-[100] flex w-full max-w-[420px] -translate-x-1/2 flex-col gap-2.5 p-4 outline-none bottom-[max(5rem,calc(env(safe-area-inset-bottom)+4.5rem))] sm:bottom-6 sm:left-auto sm:right-6 sm:translate-x-0",
       className
     )}
     {...props}

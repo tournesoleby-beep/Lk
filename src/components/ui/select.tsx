@@ -17,7 +17,10 @@ const SelectTrigger = React.forwardRef<
   <SelectPrimitive.Trigger
     ref={ref}
     className={cn(
-      "group flex items-center justify-between gap-2 rounded-full border border-line bg-cloud/60 px-4 py-2.5 font-mono text-xs uppercase tracking-[0.1em] text-ink outline-none transition-all duration-200 hover:border-ink/25 focus:border-signal/50 focus:bg-paper focus:ring-4 focus:ring-signal/10 data-[state=open]:border-signal/50 data-[state=open]:bg-paper data-[state=open]:ring-4 data-[state=open]:ring-signal/10 [&>span]:line-clamp-1",
+      // min-h-11: proper 44px touch target on mobile/tablet, where this is
+      // the sort control sitting in a toolbar of otherwise min-h-11
+      // controls. lg:min-h-0 restores the original compact desktop sizing.
+      "group flex min-h-11 items-center justify-between gap-2 rounded-full border border-line bg-cloud/60 px-4 py-2.5 font-mono text-xs uppercase tracking-[0.1em] text-ink outline-none transition-all duration-200 hover:border-ink/25 focus:border-signal/50 focus:bg-paper focus:ring-4 focus:ring-signal/10 data-[state=open]:border-signal/50 data-[state=open]:bg-paper data-[state=open]:ring-4 data-[state=open]:ring-signal/10 [&>span]:line-clamp-1 lg:min-h-0",
       className
     )}
     {...props}

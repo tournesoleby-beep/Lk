@@ -5,7 +5,6 @@ import {
   useId,
   useRef,
   useState,
-  useSyncExternalStore,
   type CSSProperties,
   type ElementType,
   type HTMLAttributes,
@@ -40,27 +39,6 @@ function mergeRefs<T>(...refs: Array<Ref<T> | undefined>) {
       else (ref as { current: T | null }).current = node;
     }
   };
-}
-
-// Subscribe to the user's motion preference via useSyncExternalStore rather
-// than reading matchMedia inside an effect. This avoids calling setState
-// synchronously on mount (flagged by react-hooks/set-state-in-effect) and
-// keeps the server snapshot ("no preference") consistent with the initial
-// client render, so there's no hydration mismatch.
-const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
-
-function subscribeToReducedMotion(callback: () => void) {
-  const mql = window.matchMedia(REDUCED_MOTION_QUERY);
-  mql.addEventListener("change", callback);
-  return () => mql.removeEventListener("change", callback);
-}
-
-function getReducedMotionSnapshot() {
-  return window.matchMedia(REDUCED_MOTION_QUERY).matches;
-}
-
-function getReducedMotionServerSnapshot() {
-  return false;
 }
 
 type RevealProps = {
@@ -129,20 +107,20 @@ export function Reveal({
   const scopeId = useId().replace(/[^a-zA-Z0-9]/g, "");
   const scopeClass = `reveal-${scopeId}`;
 
-  // Read the user's motion preference as external state (not effect-driven
-  // setState) — server snapshot is "no preference" so this matches the
-  // initial client render, then updates reactively if the OS setting changes.
-  const prefersReducedMotion = useSyncExternalStore(
-    subscribeToReducedMotion,
-    getReducedMotionSnapshot,
-    getReducedMotionServerSnapshot
-  );
-
   useEffect(() => {
     const node = ref.current;
-    // Respect the user's motion preference: skip the observer entirely so
-    // content just renders in its final (visible) state, no animation.
-    if (!node || prefersReducedMotion) return;
+    if (!node) return;
+
+    const prefersReducedMotion =
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (prefersReducedMotion) {
+      // Respect the user's motion preference: show content as-is, no
+      // animation, no observer.
+      setIsVisible(true);
+      return;
+    }
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -159,17 +137,16 @@ export function Reveal({
 
     observer.observe(node);
     return () => observer.disconnect();
-  }, [threshold, rootMargin, prefersReducedMotion]);
+  }, [threshold, rootMargin]);
 
-  const visible = isVisible || prefersReducedMotion;
   const offset = OFFSETS[variant];
   const Comp = Tag as ElementType;
   const mergedRef = mergeRefs(ref, elementRef);
 
   if (!stagger) {
     const style: CSSProperties = {
-      opacity: visible ? 1 : 0,
-      transform: visible ? "translate3d(0,0,0)" : offset,
+      opacity: isVisible ? 1 : 0,
+      transform: isVisible ? "translate3d(0,0,0)" : offset,
       transitionProperty: "opacity, transform",
       transitionDuration: `${duration}ms`,
       transitionTimingFunction: easing,
@@ -194,7 +171,7 @@ export function Reveal({
   return (
     <Comp
       ref={mergedRef}
-      className={cn(scopeClass, visible && "is-visible", className)}
+      className={cn(scopeClass, isVisible && "is-visible", className)}
       {...rest}
     >
       <style>{`

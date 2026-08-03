@@ -110,7 +110,7 @@ export function ProductImageLightbox({
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="flex h-9 w-9 items-center justify-center rounded-full text-paper transition-colors duration-200 hover:bg-paper/10 active:scale-90"
+            className="flex h-11 w-11 items-center justify-center rounded-full text-paper transition-colors duration-200 hover:bg-paper/10 active:scale-90 lg:h-9 lg:w-9"
           >
             <X className="h-5 w-5" strokeWidth={1.75} />
           </button>
