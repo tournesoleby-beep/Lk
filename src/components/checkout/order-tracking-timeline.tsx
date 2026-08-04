@@ -114,7 +114,13 @@ export function OrderTrackingTimeline({ status }: { status: OrderStatus }) {
               ) : null}
             </div>
 
-            <div className={cn("flex flex-col gap-0.5", !isLast && "pb-5 sm:pb-6")}>
+            <div
+              className={cn(
+                "flex flex-1 flex-col justify-center gap-0.5 rounded-xl transition-colors duration-300",
+                !isLast && "pb-5 sm:pb-6",
+                isCurrent && "-mx-3 bg-accent-soft/40 px-3 py-2"
+              )}
+            >
               {isCurrent ? (
                 <span className="font-mono text-[10px] font-medium uppercase tracking-[0.14em] text-signal">
                   Status saat ini

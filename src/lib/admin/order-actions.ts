@@ -11,6 +11,10 @@ export type UpdateOrderStatusResult =
   | { success: true }
   | { success: false; error: string };
 
+export type DeleteOrderResult =
+  | { success: true }
+  | { success: false; error: string };
+
 const VALID_STATUSES: OrderStatus[] = [
   "PENDING",
   "WAITING_VERIFICATION",
@@ -130,5 +134,34 @@ export async function updateOrderStatus(
     revalidatePath("/admin/orders");
     revalidatePath(`/admin/orders/${orderId}`);
     revalidatePath("/admin/products");
+  }
+}
+
+/**
+ * Delete an order from the admin orders list.
+ */
+export async function deleteOrder(orderId: string): Promise<DeleteOrderResult> {
+  try {
+    await prisma.order.delete({ where: { id: orderId } });
+
+    return { success: true };
+  } catch (error) {
+    console.error("[admin orders] failed to delete order:", error);
+
+    const code =
+      typeof error === "object" && error !== null && "code" in error
+        ? (error as { code?: unknown }).code
+        : undefined;
+
+    return {
+      success: false,
+      error:
+        code === "P2025"
+          ? "This order no longer exists."
+          : "Something went wrong deleting the order. Please try again.",
+    };
+  } finally {
+    revalidatePath("/admin/orders");
+    revalidatePath(`/admin/orders/${orderId}`);
   }
 }

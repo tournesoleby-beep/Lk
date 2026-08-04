@@ -3,12 +3,13 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import type { OrderStatus } from "@prisma/client";
-import { ChevronLeft, ChevronRight, Search } from "lucide-react";
+import { ChevronLeft, ChevronRight, Search, X } from "lucide-react";
 
 import { cn, formatCurrency, formatDate } from "@/lib/utils";
 import type { AdminOrderListItem } from "@/lib/admin/orders";
 import { EmptyState } from "@/components/home/empty-state";
 import { OrderStatusBadge, ORDER_STATUS_LABELS } from "@/components/admin/order-status-badge";
+import { deleteOrder } from "@/lib/admin/order-actions";
 
 const STATUS_FILTERS: { label: string; value: OrderStatus | "ALL" }[] = [
   { label: "All", value: "ALL" },
@@ -20,13 +21,23 @@ const STATUS_FILTERS: { label: string; value: OrderStatus | "ALL" }[] = [
 const PAGE_SIZE = 10;
 
 export function OrdersManager({ initialOrders }: { initialOrders: AdminOrderListItem[] }) {
+  const [orders, setOrders] = useState(initialOrders);
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<OrderStatus | "ALL">("ALL");
   const [page, setPage] = useState(1);
 
+  async function handleDelete(orderId: string) {
+    if (!window.confirm("Hapus pesanan ini?")) return;
+
+    const result = await deleteOrder(orderId);
+    if (result.success) {
+      setOrders((prev) => prev.filter((order) => order.id !== orderId));
+    }
+  }
+
   const filtered = useMemo(() => {
     const trimmed = query.trim().toLowerCase();
-    return initialOrders.filter((order) => {
+    return orders.filter((order) => {
       const matchesQuery =
         !trimmed ||
         order.orderNumber.toLowerCase().includes(trimmed) ||
@@ -36,7 +47,7 @@ export function OrdersManager({ initialOrders }: { initialOrders: AdminOrderList
       const matchesStatus = statusFilter === "ALL" || order.status === statusFilter;
       return matchesQuery && matchesStatus;
     });
-  }, [initialOrders, query, statusFilter]);
+  }, [orders, query, statusFilter]);
 
   const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const currentPage = Math.min(page, pageCount);
@@ -170,12 +181,23 @@ export function OrdersManager({ initialOrders }: { initialOrders: AdminOrderList
                       </span>
                     </td>
                     <td className="px-5 py-3 text-right">
-                      <Link
-                        href={`/admin/orders/${order.id}`}
-                        className="text-xs font-medium uppercase tracking-[0.1em] text-ink underline underline-offset-4 transition-colors duration-200 hover:text-signal"
-                      >
-                        View
-                      </Link>
+                      <div className="flex items-center justify-end gap-3">
+                        <Link
+                          href={`/admin/orders/${order.id}`}
+                          className="text-xs font-medium uppercase tracking-[0.1em] text-ink underline underline-offset-4 transition-colors duration-200 hover:text-signal"
+                        >
+                          View
+                        </Link>
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(order.id)}
+                          aria-label="Hapus pesanan"
+                          title="Hapus pesanan"
+                          className="flex h-6 w-6 items-center justify-center rounded-full text-red-500 transition-colors duration-200 hover:bg-red-50 hover:text-red-600"
+                        >
+                          <X className="h-4 w-4" strokeWidth={1.75} />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -209,12 +231,23 @@ export function OrdersManager({ initialOrders }: { initialOrders: AdminOrderList
                   <span className="font-mono text-sm font-medium text-ink">
                     {formatCurrency(order.total, order.currency)}
                   </span>
-                  <Link
-                    href={`/admin/orders/${order.id}`}
-                    className="text-xs font-medium uppercase tracking-[0.1em] text-ink underline underline-offset-4 transition-colors duration-200 hover:text-signal"
-                  >
-                    View
-                  </Link>
+                  <div className="flex items-center gap-3">
+                    <Link
+                      href={`/admin/orders/${order.id}`}
+                      className="text-xs font-medium uppercase tracking-[0.1em] text-ink underline underline-offset-4 transition-colors duration-200 hover:text-signal"
+                    >
+                      View
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(order.id)}
+                      aria-label="Hapus pesanan"
+                      title="Hapus pesanan"
+                      className="flex h-6 w-6 items-center justify-center rounded-full text-red-500 transition-colors duration-200 hover:bg-red-50 hover:text-red-600"
+                    >
+                      <X className="h-4 w-4" strokeWidth={1.75} />
+                    </button>
+                  </div>
                 </div>
               </li>
             ))}

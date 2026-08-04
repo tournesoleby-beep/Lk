@@ -1,5 +1,6 @@
 import { Truck } from "lucide-react";
 
+import { cn } from "@/lib/utils";
 import { CopyTrackingNumberButton } from "@/components/checkout/copy-tracking-number-button";
 
 /**
@@ -31,20 +32,28 @@ export function ShipmentInfo({
   if (!carrier && !trackingNumber) return null;
 
   return (
-    <div className="flex flex-col gap-3">
-      <h2 className="font-serif text-base font-semibold text-ink">Informasi Pengiriman</h2>
-      <div className="flex flex-col gap-3 text-sm">
+    <div className="flex flex-col gap-5">
+      <div className="flex items-center gap-2.5">
+        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-cloud text-slate">
+          <Truck className="h-4 w-4" strokeWidth={1.75} />
+        </span>
+        <h2 className="font-serif text-base font-semibold text-ink">Informasi Pengiriman</h2>
+      </div>
+
+      <div className="flex flex-col gap-4 text-sm">
         {carrier ? (
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-3">
             <span className="text-slate">Kurir</span>
-            <span className="flex items-center gap-1.5 font-medium text-ink">
-              <Truck className="h-4 w-4 text-slate" strokeWidth={1.75} />
-              {carrier}
-            </span>
+            <span className="font-medium text-ink">{carrier}</span>
           </div>
         ) : null}
         {trackingNumber ? (
-          <div className="flex items-center justify-between gap-3">
+          <div
+            className={cn(
+              "flex items-center justify-between gap-3",
+              carrier && "border-t border-line pt-4"
+            )}
+          >
             <span className="text-slate">Nomor Resi</span>
             <div className="flex items-center gap-1">
               <span className="font-mono text-ink">{trackingNumber}</span>
