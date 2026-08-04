@@ -166,6 +166,14 @@ export async function getOrderForInvoice(orderNumber: string): Promise<InvoiceOr
   }
 }
 
+export type TrackingOrderItemReview = {
+  id: string;
+  rating: number;
+  approved: boolean;
+  featured: boolean;
+  createdAt: string;
+};
+
 export type TrackingOrderItem = {
   id: string;
   name: string;
@@ -173,6 +181,7 @@ export type TrackingOrderItem = {
   quantity: number;
   variant: { name: string } | null;
   product: { images: { url: string; altText: string | null }[] } | null;
+  review: TrackingOrderItemReview | null;
 };
 
 export type TrackingOrder = {
@@ -239,6 +248,7 @@ export async function getOrderForTracking(orderNumber: string): Promise<Tracking
             name: true,
             price: true,
             quantity: true,
+            productId: true,
             variant: { select: { name: true } },
             product: {
               select: {
@@ -255,6 +265,28 @@ export async function getOrderForTracking(orderNumber: string): Promise<Tracking
     });
 
     if (!order) return null;
+
+    // One review per product per order (see ProductReview's @@unique in
+    // schema.prisma), so a single findMany keyed on this order's id and its
+    // items' product ids is enough — no per-item query, and it's skipped
+    // entirely when the order has no items.
+    const productIds = order.items
+  .map(item => item.productId)
+  .filter((id): id is string => Boolean(id))
+    const reviews = productIds.length
+      ? await prisma.productReview.findMany({
+          where: { orderId: order.id, productId: { in: productIds } },
+          select: {
+            id: true,
+            productId: true,
+            rating: true,
+            approved: true,
+            featured: true,
+            createdAt: true,
+          },
+        })
+      : [];
+    const reviewByProductId = new Map(reviews.map((review) => [review.productId, review]));
 
     return {
       id: order.id,
@@ -279,14 +311,29 @@ export async function getOrderForTracking(orderNumber: string): Promise<Tracking
             country: order.shippingAddress.country,
           }
         : null,
-      items: order.items.map((item) => ({
-        id: item.id,
-        name: item.name,
-        price: Number(item.price.toString()),
-        quantity: item.quantity,
-        variant: item.variant ? { name: item.variant.name } : null,
-        product: item.product ? { images: item.product.images } : null,
-      })),
+      items: order.items.map((item) => {
+        const review = item.productId
+  ? reviewByProductId.get(item.productId) ?? null
+  : null;
+
+        return {
+          id: item.id,
+          name: item.name,
+          price: Number(item.price.toString()),
+          quantity: item.quantity,
+          variant: item.variant ? { name: item.variant.name } : null,
+          product: item.product ? { images: item.product.images } : null,
+          review: review
+            ? {
+                id: review.id,
+                rating: review.rating,
+                approved: review.approved,
+                featured: review.featured,
+                createdAt: review.createdAt.toISOString(),
+              }
+            : null,
+        };
+      }),
     };
   } catch (error) {
     console.error("[checkout] failed to load order for tracking:", error);

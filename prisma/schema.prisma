@@ -41,7 +41,6 @@ model User {
   addresses Address[]
   cart      Cart?
   orders    Order[]
-  reviews   Review[]
 
   @@map("users")
 }
@@ -140,7 +139,7 @@ model Product {
 
   images     ProductImage[]
   variants   ProductVariant[]
-  reviews    Review[]
+  productReviews ProductReview[]
   cartItems  CartItem[]
   orderItems OrderItem[]
   stockHistory StockHistory[]
@@ -220,23 +219,36 @@ model StockHistory {
   @@map("stock_history")
 }
 
-model Review {
-  id        String   @id @default(cuid())
-  productId String   @map("product_id")
-  userId    String   @map("user_id")
-  rating    Int // 1-5
-  title     String?
-  comment   String?  @db.Text
+// Verified product reviews tied to a fulfilled order line, rather than a
+// User account (this project has no customer-account requirement for
+// reviewing — see Order/OrderItem, which already snapshot everything
+// needed at purchase time). reviewerName is likewise a snapshot taken from
+// the order (e.g. shippingAddress.fullName), not a User relation.
+//
+// Eligibility (only DELIVERED orders may be reviewed) is business logic to
+// be enforced where reviews are created, not expressed here in the schema.
+model ProductReview {
+  id           String  @id @default(cuid())
+  productId    String  @map("product_id")
+  orderId      String  @map("order_id")
+  rating       Int // 1-5
+  comment      String? @db.Text
+  images       Json? // optional array of Cloudinary image URLs
+  reviewerName String  @map("reviewer_name") // snapshot from the order, not a User relation
+  approved     Boolean @default(false)
+  featured     Boolean @default(false)
 
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@unique([productId, userId])
+  // One review per product per order.
+  @@unique([productId, orderId])
   @@index([productId])
-  @@map("reviews")
+  @@index([orderId])
+  @@map("product_reviews")
 }
 
 // ---------------------------------------------------------------------------
@@ -360,6 +372,7 @@ model Order {
   user  User        @relation(fields: [userId], references: [id], onDelete: Restrict)
   items OrderItem[]
   stockHistory StockHistory[]
+  productReviews ProductReview[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")

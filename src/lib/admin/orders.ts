@@ -151,3 +151,53 @@ export async function getAdminOrderById(id: string): Promise<AdminOrderDetail | 
     };
   }, null);
 }
+
+export type AdminProductReviewListItem = {
+  id: string;
+  rating: number;
+  comment: string | null;
+  reviewerName: string;
+  approved: boolean;
+  featured: boolean;
+  createdAt: string;
+  product: { id: string; name: string };
+  order: { orderNumber: string };
+};
+
+/**
+ * Fetch every product review for the admin reviews table, newest first.
+ *
+ * NOTE: the `ProductReview` model (prisma/schema.prisma) has no `images`
+ * field, so it isn't returned here — adding it would require a schema
+ * change, which is out of scope for this pass.
+ */
+export async function getAdminProductReviews(): Promise<AdminProductReviewListItem[]> {
+  return safeQuery(async () => {
+    const reviews = await prisma.productReview.findMany({
+      orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        rating: true,
+        comment: true,
+        reviewerName: true,
+        approved: true,
+        featured: true,
+        createdAt: true,
+        product: { select: { id: true, name: true } },
+        order: { select: { orderNumber: true } },
+      },
+    });
+
+    return reviews.map((review) => ({
+      id: review.id,
+      rating: review.rating,
+      comment: review.comment,
+      reviewerName: review.reviewerName,
+      approved: review.approved,
+      featured: review.featured,
+      createdAt: review.createdAt.toISOString(),
+      product: { id: review.product.id, name: review.product.name },
+      order: { orderNumber: review.order.orderNumber },
+    }));
+  }, []);
+}

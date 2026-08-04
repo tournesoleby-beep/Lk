@@ -165,3 +165,132 @@ export async function deleteOrder(orderId: string): Promise<DeleteOrderResult> {
     revalidatePath(`/admin/orders/${orderId}`);
   }
 }
+
+export type UpdateReviewResult =
+  | { success: true }
+  | { success: false; error: string };
+
+export type DeleteReviewResult =
+  | { success: true }
+  | { success: false; error: string };
+
+/**
+ * Approve a pending product review so it becomes publicly visible.
+ */
+export async function approveProductReview(reviewId: string): Promise<UpdateReviewResult> {
+  try {
+    await prisma.productReview.update({
+      where: { id: reviewId },
+      data: { approved: true },
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error("[admin reviews] failed to approve review:", error);
+
+    const code =
+      typeof error === "object" && error !== null && "code" in error
+        ? (error as { code?: unknown }).code
+        : undefined;
+
+    return {
+      success: false,
+      error:
+        code === "P2025"
+          ? "This review no longer exists."
+          : "Something went wrong approving the review. Please try again.",
+    };
+  } finally {
+    revalidatePath("/admin/reviews");
+  }
+}
+
+/**
+ * Mark a review as featured (e.g. for display on the product page).
+ */
+export async function featureProductReview(reviewId: string): Promise<UpdateReviewResult> {
+  try {
+    await prisma.productReview.update({
+      where: { id: reviewId },
+      data: { featured: true },
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error("[admin reviews] failed to feature review:", error);
+
+    const code =
+      typeof error === "object" && error !== null && "code" in error
+        ? (error as { code?: unknown }).code
+        : undefined;
+
+    return {
+      success: false,
+      error:
+        code === "P2025"
+          ? "This review no longer exists."
+          : "Something went wrong featuring the review. Please try again.",
+    };
+  } finally {
+    revalidatePath("/admin/reviews");
+  }
+}
+
+/**
+ * Remove a review's featured status.
+ */
+export async function unfeatureProductReview(reviewId: string): Promise<UpdateReviewResult> {
+  try {
+    await prisma.productReview.update({
+      where: { id: reviewId },
+      data: { featured: false },
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error("[admin reviews] failed to unfeature review:", error);
+
+    const code =
+      typeof error === "object" && error !== null && "code" in error
+        ? (error as { code?: unknown }).code
+        : undefined;
+
+    return {
+      success: false,
+      error:
+        code === "P2025"
+          ? "This review no longer exists."
+          : "Something went wrong unfeaturing the review. Please try again.",
+    };
+  } finally {
+    revalidatePath("/admin/reviews");
+  }
+}
+
+/**
+ * Delete a product review from the admin reviews list.
+ */
+export async function deleteProductReview(reviewId: string): Promise<DeleteReviewResult> {
+  try {
+    await prisma.productReview.delete({ where: { id: reviewId } });
+
+    return { success: true };
+  } catch (error) {
+    console.error("[admin reviews] failed to delete review:", error);
+
+    const code =
+      typeof error === "object" && error !== null && "code" in error
+        ? (error as { code?: unknown }).code
+        : undefined;
+
+    return {
+      success: false,
+      error:
+        code === "P2025"
+          ? "This review no longer exists."
+          : "Something went wrong deleting the review. Please try again.",
+    };
+  } finally {
+    revalidatePath("/admin/reviews");
+  }
+}
