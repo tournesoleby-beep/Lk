@@ -126,10 +126,14 @@ model Product {
   sku         String?       @unique
   status      ProductStatus @default(DRAFT)
   featured    Boolean       @default(false)
-  // Used for shipping-rate calculation (carrier integration is not wired up
-  // yet — see src/lib/checkout/actions.ts). Defaults to 0 for existing rows
-  // and any product created before a real weight is entered.
-  weightGrams Int           @default(0) @map("weight_grams")
+  // Used for Biteship shipping-rate calculation (see
+  // src/lib/checkout/actions.ts and src/lib/checkout/shipping.ts). Defaults
+  // to 500g for newly created products. Existing rows that were still at
+  // the old 0g default are backfilled to the same 500g value by running
+  // scripts/backfill-product-weight.sql once against the database (this
+  // project uses `prisma db push`, not migrations, so there's no migration
+  // to carry that data change).
+  weightGrams Int           @default(500) @map("weight_grams")
 
   categoryId String?   @map("category_id")
   category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)

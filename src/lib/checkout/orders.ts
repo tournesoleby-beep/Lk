@@ -165,3 +165,131 @@ export async function getOrderForInvoice(orderNumber: string): Promise<InvoiceOr
     return null;
   }
 }
+
+export type TrackingOrderItem = {
+  id: string;
+  name: string;
+  price: number;
+  quantity: number;
+  variant: { name: string } | null;
+  product: { images: { url: string; altText: string | null }[] } | null;
+};
+
+export type TrackingOrder = {
+  id: string;
+  orderNumber: string;
+  status: OrderStatus;
+  total: number;
+  currency: string;
+  subtotal: number;
+  shippingTotal: number;
+  createdAt: string;
+  shippingCarrier: string | null;
+  trackingNumber: string | null;
+  shippingAddress: {
+    fullName: string;
+    phone: string | null;
+    line1: string;
+    line2: string | null;
+    city: string;
+    state: string | null;
+    postalCode: string;
+    country: string;
+  } | null;
+  items: TrackingOrderItem[];
+};
+
+/**
+ * Look up everything the /orders/lookup tracking page needs — order +
+ * timeline status, shipping address, line items (with variant/first product
+ * image), payment totals, and carrier/tracking info. Same public,
+ * unauth'd-by-orderNumber lookup model as getOrderForPayment and
+ * getOrderForInvoice above.
+ */
+export async function getOrderForTracking(orderNumber: string): Promise<TrackingOrder | null> {
+  try {
+    const order = await prisma.order.findUnique({
+      where: { orderNumber },
+      select: {
+        id: true,
+        orderNumber: true,
+        status: true,
+        total: true,
+        currency: true,
+        subtotal: true,
+        shippingTotal: true,
+        createdAt: true,
+        shippingCarrier: true,
+        trackingNumber: true,
+        shippingAddress: {
+          select: {
+            fullName: true,
+            phone: true,
+            line1: true,
+            line2: true,
+            city: true,
+            state: true,
+            postalCode: true,
+            country: true,
+          },
+        },
+        items: {
+          select: {
+            id: true,
+            name: true,
+            price: true,
+            quantity: true,
+            variant: { select: { name: true } },
+            product: {
+              select: {
+                images: {
+                  orderBy: { position: "asc" },
+                  take: 1,
+                  select: { url: true, altText: true },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!order) return null;
+
+    return {
+      id: order.id,
+      orderNumber: order.orderNumber,
+      status: order.status,
+      total: Number(order.total.toString()),
+      currency: order.currency,
+      subtotal: Number(order.subtotal.toString()),
+      shippingTotal: Number(order.shippingTotal.toString()),
+      createdAt: order.createdAt.toISOString(),
+      shippingCarrier: order.shippingCarrier,
+      trackingNumber: order.trackingNumber,
+      shippingAddress: order.shippingAddress
+        ? {
+            fullName: order.shippingAddress.fullName,
+            phone: order.shippingAddress.phone,
+            line1: order.shippingAddress.line1,
+            line2: order.shippingAddress.line2,
+            city: order.shippingAddress.city,
+            state: order.shippingAddress.state,
+            postalCode: order.shippingAddress.postalCode,
+            country: order.shippingAddress.country,
+          }
+        : null,
+      items: order.items.map((item) => ({
+        id: item.id,
+        name: item.name,
+        price: Number(item.price.toString()),
+        quantity: item.quantity,
+        variant: item.variant ? { name: item.variant.name } : null,
+        product: item.product ? { images: item.product.images } : null,
+      })),
+    };
+  } catch (error) {
+    console.error("[checkout] failed to load order for tracking:", error);
+    return null;
+  }
+}

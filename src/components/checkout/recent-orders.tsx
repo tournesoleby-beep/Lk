@@ -15,7 +15,25 @@ import { formatCurrency, formatDate } from "@/lib/utils";
 // here can be stale (saved on a previous visit, status may have moved on
 // since), so it's presented as a plain label rather than the same
 // authoritative-looking badge the live lookup result gets.
+//
+// Kept as its own small Indonesian dictionary (rather than importing the
+// live OrderStatusBadge labels) to preserve that separation — falls back to
+// a capitalized version of the raw status for any value it doesn't recognize.
+const STATUS_LABELS_ID: Record<string, string> = {
+  PENDING: "Menunggu Pembayaran",
+  WAITING_VERIFICATION: "Menunggu Verifikasi",
+  PAID: "Dibayar",
+  PROCESSING: "Diproses",
+  SHIPPED: "Dikirim",
+  DELIVERED: "Selesai",
+  CANCELLED: "Dibatalkan",
+  REFUNDED: "Dana Dikembalikan",
+  PAYMENT_REJECTED: "Pembayaran Ditolak",
+};
+
 function statusLabel(status: string): string {
+  if (STATUS_LABELS_ID[status]) return STATUS_LABELS_ID[status];
+
   return status
     .toLowerCase()
     .split("_")
@@ -42,7 +60,7 @@ export function RecentOrders() {
   return (
     <div className="flex w-full max-w-md flex-col gap-3">
       <h2 className="font-mono text-[11px] font-medium uppercase tracking-[0.14em] text-slate">
-        Recent orders on this device
+        Pesanan terbaru di perangkat ini
       </h2>
       <ul className="flex flex-col gap-2.5">
         {orders.map((order) => (

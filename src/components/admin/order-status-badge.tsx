@@ -15,15 +15,15 @@ const STATUS_STYLES: Record<OrderStatus, string> = {
 };
 
 const STATUS_LABELS: Record<OrderStatus, string> = {
-  PENDING: "Pending",
-  WAITING_VERIFICATION: "Waiting for verification",
-  PAID: "Paid",
-  PROCESSING: "Processing",
-  SHIPPED: "Shipped",
-  DELIVERED: "Delivered",
-  CANCELLED: "Cancelled",
-  REFUNDED: "Refunded",
-  PAYMENT_REJECTED: "Payment rejected",
+  PENDING: "Menunggu Pembayaran",
+  WAITING_VERIFICATION: "Menunggu Verifikasi",
+  PAID: "Dibayar",
+  PROCESSING: "Diproses",
+  SHIPPED: "Dikirim",
+  DELIVERED: "Selesai",
+  CANCELLED: "Dibatalkan",
+  REFUNDED: "Dana Dikembalikan",
+  PAYMENT_REJECTED: "Pembayaran Ditolak",
 };
 
 export function OrderStatusBadge({ status }: { status: OrderStatus }) {

@@ -4,6 +4,23 @@ import { prisma } from "@/lib/prisma";
 import { generateOrderNumber } from "@/lib/utils";
 import { checkoutSchema, type CheckoutInput } from "@/lib/validations/checkout";
 import { sendOrderConfirmationEmail, sendAdminOrderNotificationEmail } from "@/lib/email/order-emails";
+import { sendWhatsAppMessage } from "@/lib/whatsapp/client";
+import { newOrderAdmin } from "@/lib/whatsapp/templates";
+
+// Indonesian labels for the admin WhatsApp alert only — separate from the
+// English STATUS_LABELS in src/lib/email/order-emails.ts, which serve the
+// (English-language) email templates.
+const WHATSAPP_STATUS_LABELS: Record<string, string> = {
+  PENDING: "Menunggu Pembayaran",
+  WAITING_VERIFICATION: "Menunggu Verifikasi",
+  PAID: "Lunas",
+  PROCESSING: "Diproses",
+  SHIPPED: "Dikirim",
+  DELIVERED: "Diterima",
+  CANCELLED: "Dibatalkan",
+  REFUNDED: "Dana Dikembalikan",
+  PAYMENT_REJECTED: "Pembayaran Ditolak",
+};
 
 export type CheckoutCartLine = {
   id: string; // product id — the cart has no variant selection today
@@ -181,9 +198,36 @@ export async function placeOrder(
           currency,
         };
 
+        // Best-effort admin WhatsApp alert. Wrapped in its own try/catch so
+        // that any failure here (missing ADMIN_WHATSAPP, template error,
+        // send failure) can never bubble up and fail the order — the same
+        // best-effort guarantee as the emails above. sendWhatsAppMessage()
+        // itself never throws, but this catch also covers newOrderAdmin()
+        // and the env lookup around it.
+        const notifyAdminWhatsApp = async () => {
+          try {
+            const adminWhatsApp = process.env.ADMIN_WHATSAPP;
+            if (!adminWhatsApp) return;
+
+            const message = newOrderAdmin({
+              orderNumber,
+              customerName: fullName,
+              customerPhone: phone,
+              total: subtotal + shippingCost,
+              paymentStatus: WHATSAPP_STATUS_LABELS[order.status] ?? order.status,
+              currency,
+            });
+
+            await sendWhatsAppMessage(adminWhatsApp, message);
+          } catch (error) {
+            console.error("[checkout] failed to send admin WhatsApp notification:", error);
+          }
+        };
+
         await Promise.allSettled([
           sendOrderConfirmationEmail(emailData),
           sendAdminOrderNotificationEmail(emailData),
+          notifyAdminWhatsApp(),
         ]);
 
         return { success: true, orderNumber };
