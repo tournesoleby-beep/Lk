@@ -1,7 +1,6 @@
-import { Fragment } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Search, Download, Star, ImagePlus } from "lucide-react";
+import { Search, Download } from "lucide-react";
 
 import { getOrderForTracking, PAID_EQUIVALENT_STATUSES } from "@/lib/checkout/orders";
 import { formatCurrency, formatDate, cn } from "@/lib/utils";
@@ -12,6 +11,7 @@ import { PlaceholderTile } from "@/components/home/placeholder-tile";
 import { OrderStatusBadge } from "@/components/admin/order-status-badge";
 import { CopyOrderNumberButton } from "@/components/checkout/copy-order-number-button";
 import { RecentOrders } from "@/components/checkout/recent-orders";
+import { ReviewForm } from "@/components/checkout/review-form";
 import {
   OrderTrackingTimeline,
   hasTrackingTimeline,
@@ -20,20 +20,6 @@ import { ShipmentInfo, hasShipmentInfo } from "@/components/checkout/shipment-in
 
 export const metadata: Metadata = {
   title: "Lacak pesanan — Lapiita Karya",
-};
-
-/**
- * Shape this page needs from an order item to render a review card.
- * `review` is speculative — the order item type returned by
- * `getOrderForTracking` doesn't currently expose it, so this optional
- * field is guarded everywhere it's read and simply falls back to
- * "not yet reviewed" until that's wired up on the data side.
- */
-type ReviewableOrderItem = {
-  id: string;
-  name: string;
-  product?: { images?: { url: string; altText?: string | null }[] | null } | null;
-  review?: { id: string } | null;
 };
 
 export default async function OrderLookupPage({
@@ -45,7 +31,7 @@ export default async function OrderLookupPage({
   const trimmed = orderNumber?.trim();
   const order = trimmed ? await getOrderForTracking(trimmed) : null;
   const notFound = Boolean(trimmed) && !order;
-  const reviewItems = (order?.items ?? []) as ReviewableOrderItem[];
+  const reviewItems = order?.items ?? [];
   const showReviewSection = order?.status === "DELIVERED" && reviewItems.length > 0;
 
   return (
@@ -156,10 +142,12 @@ export default async function OrderLookupPage({
                 ) : null}
 
                 {/* Review submission — only once the order has actually been
-                    delivered. `review` on each item is speculative until the
-                    data layer exposes it (see ReviewableOrderItem above), so
-                    every item currently falls back to the "not yet reviewed"
-                    form state. */}
+                    delivered. Each item's `review` comes from a real
+                    ProductReview lookup (see getOrderForTracking); items
+                    without one get the working ReviewForm, items with one
+                    just show the "already reviewed" note. Items whose
+                    product was since deleted (productId null) can't be
+                    reviewed at all. */}
                 {showReviewSection ? (
                   <div className="rounded-2xl border border-line p-6 shadow-xs sm:p-8">
                     <div className="flex flex-col gap-6">
@@ -205,65 +193,17 @@ export default async function OrderLookupPage({
                                 <p className="text-sm text-slate">
                                   ✓ Anda sudah memberikan ulasan untuk produk ini.
                                 </p>
+                              ) : item.productId ? (
+                                <ReviewForm
+                                  orderNumber={order.orderNumber}
+                                  productId={item.productId}
+                                  itemId={item.id}
+                                  itemName={item.name}
+                                />
                               ) : (
-                                <form className="flex flex-col gap-4">
-                                  <div className="flex flex-col gap-1.5">
-                                    <span className="text-xs text-slate">Rating</span>
-                                    <div className="flex flex-row-reverse items-center justify-end gap-1">
-                                      {[5, 4, 3, 2, 1].map((n) => (
-                                        <Fragment key={n}>
-                                          <input
-                                            type="radio"
-                                            id={`rating-${item.id}-${n}`}
-                                            name={`rating-${item.id}`}
-                                            value={n}
-                                            className="peer sr-only"
-                                          />
-                                          <label
-                                            htmlFor={`rating-${item.id}-${n}`}
-                                            className="cursor-pointer text-line transition-colors duration-150 hover:text-signal peer-checked:text-signal"
-                                          >
-                                            <Star
-                                              className="h-5 w-5"
-                                              strokeWidth={1.75}
-                                              fill="currentColor"
-                                            />
-                                          </label>
-                                        </Fragment>
-                                      ))}
-                                    </div>
-                                  </div>
-
-                                  <div className="flex flex-col gap-1.5">
-                                    <label
-                                      htmlFor={`comment-${item.id}`}
-                                      className="text-xs text-slate"
-                                    >
-                                      Komentar (opsional)
-                                    </label>
-                                    <textarea
-                                      id={`comment-${item.id}`}
-                                      name={`comment-${item.id}`}
-                                      rows={3}
-                                      placeholder="Ceritakan pengalaman Anda dengan produk ini..."
-                                      className="w-full resize-none rounded-xl border border-line bg-cloud/60 px-3.5 py-2.5 text-sm text-ink outline-none transition-all duration-200 placeholder:text-slate focus:border-signal/50 focus:bg-paper focus:ring-4 focus:ring-signal/10"
-                                    />
-                                  </div>
-
-                                  <div className="flex flex-col gap-1.5">
-                                    <span className="text-xs text-slate">Foto (opsional)</span>
-                                    <div className="flex h-16 w-16 items-center justify-center rounded-xl border border-dashed border-line text-slate/60">
-                                      <ImagePlus className="h-5 w-5" strokeWidth={1.75} />
-                                    </div>
-                                  </div>
-
-                                  <button
-                                    type="button"
-                                    className="mt-1 inline-flex min-h-11 items-center justify-center rounded-full bg-ink px-6 py-2.5 text-sm font-medium text-paper shadow-sm transition-all duration-200 hover:bg-ink/85 hover:shadow-md active:scale-[0.98] sm:self-start"
-                                  >
-                                    Kirim Ulasan
-                                  </button>
-                                </form>
+                                <p className="text-sm text-slate">
+                                  Produk ini tidak lagi tersedia untuk diulas.
+                                </p>
                               )}
                             </div>
                           );

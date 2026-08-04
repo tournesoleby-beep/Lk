@@ -2,10 +2,10 @@
 
 import { useState, useSyncExternalStore } from "react";
 import Link from "next/link";
-import { Maximize2, Minus, Plus, ShoppingBag } from "lucide-react";
+import { Maximize2, Minus, Plus, ShoppingBag, Star } from "lucide-react";
 
-import { cn, formatCurrency } from "@/lib/utils";
-import type { ShopProductDetail } from "@/lib/shop/product";
+import { cn, formatCurrency, formatDate } from "@/lib/utils";
+import type { ShopProductDetail, ShopProductReview } from "@/lib/shop/product";
 import { PlaceholderTile } from "@/components/home/placeholder-tile";
 import { Reveal } from "@/components/home/reveal";
 import { useCart } from "@/components/cart/cart-provider";
@@ -26,6 +26,74 @@ function getHoverZoomSupportSnapshot() {
 
 function getHoverZoomServerSnapshot() {
   return false;
+}
+
+/**
+ * Small "★ 4.5 (12)" badge shown next to the price. Only rendered by the
+ * caller when reviewCount > 0 — an average of zero reviews isn't
+ * meaningful, so there's no "no ratings yet" variant of this badge.
+ */
+function AverageRatingBadge({
+  averageRating,
+  reviewCount,
+}: {
+  averageRating: number;
+  reviewCount: number;
+}) {
+  return (
+    <span className="inline-flex items-center gap-1 font-mono text-xs text-slate">
+      <Star className="h-3.5 w-3.5 fill-amber-500 text-amber-500" strokeWidth={1.75} />
+      {averageRating.toFixed(1)}
+      <span className="text-slate/70">
+        ({reviewCount} {reviewCount === 1 ? "review" : "reviews"})
+      </span>
+    </span>
+  );
+}
+
+/**
+ * Approved-reviews list shown on the product page. Only rendered by the
+ * caller when there's at least one approved review — see getProductBySlug
+ * in src/lib/shop/product.ts, which already filters to `approved: true`.
+ * Used identically in both the mobile and desktop trees below.
+ */
+function ProductReviewsSection({ reviews }: { reviews: ShopProductReview[] }) {
+  return (
+    <div className="flex flex-col gap-5 border-t border-line pt-6">
+      <h2 className="font-serif text-base font-semibold text-ink">Customer Reviews</h2>
+      <div className="flex flex-col gap-5">
+        {reviews.map((review) => (
+          <div key={review.id} className="flex flex-col gap-1.5">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium text-ink">{review.reviewerName}</span>
+                <span className="flex items-center gap-0.5" aria-label={`${review.rating} out of 5 stars`}>
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Star
+                      key={i}
+                      className={cn(
+                        "h-3.5 w-3.5",
+                        i < review.rating
+                          ? "fill-amber-500 text-amber-500"
+                          : "fill-none text-line"
+                      )}
+                      strokeWidth={1.75}
+                    />
+                  ))}
+                </span>
+              </div>
+              <span className="font-mono text-[11px] uppercase tracking-[0.1em] text-slate">
+                {formatDate(review.createdAt)}
+              </span>
+            </div>
+            {review.comment ? (
+              <p className="text-sm leading-relaxed text-slate">{review.comment}</p>
+            ) : null}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 }
 
 export function ProductDetail({ product }: { product: ShopProductDetail }) {
@@ -54,6 +122,7 @@ export function ProductDetail({ product }: { product: ShopProductDetail }) {
   const isLowStock = inStock && product.stock <= 5;
   const image = product.images[activeImage] ?? null;
   const imageCount = product.images.length;
+  const hasReviews = product.reviewCount > 0;
 
   function handleAddToCart() {
     cart.addItem(
@@ -134,6 +203,13 @@ export function ProductDetail({ product }: { product: ShopProductDetail }) {
                     ? `Only ${product.stock} left`
                     : `In stock — ${product.stock} available`}
               </span>
+
+              {hasReviews ? (
+                <AverageRatingBadge
+                  averageRating={product.averageRating as number}
+                  reviewCount={product.reviewCount}
+                />
+              ) : null}
             </div>
           </div>
 
@@ -142,6 +218,8 @@ export function ProductDetail({ product }: { product: ShopProductDetail }) {
               {product.description}
             </p>
           ) : null}
+
+          {hasReviews ? <ProductReviewsSection reviews={product.reviews} /> : null}
         </Reveal>
       </div>
 
@@ -293,6 +371,13 @@ export function ProductDetail({ product }: { product: ShopProductDetail }) {
                 </span>
               ) : null}
             </div>
+
+            {hasReviews ? (
+              <AverageRatingBadge
+                averageRating={product.averageRating as number}
+                reviewCount={product.reviewCount}
+              />
+            ) : null}
           </div>
 
           <span
@@ -362,6 +447,8 @@ export function ProductDetail({ product }: { product: ShopProductDetail }) {
               {inStock ? (added ? "Added to bag" : "Add to cart") : "Out of Stock"}
             </button>
           </div>
+
+          {hasReviews ? <ProductReviewsSection reviews={product.reviews} /> : null}
         </div>
       </div>
 

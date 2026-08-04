@@ -176,6 +176,11 @@ export type TrackingOrderItemReview = {
 
 export type TrackingOrderItem = {
   id: string;
+  // Nullable to match OrderItem.productId in schema.prisma (SetNull if the
+  // product was later deleted) — the review form only renders for items
+  // that still have one, since a review needs a live productId to attach
+  // to (see ReviewForm / submitReview).
+  productId: string | null;
   name: string;
   price: number;
   quantity: number;
@@ -271,8 +276,8 @@ export async function getOrderForTracking(orderNumber: string): Promise<Tracking
     // items' product ids is enough — no per-item query, and it's skipped
     // entirely when the order has no items.
     const productIds = order.items
-  .map(item => item.productId)
-  .filter((id): id is string => Boolean(id))
+      .map((item) => item.productId)
+      .filter((id): id is string => Boolean(id));
     const reviews = productIds.length
       ? await prisma.productReview.findMany({
           where: { orderId: order.id, productId: { in: productIds } },
@@ -313,11 +318,12 @@ export async function getOrderForTracking(orderNumber: string): Promise<Tracking
         : null,
       items: order.items.map((item) => {
         const review = item.productId
-  ? reviewByProductId.get(item.productId) ?? null
-  : null;
+          ? reviewByProductId.get(item.productId) ?? null
+          : null;
 
         return {
           id: item.id,
+          productId: item.productId,
           name: item.name,
           price: Number(item.price.toString()),
           quantity: item.quantity,

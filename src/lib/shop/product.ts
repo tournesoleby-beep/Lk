@@ -1,5 +1,13 @@
 import { prisma } from "@/lib/prisma";
 
+export type ShopProductReview = {
+  id: string;
+  rating: number;
+  comment: string | null;
+  reviewerName: string;
+  createdAt: string;
+};
+
 export type ShopProductDetail = {
   id: string;
   name: string;
@@ -11,6 +19,9 @@ export type ShopProductDetail = {
   stock: number;
   category: { name: string; slug: string } | null;
   images: { url: string; altText: string | null }[];
+  reviews: ShopProductReview[];
+  reviewCount: number;
+  averageRating: number | null;
 };
 
 /**
@@ -31,6 +42,11 @@ async function safeQuery<T>(query: () => Promise<T>, fallback: T): Promise<T> {
  * returned — a draft product's slug should 404 (render the "not found"
  * empty state) the same way an unknown slug does, since it isn't published
  * yet.
+ *
+ * Reviews are limited to `approved: true` — a review only becomes visible
+ * here once an admin approves it from /admin/reviews (see
+ * src/lib/admin/review-actions.ts). averageRating is computed from that
+ * same approved set, so it moves in lockstep with what's actually shown.
  */
 export async function getProductBySlug(
   slug: string
@@ -52,10 +68,33 @@ export async function getProductBySlug(
           select: { url: true, altText: true },
         },
         variants: { select: { stock: true } },
+        productReviews: {
+          where: { approved: true },
+          orderBy: { createdAt: "desc" },
+          select: {
+            id: true,
+            rating: true,
+            comment: true,
+            reviewerName: true,
+            createdAt: true,
+          },
+        },
       },
     });
 
     if (!product) return null;
+
+    const reviews: ShopProductReview[] = product.productReviews.map((review) => ({
+      id: review.id,
+      rating: review.rating,
+      comment: review.comment,
+      reviewerName: review.reviewerName,
+      createdAt: review.createdAt.toISOString(),
+    }));
+    const reviewCount = reviews.length;
+    const averageRating = reviewCount
+      ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviewCount
+      : null;
 
     return {
       id: product.id,
@@ -70,6 +109,9 @@ export async function getProductBySlug(
       stock: product.variants.reduce((total, variant) => total + variant.stock, 0),
       category: product.category,
       images: product.images,
+      reviews,
+      reviewCount,
+      averageRating,
     };
   }, null);
 }
