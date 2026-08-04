@@ -61,6 +61,25 @@ const STATUS_LABELS: Record<string, string> = {
   PAYMENT_REJECTED: "Payment Rejected",
 };
 
+// Short, customer-facing sentence shown under the status badge in the
+// status-update email — same statuses as STATUS_LABELS above.
+const STATUS_MESSAGES: Record<string, string> = {
+  PENDING: "Your order is awaiting payment.",
+  WAITING_VERIFICATION: "We've received your payment proof and are verifying it now.",
+  PAID: "Your payment has been confirmed — we're preparing your order.",
+  PROCESSING: "Your order is being prepared for shipment.",
+  SHIPPED: "Your order is on its way.",
+  DELIVERED: "Your order has been delivered. We hope you love it!",
+  CANCELLED: "This order has been cancelled.",
+  REFUNDED: "This order has been refunded.",
+  PAYMENT_REJECTED:
+    "We couldn't verify your last payment proof — please upload a new one on your order's payment page.",
+};
+
+function statusMessage(status: string) {
+  return STATUS_MESSAGES[status] ?? "Your order status has been updated.";
+}
+
 function statusLabel(status: string) {
   return STATUS_LABELS[status] ?? status;
 }
@@ -382,6 +401,77 @@ function renderAdminNotificationEmail(data: OrderEmailData) {
     </tr>`;
 
   return emailShell(`New order ${data.orderNumber} from ${data.customerName}`, body);
+}
+
+export type OrderStatusEmailData = {
+  orderNumber: string;
+  customerName: string;
+  customerEmail: string;
+  status: string;
+};
+
+/**
+ * Renders the customer-facing "your order status changed" email, sent from
+ * the admin order detail page (lib/admin/order-actions.ts::updateOrderStatus)
+ * whenever an admin moves an order to a new status.
+ */
+function renderOrderStatusEmail(data: OrderStatusEmailData) {
+  const lookupUrl = `${SITE_URL}/orders/lookup?order=${encodeURIComponent(data.orderNumber)}`;
+
+  const body = `
+    <tr>
+      <td class="lk-px" style="padding:28px 40px 0 40px;">
+        <p style="margin:0 0 4px; font-family:${SERIF}; font-size:22px; font-weight:700; color:${COLOR.ink};">
+          Hi ${escapeHtml(data.customerName)}, your order has an update
+        </p>
+        <p style="margin:0; font-size:14px; color:${COLOR.slate};">
+          Order ${escapeHtml(data.orderNumber)} is now:
+        </p>
+      </td>
+    </tr>
+
+    <tr>
+      <td class="lk-px" style="padding:16px 40px 0 40px;">
+        ${statusBadgeHtml(data.status)}
+      </td>
+    </tr>
+
+    <tr>
+      <td class="lk-px" style="padding:16px 40px 0 40px;">
+        <p style="margin:0; font-size:14px; line-height:1.6; color:${COLOR.ink};">
+          ${escapeHtml(statusMessage(data.status))}
+        </p>
+      </td>
+    </tr>
+
+    <tr>
+      <td class="lk-px" align="center" style="padding:28px 40px 4px 40px;">
+        ${ctaButtonHtml(lookupUrl, "View order details")}
+      </td>
+    </tr>`;
+
+  return emailShell(`Order ${data.orderNumber} is now ${statusLabel(data.status)}`, body);
+}
+
+/**
+ * Sends the customer order-status-update email. Best-effort, same as the
+ * two functions below — critically, `updateOrderStatus` in
+ * lib/admin/order-actions.ts awaits this call *inside* its own try block
+ * with no separate try/catch around the email call itself, so this must
+ * never throw or a failed email would incorrectly report the whole status
+ * update as failed.
+ */
+export async function sendOrderStatusEmail(data: OrderStatusEmailData): Promise<void> {
+  try {
+    await resend.emails.send({
+      from: FROM_EMAIL,
+      to: data.customerEmail,
+      subject: `Order update — ${data.orderNumber} is now ${statusLabel(data.status)}`,
+      html: renderOrderStatusEmail(data),
+    });
+  } catch (error) {
+    console.error("[email] failed to send order status update:", error);
+  }
 }
 
 /**
