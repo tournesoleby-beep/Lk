@@ -25,10 +25,27 @@ const playfairDisplay = Playfair_Display({
   weight: ["500", "600", "700"],
 });
 
+// TODO: replace with the production domain once it's finalized.
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://lapiitakarya.com";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: "Lapiita Karya — Handmade goods from a vocational training program",
   description:
     "Lapiita Karya offers premium handmade fashion, food, and production pieces made by women building new skills through vocational training.",
+  openGraph: {
+    title: "Lapiita Karya — Handmade goods from a vocational training program",
+    description:
+      "Lapiita Karya offers premium handmade fashion, food, and production pieces made by women building new skills through vocational training.",
+    url: siteUrl,
+    siteName: "Lapiita Karya",
+    locale: "id_ID",
+    type: "website",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 // viewportFit: "cover" lets the safe-area-inset-* env() variables populate
@@ -49,7 +66,7 @@ export default async function RootLayout({
 
   return (
     <html
-      lang="en"
+      lang="id"
       className={`${geistSans.variable} ${geistMono.variable} ${playfairDisplay.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col overflow-x-hidden bg-paper text-ink">

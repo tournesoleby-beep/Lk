@@ -7,6 +7,7 @@ import { Maximize2, Minus, Plus, ShoppingBag } from "lucide-react";
 import { cn, formatCurrency } from "@/lib/utils";
 import type { ShopProductDetail } from "@/lib/shop/product";
 import { PlaceholderTile } from "@/components/home/placeholder-tile";
+import { Reveal } from "@/components/home/reveal";
 import { useCart } from "@/components/cart/cart-provider";
 import { ProductImageLightbox } from "@/components/shop/product-image-lightbox";
 import { MobileProductGallery } from "@/components/shop/product-gallery/mobile-product-gallery";
@@ -96,7 +97,7 @@ export function ProductDetail({ product }: { product: ShopProductDetail }) {
           />
         </div>
 
-        <div className="flex flex-col gap-6 pb-28 pt-6">
+        <Reveal as="div" className="flex flex-col gap-6 pb-28 pt-6" variant="fade-up">
           <div className="flex flex-col gap-3">
             {product.category ? (
               <Link
@@ -141,7 +142,7 @@ export function ProductDetail({ product }: { product: ShopProductDetail }) {
               {product.description}
             </p>
           ) : null}
-        </div>
+        </Reveal>
       </div>
 
       {/* ================================================================

@@ -21,7 +21,7 @@ export function HeroBanner() {
             Lapiita Karya
           </h1>
           <p className="max-w-md text-balance text-base leading-relaxed text-slate sm:text-lg sm:leading-relaxed md:max-w-lg lg:max-w-md">
-            Balai Latihan Kerja bagi warga binaan di Lapas Perempuan Kelas
+            Tempat Latihan Kerja bagi warga binaan di Lapas Perempuan Kelas
             IIA Jakarta yang menghasilkan berbagai kerajinan tangan, batik,
             dan produk hasil pertanian berkualitas sebagai wujud pembinaan,
             keterampilan, dan kemandirian.

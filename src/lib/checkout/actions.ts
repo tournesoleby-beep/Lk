@@ -142,7 +142,7 @@ export async function placeOrder(
       try {
         orderNumber = generateOrderNumber();
         const createdAt = new Date();
-        await prisma.order.create({
+        const order = await prisma.order.create({
           data: {
             orderNumber,
             userId: user.id,
@@ -161,25 +161,29 @@ export async function placeOrder(
         // Best-effort notification emails (customer confirmation + admin
         // alert). sendOrderConfirmationEmail/sendAdminOrderNotificationEmail
         // always resolve — a failure here must never fail the order itself.
+        const emailData = {
+          orderId: order.id,
+          orderNumber,
+          status: order.status,
+          createdAt,
+          customerName: fullName,
+          customerEmail: email,
+          customerPhone: phone,
+          shippingAddress: address,
+          shippingNotes: notes || null,
+          items: orderItemsData,
+          subtotal,
+          shippingCost,
+          shippingMethod,
+          courier,
+          service,
+          total: subtotal + shippingCost,
+          currency,
+        };
+
         await Promise.allSettled([
-          sendOrderConfirmationEmail({
-            orderNumber,
-            customerName: fullName,
-            customerEmail: email,
-            total: subtotal,
-            currency,
-            createdAt,
-            items: orderItemsData,
-          }),
-          sendAdminOrderNotificationEmail({
-            orderNumber,
-            customerName: fullName,
-            customerEmail: email,
-            total: subtotal,
-            currency,
-            createdAt,
-            items: orderItemsData,
-          }),
+          sendOrderConfirmationEmail(emailData),
+          sendAdminOrderNotificationEmail(emailData),
         ]);
 
         return { success: true, orderNumber };
