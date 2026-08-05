@@ -82,7 +82,13 @@ export function ReviewForm({
   const [imageError, setImageError] = useState<string | null>(null);
   const [isCompressing, setIsCompressing] = useState(false);
   const previewsRef = useRef<string[]>([]);
-  previewsRef.current = previews;
+
+  // Keep the ref in sync with state, but only as a side effect (never
+  // during render) — mutating a ref while rendering is what the
+  // "Cannot update ref during render" build error was flagging.
+  useEffect(() => {
+    previewsRef.current = previews;
+  }, [previews]);
 
   // Revoke any outstanding object URLs when the form unmounts.
   useEffect(() => {
