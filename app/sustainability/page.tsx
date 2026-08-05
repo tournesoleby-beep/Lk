@@ -4,21 +4,21 @@ import { Container } from "@/components/home/container";
 import { SectionHeading } from "@/components/home/section-heading";
 
 export const metadata: Metadata = {
-  title: "Sustainability — Lapiita Karya",
+  title: "Keberlanjutan — Lapiita Karya",
 };
 
 const COMMITMENTS = [
   {
-    title: "Made to last",
-    body: "We choose fabrics, construction, and finishes for durability first, so pieces stay in use for years rather than a season.",
+    title: "Dibuat Untuk Awet",
+    body: "Kami memilih bahan, konstruksi, dan finishing dengan mengutamakan ketahanan, sehingga produk bisa digunakan bertahun-tahun, bukan hanya satu musim.",
   },
   {
-    title: "Fewer, better things",
-    body: "We'd rather carry a small, considered catalog than a sprawling one — less overproduction, less waste, less noise.",
+    title: "Lebih Sedikit, Lebih Bermakna",
+    body: "Kami lebih memilih katalog yang kecil dan terkurasi daripada yang terlalu luas — lebih sedikit produksi berlebih, lebih sedikit limbah, lebih sedikit kebisingan.",
   },
   {
-    title: "Trusted makers",
-    body: "We work with a small number of production partners we know directly, rather than anonymous, ever-changing suppliers.",
+    title: "Pengrajin Terpercaya",
+    body: "Kami bekerja sama dengan sejumlah kecil mitra produksi yang kami kenal secara langsung, bukan pemasok anonim yang terus berganti.",
   },
 ] as const;
 
@@ -29,9 +29,9 @@ export default function SustainabilityPage() {
         <section className="bg-paper py-16 sm:py-24">
           <Container className="flex flex-col gap-12">
             <SectionHeading
-              eyebrow="Company"
-              title="Sustainability"
-              description="Considered pieces, made to last — not just a tagline. Here's what that means in practice."
+              eyebrow="Perusahaan"
+              title="Keberlanjutan"
+              description="Produk yang dipikirkan matang dan dibuat untuk awet — bukan sekadar slogan. Berikut artinya dalam praktik."
             />
 
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
@@ -51,15 +51,15 @@ export default function SustainabilityPage() {
             </div>
 
             <p className="max-w-2xl text-base leading-relaxed text-slate">
-              We&apos;re a small team and this work is ongoing — if you have
-              questions about a specific piece or material, reach out on our{" "}
+              Kami adalah tim kecil dan pekerjaan ini terus berlanjut — jika Anda
+              memiliki pertanyaan tentang produk atau bahan tertentu, hubungi kami melalui{" "}
               <a
                 href="/contact"
                 className="text-ink underline underline-offset-4 transition-colors hover:text-signal"
               >
-                contact page
+                halaman kontak
               </a>{" "}
-              and we&apos;ll get back to you directly.
+              dan kami akan membalas langsung.
             </p>
           </Container>
         </section>

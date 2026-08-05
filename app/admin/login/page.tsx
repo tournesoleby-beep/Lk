@@ -19,10 +19,10 @@ export default function AdminLoginPage() {
               Admin
             </span>
             <h1 className="font-serif text-2xl font-semibold tracking-tight text-ink">
-              Sign in
+              Masuk
             </h1>
             <p className="text-sm text-slate">
-              Restricted to Lapiita Karya staff.
+              Khusus staf Lapiita Karya.
             </p>
           </div>
 
@@ -36,7 +36,7 @@ export default function AdminLoginPage() {
             href="/"
             className="mt-6 block text-center text-xs text-slate transition-colors hover:text-ink"
           >
-            ← Back to store
+            ← Kembali ke Toko
           </Link>
         </div>
       </Container>

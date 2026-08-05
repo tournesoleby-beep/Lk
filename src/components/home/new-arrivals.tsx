@@ -20,9 +20,9 @@ export async function NewArrivals() {
         <Container className="px-5 sm:px-6">
           <Reveal variant="fade-up" duration={DURATION} easing={EASING}>
             <SectionHeading
-              eyebrow="Just landed"
-              title="New arrivals"
-              description="Fresh from the workshop — the newest pieces made by hand, ready for their next home."
+              eyebrow="Baru tiba"
+              title="Produk Terbaru"
+              description="Baru dari bengkel kerja kami — produk terbaru buatan tangan, siap menemukan rumah barunya."
               compact
             />
           </Reveal>
@@ -50,7 +50,7 @@ export async function NewArrivals() {
           </Reveal>
         ) : (
           <Container>
-            <EmptyState message="New arrivals will appear here as soon as they're published." />
+            <EmptyState message="Produk terbaru akan muncul di sini setelah dipublikasikan." />
           </Container>
         )}
       </div>

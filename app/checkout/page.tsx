@@ -73,11 +73,11 @@ export default function CheckoutPage() {
       .join(", ");
 
     if (!destination) {
-      setShippingRatesError("Enter your province, city, district, and postal code first.");
+      setShippingRatesError("Isi provinsi, kota, kecamatan, dan kode pos terlebih dahulu.");
       return;
     }
     if (cart.lines.length === 0) {
-      setShippingRatesError("Your bag is empty.");
+      setShippingRatesError("Keranjang Anda kosong.");
       return;
     }
 
@@ -100,26 +100,26 @@ export default function CheckoutPage() {
     setShippingRates(result.rates);
     setSelectedRateIndex(result.rates.length > 0 ? 0 : null);
     if (result.rates.length === 0) {
-      setShippingRatesError("No shipping options available for that address.");
+      setShippingRatesError("Tidak ada opsi pengiriman yang tersedia untuk alamat tersebut.");
     }
   }
 
   function validate() {
     const nextErrors: Partial<Record<keyof FormValues, string>> = {};
 
-    if (!values.fullName.trim()) nextErrors.fullName = "Full name is required.";
-    if (!values.phone.trim()) nextErrors.phone = "Phone number is required.";
+    if (!values.fullName.trim()) nextErrors.fullName = "Nama lengkap wajib diisi.";
+    if (!values.phone.trim()) nextErrors.phone = "Nomor telepon wajib diisi.";
     if (!values.email.trim()) {
-      nextErrors.email = "Email is required.";
+      nextErrors.email = "Email wajib diisi.";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email.trim())) {
-      nextErrors.email = "Enter a valid email address.";
+      nextErrors.email = "Masukkan alamat email yang valid.";
     }
-    if (!values.province.trim()) nextErrors.province = "Province is required.";
-    if (!values.city.trim()) nextErrors.city = "City is required.";
-    if (!values.district.trim()) nextErrors.district = "District is required.";
-    if (!values.postalCode.trim()) nextErrors.postalCode = "Postal code is required.";
+    if (!values.province.trim()) nextErrors.province = "Provinsi wajib diisi.";
+    if (!values.city.trim()) nextErrors.city = "Kota wajib diisi.";
+    if (!values.district.trim()) nextErrors.district = "Kecamatan wajib diisi.";
+    if (!values.postalCode.trim()) nextErrors.postalCode = "Kode pos wajib diisi.";
     if (!values.streetAddress.trim())
-      nextErrors.streetAddress = "Street address is required.";
+      nextErrors.streetAddress = "Alamat jalan wajib diisi.";
 
     setErrors(nextErrors);
     return Object.keys(nextErrors).length === 0;
@@ -130,7 +130,7 @@ export default function CheckoutPage() {
     setSubmitError(null);
 
     if (cart.lines.length === 0) {
-      setSubmitError("Your bag is empty.");
+      setSubmitError("Keranjang Anda kosong.");
       return;
     }
     if (!validate()) return;
@@ -187,13 +187,13 @@ export default function CheckoutPage() {
         <main className="flex flex-1 flex-col">
           <section className="bg-paper py-10 sm:py-16 md:py-24">
             <Container className="flex flex-col items-center gap-6">
-              <SectionHeading eyebrow="Shop" title="Checkout" align="center" />
-              <EmptyState message="Your bag is empty. Add something before checking out." />
+              <SectionHeading eyebrow="Belanja" title="Checkout" align="center" />
+              <EmptyState message="Keranjang Anda kosong. Tambahkan produk sebelum checkout." />
               <Link
                 href="/shop"
                 className="inline-flex min-h-11 items-center gap-2 rounded-full bg-ink px-6 py-3 text-sm font-medium text-paper shadow-sm transition-all duration-200 hover:bg-ink/85 hover:shadow-md active:scale-[0.98]"
               >
-                Continue shopping
+                Lanjutkan Belanja
               </Link>
             </Container>
           </section>
@@ -207,7 +207,7 @@ export default function CheckoutPage() {
       <main className="flex flex-1 flex-col">
         <section className="bg-paper py-10 sm:py-16 md:py-24">
           <Container className="flex flex-col gap-8 sm:gap-10">
-            <SectionHeading eyebrow="Shop" title="Checkout" />
+            <SectionHeading eyebrow="Belanja" title="Checkout" />
 
             <form
               onSubmit={handleSubmit}
@@ -218,15 +218,15 @@ export default function CheckoutPage() {
                 {/* Contact + shipping details */}
                 <div className="flex flex-col gap-5 rounded-2xl border border-line p-5 shadow-xs sm:p-6">
                   <h2 className="font-serif text-lg font-semibold text-ink">
-                    Delivery details
+                    Detail Pengiriman
                   </h2>
 
                 <label className="flex flex-col gap-1.5">
-                  <span className={LABEL_CLASS}>Full name</span>
+                  <span className={LABEL_CLASS}>Nama lengkap</span>
                   <input
                     value={values.fullName}
                     onChange={(e) => update("fullName", e.target.value)}
-                    placeholder="Jane Doe"
+                    placeholder="Nama Anda"
                     autoComplete="name"
                     className={INPUT_CLASS}
                   />
@@ -237,12 +237,12 @@ export default function CheckoutPage() {
 
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                   <label className="flex flex-col gap-1.5">
-                    <span className={LABEL_CLASS}>Phone number</span>
+                    <span className={LABEL_CLASS}>Nomor telepon</span>
                     <input
                       type="tel"
                       value={values.phone}
                       onChange={(e) => update("phone", e.target.value)}
-                      placeholder="+1 555 123 4567"
+                      placeholder="08123456789"
                       autoComplete="tel"
                       className={INPUT_CLASS}
                     />
@@ -269,11 +269,11 @@ export default function CheckoutPage() {
 
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                   <label className="flex flex-col gap-1.5">
-                    <span className={LABEL_CLASS}>Province</span>
+                    <span className={LABEL_CLASS}>Provinsi</span>
                     <input
                       value={values.province}
                       onChange={(e) => update("province", e.target.value)}
-                      placeholder="Central Java"
+                      placeholder="Jawa Tengah"
                       autoComplete="address-level1"
                       className={INPUT_CLASS}
                     />
@@ -283,7 +283,7 @@ export default function CheckoutPage() {
                   </label>
 
                   <label className="flex flex-col gap-1.5">
-                    <span className={LABEL_CLASS}>City</span>
+                    <span className={LABEL_CLASS}>Kota</span>
                     <input
                       value={values.city}
                       onChange={(e) => update("city", e.target.value)}
@@ -299,7 +299,7 @@ export default function CheckoutPage() {
 
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                   <label className="flex flex-col gap-1.5">
-                    <span className={LABEL_CLASS}>District</span>
+                    <span className={LABEL_CLASS}>Kecamatan</span>
                     <input
                       value={values.district}
                       onChange={(e) => update("district", e.target.value)}
@@ -313,7 +313,7 @@ export default function CheckoutPage() {
                   </label>
 
                   <label className="flex flex-col gap-1.5">
-                    <span className={LABEL_CLASS}>Postal code</span>
+                    <span className={LABEL_CLASS}>Kode pos</span>
                     <input
                       value={values.postalCode}
                       onChange={(e) => update("postalCode", e.target.value)}
@@ -329,11 +329,11 @@ export default function CheckoutPage() {
                 </div>
 
                 <label className="flex flex-col gap-1.5">
-                  <span className={LABEL_CLASS}>Street address</span>
+                  <span className={LABEL_CLASS}>Alamat jalan</span>
                   <textarea
                     value={values.streetAddress}
                     onChange={(e) => update("streetAddress", e.target.value)}
-                    placeholder="Street name, building, house number"
+                    placeholder="Nama jalan, gedung, nomor rumah"
                     rows={3}
                     autoComplete="street-address"
                     className={INPUT_CLASS}
@@ -344,11 +344,11 @@ export default function CheckoutPage() {
                 </label>
 
                 <label className="flex flex-col gap-1.5">
-                  <span className={LABEL_CLASS}>Notes (optional)</span>
+                  <span className={LABEL_CLASS}>Catatan (opsional)</span>
                   <textarea
                     value={values.notes}
                     onChange={(e) => update("notes", e.target.value)}
-                    placeholder="Delivery instructions, gift note, etc."
+                    placeholder="Instruksi pengiriman, catatan hadiah, dll."
                     rows={3}
                     className={INPUT_CLASS}
                   />
@@ -359,7 +359,7 @@ export default function CheckoutPage() {
               {/* Shipping */}
               <div className="flex flex-col gap-4 rounded-2xl border border-line p-5 shadow-xs sm:p-6">
                 <h2 className="font-serif text-lg font-semibold text-ink">
-                  Shipping
+                  Pengiriman
                 </h2>
 
                 <button
@@ -371,7 +371,7 @@ export default function CheckoutPage() {
                   {isLoadingRates ? (
                     <Loader2 className="h-4 w-4 animate-spin" strokeWidth={1.75} />
                   ) : null}
-                  {isLoadingRates ? "Calculating…" : "Calculate shipping"}
+                  {isLoadingRates ? "Menghitung…" : "Hitung Ongkir"}
                 </button>
 
                 {shippingRatesError ? (
@@ -426,7 +426,7 @@ export default function CheckoutPage() {
               {/* Order summary */}
               <div className="flex flex-col gap-4 rounded-2xl border border-line bg-cloud/40 p-5 shadow-xs sm:p-6">
                 <h2 className="font-serif text-lg font-semibold text-ink">
-                  Order summary
+                  Ringkasan Pesanan
                 </h2>
 
                 <ul className="flex flex-col gap-3 border-b border-line pb-4">
@@ -448,7 +448,7 @@ export default function CheckoutPage() {
 
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-slate">
-                    Subtotal ({cart.count} {cart.count === 1 ? "item" : "items"})
+                    Subtotal ({cart.count} {cart.count === 1 ? "produk" : "produk"})
                   </span>
                   <span className="font-mono text-base font-medium text-ink">
                     {formatCurrency(cart.subtotal, currency)}
@@ -463,8 +463,8 @@ export default function CheckoutPage() {
                 </div>
 
                 <p className="text-xs leading-relaxed text-slate">
-                  You&apos;ll pay by bank transfer on the next page and upload
-                  your payment proof there.
+                  Anda akan membayar melalui transfer bank di halaman berikutnya dan
+                  mengunggah bukti pembayaran di sana.
                 </p>
 
                 <button
@@ -475,7 +475,7 @@ export default function CheckoutPage() {
                   {isSubmitting ? (
                     <Loader2 className="h-4 w-4 animate-spin" strokeWidth={1.75} />
                   ) : null}
-                  {isSubmitting ? "Placing order…" : "Place order"}
+                  {isSubmitting ? "Memproses pesanan…" : "Buat Pesanan"}
                 </button>
               </div>
             </form>

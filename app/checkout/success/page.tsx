@@ -21,15 +21,15 @@ export default async function CheckoutSuccessPage({
             </span>
 
             <SectionHeading
-              eyebrow="Shop"
-              title="Order received"
-              description="Thank you — we've received your order and will be in touch shortly to confirm the details."
+              eyebrow="Belanja"
+              title="Pesanan Diterima"
+              description="Terima kasih — pesanan Anda telah kami terima dan kami akan segera menghubungi Anda untuk mengonfirmasi detailnya."
               align="center"
             />
 
             {order ? (
               <p className="font-mono text-sm text-slate">
-                Order number <span className="font-medium text-ink">{order}</span>
+                Nomor pesanan <span className="font-medium text-ink">{order}</span>
               </p>
             ) : null}
 
@@ -37,7 +37,7 @@ export default async function CheckoutSuccessPage({
               href="/shop"
               className="inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3 text-sm font-medium text-paper shadow-sm transition-all duration-200 hover:bg-ink/85 hover:shadow-md active:scale-[0.98]"
             >
-              Continue shopping
+              Lanjutkan Belanja
             </Link>
           </Container>
         </section>

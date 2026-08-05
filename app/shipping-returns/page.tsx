@@ -4,7 +4,7 @@ import { Container } from "@/components/home/container";
 import { SectionHeading } from "@/components/home/section-heading";
 
 export const metadata: Metadata = {
-  title: "Shipping & returns — Lapiita Karya",
+  title: "Pengiriman & Pengembalian — Lapiita Karya",
 };
 
 const LABEL_CLASS =
@@ -17,49 +17,49 @@ export default function ShippingReturnsPage() {
         <section className="bg-paper py-16 sm:py-24">
           <Container className="flex flex-col gap-12">
             <SectionHeading
-              eyebrow="Support"
-              title="Shipping & returns"
-              description="What to expect once you place an order."
+              eyebrow="Bantuan"
+              title="Pengiriman & Pengembalian"
+              description="Apa yang bisa Anda harapkan setelah membuat pesanan."
             />
 
             <div className="grid grid-cols-1 gap-8 sm:grid-cols-2">
               <div className="flex flex-col gap-3 rounded-2xl border border-line p-6">
-                <span className={LABEL_CLASS}>Shipping</span>
+                <span className={LABEL_CLASS}>Pengiriman</span>
                 <p className="text-sm leading-relaxed text-slate">
-                  Free shipping on orders over Rp2.350.000. Orders are
-                  prepared once payment is verified, and we&apos;ll email you
-                  updates as your order moves through processing and
-                  shipping.
+                  Gratis ongkir untuk pesanan di atas Rp2.350.000. Pesanan
+                  disiapkan setelah pembayaran diverifikasi, dan kami akan
+                  mengirimkan email pembaruan saat pesanan Anda diproses dan
+                  dikirim.
                 </p>
               </div>
 
               <div className="flex flex-col gap-3 rounded-2xl border border-line p-6">
-                <span className={LABEL_CLASS}>Returns</span>
+                <span className={LABEL_CLASS}>Pengembalian</span>
                 <p className="text-sm leading-relaxed text-slate">
-                  We offer easy returns within 60 days of delivery. Items
-                  should be unworn, unwashed, and in their original
-                  condition. Get in touch through our contact page with your
-                  order number to start a return.
+                  Kami menyediakan retur mudah dalam 60 hari setelah barang
+                  diterima. Produk harus belum dipakai, belum dicuci, dan
+                  dalam kondisi aslinya. Hubungi kami melalui halaman kontak
+                  dengan menyertakan nomor pesanan Anda untuk memulai retur.
                 </p>
               </div>
             </div>
 
             <div className="flex flex-col gap-3 rounded-2xl bg-cloud/40 p-6">
-              <span className={LABEL_CLASS}>Questions about a specific order?</span>
+              <span className={LABEL_CLASS}>Ada pertanyaan tentang pesanan tertentu?</span>
               <p className="max-w-2xl text-sm leading-relaxed text-slate">
-                You can check the status of any order at any time on our{" "}
+                Anda dapat memeriksa status pesanan kapan saja di{" "}
                 <a
                   href="/orders/lookup"
                   className="text-ink underline underline-offset-4 transition-colors hover:text-signal"
                 >
-                  order tracking page
+                  halaman lacak pesanan
                 </a>
-                , or reach out through our{" "}
+                , atau hubungi kami melalui{" "}
                 <a
                   href="/contact"
                   className="text-ink underline underline-offset-4 transition-colors hover:text-signal"
                 >
-                  contact page
+                  halaman kontak
                 </a>
                 .
               </p>

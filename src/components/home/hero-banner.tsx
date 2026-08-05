@@ -56,21 +56,21 @@ export function HeroBanner() {
           <dl className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-2.5 border-t border-line pt-4 sm:mt-4 sm:gap-x-8 sm:gap-y-3 sm:pt-6">
             <div className="flex flex-col">
               <dt className="font-mono text-[10px] uppercase tracking-[0.14em] text-slate">
-                Free shipping
+                Gratis ongkir
               </dt>
-              <dd className="text-sm font-medium text-ink">Over Rp2.350.000</dd>
+              <dd className="text-sm font-medium text-ink">Di atas Rp2.350.000</dd>
             </div>
             <div className="flex flex-col">
               <dt className="font-mono text-[10px] uppercase tracking-[0.14em] text-slate">
-                Easy returns
+                Retur mudah
               </dt>
-              <dd className="text-sm font-medium text-ink">Within 60 days</dd>
+              <dd className="text-sm font-medium text-ink">Dalam 60 hari</dd>
             </div>
             <div className="flex flex-col">
               <dt className="font-mono text-[10px] uppercase tracking-[0.14em] text-slate">
-                Handcrafted
+                Buatan tangan
               </dt>
-              <dd className="text-sm font-medium text-ink">By women in training</dd>
+              <dd className="text-sm font-medium text-ink">Oleh perempuan dalam pelatihan</dd>
             </div>
           </dl>
         </div>

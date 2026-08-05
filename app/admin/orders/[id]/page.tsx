@@ -28,13 +28,13 @@ export default async function AdminOrderDetailPage({
       <div className="min-h-screen bg-cloud/40 py-10">
         <Container className="flex flex-col gap-6">
           <AdminNav />
-          <EmptyState message="This order doesn't exist, or may have been removed." />
+          <EmptyState message="Pesanan ini tidak ada, atau mungkin sudah dihapus." />
           <Link
             href="/admin/orders"
             className="group inline-flex w-fit items-center gap-1.5 text-xs font-medium uppercase tracking-[0.1em] text-slate transition-colors duration-200 hover:text-ink"
           >
             <ArrowLeft className="h-3.5 w-3.5" strokeWidth={1.75} />
-            Back to orders
+            Kembali ke Pesanan
           </Link>
         </Container>
       </div>
@@ -51,14 +51,14 @@ export default async function AdminOrderDetailPage({
           className="group inline-flex w-fit items-center gap-1.5 text-xs font-medium uppercase tracking-[0.1em] text-slate transition-colors duration-200 hover:text-ink"
         >
           <ArrowLeft className="h-3.5 w-3.5" strokeWidth={1.75} />
-          Back to orders
+          Kembali ke Pesanan
         </Link>
 
         {/* Header */}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-col gap-1">
             <span className="font-mono text-[11px] font-medium uppercase tracking-[0.2em] text-signal">
-              Order
+              Pesanan
             </span>
             <h1 className="font-serif text-[1.75rem] font-semibold leading-[1.1] tracking-tight text-ink sm:text-3xl">
               {order.orderNumber}
@@ -73,19 +73,19 @@ export default async function AdminOrderDetailPage({
             {/* Items */}
             <div className="overflow-hidden rounded-2xl border border-line bg-paper shadow-xs">
               <div className="border-b border-line px-6 py-4">
-                <h2 className="font-serif text-lg font-semibold text-ink">Items</h2>
+                <h2 className="font-serif text-lg font-semibold text-ink">Produk</h2>
               </div>
               <table className="w-full border-collapse text-left text-sm">
                 <thead>
                   <tr className="border-b border-line bg-cloud/60">
                     <th className="px-6 py-3 font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-slate">
-                      Product
+                      Produk
                     </th>
                     <th className="px-6 py-3 font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-slate">
-                      Unit price
+                      Harga satuan
                     </th>
                     <th className="px-6 py-3 font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-slate">
-                      Quantity
+                      Jumlah
                     </th>
                     <th className="px-6 py-3 text-right font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-slate">
                       Subtotal
@@ -117,13 +117,13 @@ export default async function AdminOrderDetailPage({
                   </span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-slate">Shipping</span>
+                  <span className="text-slate">Ongkos Kirim</span>
                   <span className="font-mono text-ink">
                     {formatCurrency(order.shippingTotal, order.currency)}
                   </span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-slate">Tax</span>
+                  <span className="text-slate">Pajak</span>
                   <span className="font-mono text-ink">
                     {formatCurrency(order.taxTotal, order.currency)}
                   </span>
@@ -139,7 +139,7 @@ export default async function AdminOrderDetailPage({
 
             {/* Shipping address */}
             <div className="rounded-2xl border border-line bg-paper p-6 shadow-xs">
-              <h2 className="font-serif text-lg font-semibold text-ink">Shipping address</h2>
+              <h2 className="font-serif text-lg font-semibold text-ink">Alamat Pengiriman</h2>
               {order.shippingAddress ? (
                 <div className="mt-3 flex flex-col gap-3 text-sm text-ink">
                   <p className="whitespace-pre-wrap leading-relaxed">
@@ -148,7 +148,7 @@ export default async function AdminOrderDetailPage({
                   {order.shippingAddress.notes ? (
                     <div className="rounded-xl bg-cloud/60 p-3">
                       <span className="font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-slate">
-                        Notes
+                        Catatan
                       </span>
                       <p className="mt-1 whitespace-pre-wrap text-sm text-ink">
                         {order.shippingAddress.notes}
@@ -157,7 +157,7 @@ export default async function AdminOrderDetailPage({
                   ) : null}
                 </div>
               ) : (
-                <p className="mt-3 text-sm text-slate">No shipping address on file.</p>
+                <p className="mt-3 text-sm text-slate">Tidak ada alamat pengiriman yang tercatat.</p>
               )}
             </div>
           </div>
@@ -165,11 +165,11 @@ export default async function AdminOrderDetailPage({
           <div className="flex flex-col gap-6">
             {/* Customer */}
             <div className="rounded-2xl border border-line bg-paper p-6 shadow-xs">
-              <h2 className="font-serif text-lg font-semibold text-ink">Customer</h2>
+              <h2 className="font-serif text-lg font-semibold text-ink">Pelanggan</h2>
               <dl className="mt-3 flex flex-col gap-3 text-sm">
                 <div className="flex flex-col gap-0.5">
                   <dt className="font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-slate">
-                    Name
+                    Nama
                   </dt>
                   <dd className="text-ink">{order.customerName}</dd>
                 </div>
@@ -181,7 +181,7 @@ export default async function AdminOrderDetailPage({
                 </div>
                 <div className="flex flex-col gap-0.5">
                   <dt className="font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-slate">
-                    Phone
+                    Telepon
                   </dt>
                   <dd className="text-ink">{order.phone}</dd>
                 </div>
@@ -190,7 +190,7 @@ export default async function AdminOrderDetailPage({
 
             {/* Payment proof */}
             <div className="rounded-2xl border border-line bg-paper p-6 shadow-xs">
-              <h2 className="font-serif text-lg font-semibold text-ink">Payment proof</h2>
+              <h2 className="font-serif text-lg font-semibold text-ink">Bukti Pembayaran</h2>
               {order.paymentProofUrl ? (
                 <div className="mt-3 flex flex-col gap-4">
                   <a
@@ -202,7 +202,7 @@ export default async function AdminOrderDetailPage({
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={order.paymentProofUrl}
-                      alt="Uploaded payment proof"
+                      alt="Bukti pembayaran yang diunggah"
                       className="max-h-72 w-full object-contain bg-cloud/40"
                     />
                   </a>
@@ -212,11 +212,11 @@ export default async function AdminOrderDetailPage({
                     rel="noopener noreferrer"
                     className="w-fit text-xs font-medium uppercase tracking-[0.1em] text-ink underline underline-offset-4 transition-colors duration-200 hover:text-signal"
                   >
-                    Open full size
+                    Buka Ukuran Penuh
                   </a>
                   {order.paymentProofUploadedAt ? (
                     <span className="text-xs text-slate">
-                      Uploaded {formatDate(order.paymentProofUploadedAt)}
+                      Diunggah {formatDate(order.paymentProofUploadedAt)}
                     </span>
                   ) : null}
 
@@ -226,16 +226,16 @@ export default async function AdminOrderDetailPage({
                 </div>
               ) : (
                 <p className="mt-3 text-sm text-slate">
-                  The customer hasn&apos;t uploaded a payment proof yet.
+                  Pelanggan belum mengunggah bukti pembayaran.
                 </p>
               )}
             </div>
 
             {/* Status update */}
             <div className="rounded-2xl border border-line bg-cloud/40 p-6 shadow-xs">
-              <h2 className="font-serif text-lg font-semibold text-ink">Update status</h2>
+              <h2 className="font-serif text-lg font-semibold text-ink">Perbarui Status</h2>
               <p className="mt-1 text-sm text-slate">
-                The customer is emailed automatically when the status changes.
+                Pelanggan akan menerima email otomatis saat status berubah.
               </p>
               <div className="mt-4">
                 <OrderStatusUpdater orderId={order.id} currentStatus={order.status} />

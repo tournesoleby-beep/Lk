@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { Maximize2, Minus, Plus, ShoppingBag, Star } from "lucide-react";
 
 import { cn, formatCurrency, formatDate } from "@/lib/utils";
 import type { ShopProductDetail, ShopProductReview } from "@/lib/shop/product";
+import { EmptyState } from "@/components/home/empty-state";
 import { PlaceholderTile } from "@/components/home/placeholder-tile";
 import { Reveal } from "@/components/home/reveal";
 import { useCart } from "@/components/cart/cart-provider";
@@ -51,47 +52,138 @@ function AverageRatingBadge({
   );
 }
 
+// How many reviews render up front. "Show all reviews" reveals the rest
+// from the same already-fetched list — see ProductReviewsSection below.
+const INITIAL_REVIEW_COUNT = 10;
+
 /**
- * Approved-reviews list shown on the product page. Only rendered by the
- * caller when there's at least one approved review — see getProductBySlug
- * in src/lib/shop/product.ts, which already filters to `approved: true`.
+ * A single review's comment text, clamped to 6 lines with a "Read more" /
+ * "Show less" toggle when it actually overflows (see the literal
+ * "line-clamp-6" class below — Tailwind's scanner needs a static class
+ * name, so this can't be built from a shared constant). Line breaks from
+ * the original comment are preserved (whitespace-pre-line).
+ *
+ * Overflow is detected once on mount by comparing the clamped element's
+ * scrollHeight to its clientHeight — if the full text is taller than the
+ * clamped box, a toggle is shown; short comments never get one.
+ */
+function ReviewComment({ comment }: { comment: string }) {
+  const [expanded, setExpanded] = useState(false);
+  const [isClampable, setIsClampable] = useState(false);
+  const textRef = useRef<HTMLParagraphElement>(null);
+
+  useEffect(() => {
+    const el = textRef.current;
+    if (!el) return;
+    // Measured while collapsed (the initial state), so this reflects
+    // whether the clamp is actually cutting anything off.
+    setIsClampable(el.scrollHeight > el.clientHeight + 1);
+  }, [comment]);
+
+  return (
+    <div className="flex flex-col gap-1.5">
+      <p
+        ref={textRef}
+        className={cn(
+          "whitespace-pre-line text-sm leading-relaxed text-slate",
+          // Literal class name (not built from a variable) — Tailwind's
+          // scanner needs static text to generate the "line-clamp-6" CSS.
+          !expanded && "line-clamp-6"
+        )}
+      >
+        {comment}
+      </p>
+      {isClampable ? (
+        <button
+          type="button"
+          onClick={() => setExpanded((value) => !value)}
+          aria-expanded={expanded}
+          className="self-start font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-signal transition-colors hover:text-signal/80"
+        >
+          {expanded ? "Show less" : "Read more"}
+        </button>
+      ) : null}
+    </div>
+  );
+}
+
+/**
+ * Approved-reviews list shown on the product page — always rendered by the
+ * caller now, including when there are zero approved reviews (a polished
+ * empty state instead of hiding the section). See getProductBySlug in
+ * src/lib/shop/product.ts, which already filters to `approved: true`.
  * Used identically in both the mobile and desktop trees below.
+ *
+ * Only the newest INITIAL_REVIEW_COUNT reviews render up front; "Show all
+ * reviews" expands to the rest on the client from the same `reviews` prop
+ * — every approved review is already fetched in one query, so expanding
+ * never triggers another request.
  */
 function ProductReviewsSection({ reviews }: { reviews: ShopProductReview[] }) {
+  const [showAll, setShowAll] = useState(false);
+  const hasMore = reviews.length > INITIAL_REVIEW_COUNT;
+  const visibleReviews = showAll ? reviews : reviews.slice(0, INITIAL_REVIEW_COUNT);
+
   return (
     <div className="flex flex-col gap-5 border-t border-line pt-6">
       <h2 className="font-serif text-base font-semibold text-ink">Customer Reviews</h2>
-      <div className="flex flex-col gap-5">
-        {reviews.map((review) => (
-          <div key={review.id} className="flex flex-col gap-1.5">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-ink">{review.reviewerName}</span>
-                <span className="flex items-center gap-0.5" aria-label={`${review.rating} out of 5 stars`}>
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <Star
-                      key={i}
-                      className={cn(
-                        "h-3.5 w-3.5",
-                        i < review.rating
-                          ? "fill-amber-500 text-amber-500"
-                          : "fill-none text-line"
-                      )}
-                      strokeWidth={1.75}
-                    />
-                  ))}
-                </span>
+      {reviews.length === 0 ? (
+        <EmptyState message="No reviews yet — be the first to share your experience with this product." />
+      ) : (
+        <>
+          <div className="flex flex-col gap-5">
+            {visibleReviews.map((review) => (
+              <div key={review.id} className="flex flex-col gap-1.5">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium text-ink">{review.reviewerName}</span>
+                    <span className="flex items-center gap-0.5" aria-label={`${review.rating} out of 5 stars`}>
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <Star
+                          key={i}
+                          className={cn(
+                            "h-3.5 w-3.5",
+                            i < review.rating
+                              ? "fill-amber-500 text-amber-500"
+                              : "fill-none text-line"
+                          )}
+                          strokeWidth={1.75}
+                        />
+                      ))}
+                    </span>
+                  </div>
+                  <span className="font-mono text-[11px] uppercase tracking-[0.1em] text-slate">
+                    {formatDate(review.createdAt)}
+                  </span>
+                </div>
+                {review.comment ? <ReviewComment comment={review.comment} /> : null}
+                {review.images && review.images.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {review.images.map((url) => (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        key={url}
+                        src={url}
+                        alt=""
+                        className="h-16 w-16 rounded-lg border border-line object-cover"
+                      />
+                    ))}
+                  </div>
+                ) : null}
               </div>
-              <span className="font-mono text-[11px] uppercase tracking-[0.1em] text-slate">
-                {formatDate(review.createdAt)}
-              </span>
-            </div>
-            {review.comment ? (
-              <p className="text-sm leading-relaxed text-slate">{review.comment}</p>
-            ) : null}
+            ))}
           </div>
-        ))}
-      </div>
+          {hasMore && !showAll ? (
+            <button
+              type="button"
+              onClick={() => setShowAll(true)}
+              className="self-start font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-signal transition-colors hover:text-signal/80"
+            >
+              Show all reviews ({reviews.length})
+            </button>
+          ) : null}
+        </>
+      )}
     </div>
   );
 }
@@ -219,7 +311,7 @@ export function ProductDetail({ product }: { product: ShopProductDetail }) {
             </p>
           ) : null}
 
-          {hasReviews ? <ProductReviewsSection reviews={product.reviews} /> : null}
+          <ProductReviewsSection reviews={product.reviews} />
         </Reveal>
       </div>
 
@@ -448,7 +540,7 @@ export function ProductDetail({ product }: { product: ShopProductDetail }) {
             </button>
           </div>
 
-          {hasReviews ? <ProductReviewsSection reviews={product.reviews} /> : null}
+          <ProductReviewsSection reviews={product.reviews} />
         </div>
       </div>
 

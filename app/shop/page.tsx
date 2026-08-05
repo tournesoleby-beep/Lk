@@ -6,7 +6,7 @@ import { SectionHeading } from "@/components/home/section-heading";
 import { ShopBrowser } from "@/components/shop/shop-browser";
 
 export const metadata: Metadata = {
-  title: "Shop — Lapiita Karya",
+  title: "Toko — Lapiita Karya",
 };
 
 type ShopPageProps = {
@@ -23,9 +23,9 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
         <section className="bg-paper py-16 sm:py-24">
           <Container className="flex flex-col gap-12">
             <SectionHeading
-              eyebrow="Shop"
-              title="Everything we carry"
-              description="Search, filter by category, or sort by price to find what you're after."
+              eyebrow="Belanja"
+              title="Semua Produk Kami"
+              description="Cari, filter berdasarkan kategori, atau urutkan berdasarkan harga untuk menemukan yang Anda cari."
             />
 
             <ShopBrowser

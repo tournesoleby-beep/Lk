@@ -12,7 +12,7 @@ import { OrderStatusBadge, ORDER_STATUS_LABELS } from "@/components/admin/order-
 import { deleteOrder } from "@/lib/admin/order-actions";
 
 const STATUS_FILTERS: { label: string; value: OrderStatus | "ALL" }[] = [
-  { label: "All", value: "ALL" },
+  { label: "Semua", value: "ALL" },
   ...(Object.entries(ORDER_STATUS_LABELS) as [OrderStatus, string][]).map(
     ([value, label]) => ({ label, value })
   ),
@@ -71,10 +71,10 @@ export function OrdersManager({ initialOrders }: { initialOrders: AdminOrderList
       {/* Header */}
       <div className="flex flex-col gap-1">
         <span className="font-mono text-[11px] font-medium uppercase tracking-[0.2em] text-signal">
-          Fulfillment
+          Pemenuhan Pesanan
         </span>
         <h1 className="font-serif text-[1.75rem] font-semibold leading-[1.1] tracking-tight text-ink sm:text-3xl">
-          Orders
+          Pesanan
         </h1>
       </div>
 
@@ -89,8 +89,8 @@ export function OrdersManager({ initialOrders }: { initialOrders: AdminOrderList
             type="search"
             value={query}
             onChange={(event) => updateQuery(event.target.value)}
-            placeholder="Search by order #, name, email, or phone…"
-            aria-label="Search orders"
+            placeholder="Cari berdasarkan no. pesanan, nama, email, atau telepon…"
+            aria-label="Cari pesanan"
             className="w-full rounded-full border border-line bg-cloud/60 py-2.5 pl-10 pr-4 text-sm text-ink outline-none transition-all duration-200 placeholder:text-slate focus:border-signal/50 focus:bg-paper focus:ring-4 focus:ring-signal/10"
           />
         </div>
@@ -116,7 +116,7 @@ export function OrdersManager({ initialOrders }: { initialOrders: AdminOrderList
       </div>
 
       {filtered.length === 0 ? (
-        <EmptyState message="No orders match your search or filter. Try a different name, email, phone, or status." />
+        <EmptyState message="Tidak ada pesanan yang cocok dengan pencarian atau filter Anda. Coba nama, email, telepon, atau status lain." />
       ) : (
         <>
           {/* Desktop / tablet table */}
@@ -125,19 +125,19 @@ export function OrdersManager({ initialOrders }: { initialOrders: AdminOrderList
               <thead>
                 <tr className="border-b border-line bg-cloud/60">
                   <th className="px-5 py-3 font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-slate">
-                    Order
+                    Pesanan
                   </th>
                   <th className="px-5 py-3 font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-slate">
-                    Customer
+                    Pelanggan
                   </th>
                   <th className="px-5 py-3 font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-slate">
                     Email
                   </th>
                   <th className="px-5 py-3 font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-slate">
-                    Phone
+                    Telepon
                   </th>
                   <th className="px-5 py-3 font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-slate">
-                    Date
+                    Tanggal
                   </th>
                   <th className="px-5 py-3 font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-slate">
                     Total
@@ -146,7 +146,7 @@ export function OrdersManager({ initialOrders }: { initialOrders: AdminOrderList
                     Status
                   </th>
                   <th className="px-5 py-3 font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-slate">
-                    Proof
+                    Bukti
                   </th>
                   <th className="px-5 py-3 text-right font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-slate">
                     &nbsp;
@@ -177,7 +177,7 @@ export function OrdersManager({ initialOrders }: { initialOrders: AdminOrderList
                           order.hasPaymentProof ? "text-signal" : "text-slate"
                         )}
                       >
-                        {order.hasPaymentProof ? "Uploaded" : "—"}
+                        {order.hasPaymentProof ? "Sudah Diunggah" : "—"}
                       </span>
                     </td>
                     <td className="px-5 py-3 text-right">
@@ -186,7 +186,7 @@ export function OrdersManager({ initialOrders }: { initialOrders: AdminOrderList
                           href={`/admin/orders/${order.id}`}
                           className="text-xs font-medium uppercase tracking-[0.1em] text-ink underline underline-offset-4 transition-colors duration-200 hover:text-signal"
                         >
-                          View
+                          Lihat
                         </Link>
                         <button
                           type="button"
@@ -221,9 +221,9 @@ export function OrdersManager({ initialOrders }: { initialOrders: AdminOrderList
                   <span>{order.phone}</span>
                   <span>{formatDate(order.createdAt)}</span>
                   <span>
-                    Payment proof:{" "}
+                    Bukti pembayaran:{" "}
                     <span className={order.hasPaymentProof ? "text-signal" : "text-slate"}>
-                      {order.hasPaymentProof ? "Uploaded" : "Not uploaded"}
+                      {order.hasPaymentProof ? "Sudah diunggah" : "Belum diunggah"}
                     </span>
                   </span>
                 </div>
@@ -236,7 +236,7 @@ export function OrdersManager({ initialOrders }: { initialOrders: AdminOrderList
                       href={`/admin/orders/${order.id}`}
                       className="text-xs font-medium uppercase tracking-[0.1em] text-ink underline underline-offset-4 transition-colors duration-200 hover:text-signal"
                     >
-                      View
+                      Lihat
                     </Link>
                     <button
                       type="button"
@@ -257,15 +257,15 @@ export function OrdersManager({ initialOrders }: { initialOrders: AdminOrderList
           {pageCount > 1 ? (
             <div className="flex items-center justify-between gap-4">
               <span className="text-xs text-slate">
-                Page {currentPage} of {pageCount} · {filtered.length}{" "}
-                {filtered.length === 1 ? "order" : "orders"}
+                Halaman {currentPage} dari {pageCount} · {filtered.length}{" "}
+                pesanan
               </span>
               <div className="flex items-center gap-1.5">
                 <button
                   type="button"
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
-                  aria-label="Previous page"
+                  aria-label="Halaman sebelumnya"
                   className="flex h-8 w-8 items-center justify-center rounded-full border border-line text-ink transition-all duration-200 hover:bg-cloud/60 active:scale-90 disabled:cursor-not-allowed disabled:opacity-40 disabled:active:scale-100"
                 >
                   <ChevronLeft className="h-4 w-4" strokeWidth={1.75} />
@@ -274,7 +274,7 @@ export function OrdersManager({ initialOrders }: { initialOrders: AdminOrderList
                   type="button"
                   onClick={() => setPage((p) => Math.min(pageCount, p + 1))}
                   disabled={currentPage === pageCount}
-                  aria-label="Next page"
+                  aria-label="Halaman berikutnya"
                   className="flex h-8 w-8 items-center justify-center rounded-full border border-line text-ink transition-all duration-200 hover:bg-cloud/60 active:scale-90 disabled:cursor-not-allowed disabled:opacity-40 disabled:active:scale-100"
                 >
                   <ChevronRight className="h-4 w-4" strokeWidth={1.75} />

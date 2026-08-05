@@ -23,7 +23,7 @@ export function CartDrawer() {
       <aside
         role="dialog"
         aria-modal="true"
-        aria-label="Shopping bag"
+        aria-label="Keranjang belanja"
         className={`fixed right-0 top-0 z-50 flex h-full w-full max-w-md flex-col bg-paper shadow-[-20px_0_60px_-30px_rgba(0,0,0,0.4)] transition-transform duration-300 ${
           cart.isOpen ? "translate-x-0" : "translate-x-full"
         }`}
@@ -31,7 +31,7 @@ export function CartDrawer() {
         <div className="flex items-center justify-between border-b border-line px-6 py-5">
           <h2 className="flex items-center gap-2 font-serif text-xl font-semibold text-ink">
             <ShoppingBag className="h-5 w-5" strokeWidth={1.75} />
-            Your bag
+            Keranjang Anda
             {cart.count > 0 ? (
               <span className="font-mono text-xs font-normal text-slate">
                 ({cart.count})
@@ -41,7 +41,7 @@ export function CartDrawer() {
           <button
             type="button"
             onClick={cart.close}
-            aria-label="Close bag"
+            aria-label="Tutup keranjang"
             className="flex h-11 w-11 items-center justify-center rounded-full text-ink transition-all duration-200 hover:bg-cloud active:scale-95 sm:h-9 sm:w-9"
           >
             <X className="h-5 w-5" strokeWidth={1.75} />
@@ -55,11 +55,11 @@ export function CartDrawer() {
             </div>
             <div className="flex flex-col gap-1.5">
               <p className="text-base font-medium text-ink">
-                Your bag is empty
+                Keranjang Anda kosong
               </p>
               <p className="text-sm leading-relaxed text-slate">
-                Save pieces you love here — they&apos;ll be ready when
-                you&apos;re ready to check out.
+                Simpan produk favorit Anda di sini — siap saat Anda
+                ingin checkout.
               </p>
             </div>
             <button
@@ -67,7 +67,7 @@ export function CartDrawer() {
               onClick={cart.close}
               className="mt-2 inline-flex min-h-11 items-center gap-2 rounded-full bg-ink px-6 py-3 text-sm font-medium text-paper shadow-sm transition-all duration-200 hover:bg-ink/85 hover:shadow-md active:scale-[0.98]"
             >
-              Continue shopping
+              Lanjutkan Belanja
             </button>
           </div>
         ) : (
@@ -97,7 +97,7 @@ export function CartDrawer() {
                       <button
                         type="button"
                         onClick={() => cart.removeItem(line.id)}
-                        aria-label={`Remove ${line.name} from bag`}
+                        aria-label={`Hapus ${line.name} dari keranjang`}
                         className="-m-2.5 flex h-11 w-11 shrink-0 items-center justify-center text-slate transition-all duration-200 hover:scale-110 hover:text-signal active:scale-95 sm:-m-2 sm:h-9 sm:w-9"
                       >
                         <Trash2 className="h-4 w-4" strokeWidth={1.75} />
@@ -115,7 +115,7 @@ export function CartDrawer() {
                           onClick={() =>
                             cart.updateQuantity(line.id, line.quantity - 1)
                           }
-                          aria-label="Decrease quantity"
+                          aria-label="Kurangi jumlah"
                           className="flex h-11 w-11 items-center justify-center text-ink transition-colors duration-200 hover:bg-cloud active:scale-90 sm:h-9 sm:w-9"
                         >
                           <Minus className="h-3.5 w-3.5" strokeWidth={1.75} />
@@ -128,7 +128,7 @@ export function CartDrawer() {
                           onClick={() =>
                             cart.updateQuantity(line.id, line.quantity + 1)
                           }
-                          aria-label="Increase quantity"
+                          aria-label="Tambah jumlah"
                           className="flex h-11 w-11 items-center justify-center text-ink transition-colors duration-200 hover:bg-cloud active:scale-90 sm:h-9 sm:w-9"
                         >
                           <Plus className="h-3.5 w-3.5" strokeWidth={1.75} />
@@ -151,7 +151,7 @@ export function CartDrawer() {
                 </span>
               </div>
               <p className="text-xs leading-relaxed text-slate">
-                Shipping and taxes calculated at checkout.
+                Ongkos kirim dan pajak dihitung saat checkout.
               </p>
               <Link
                 href="/checkout"
@@ -165,14 +165,14 @@ export function CartDrawer() {
                 onClick={cart.close}
                 className="flex min-h-11 items-center justify-center text-center text-sm font-medium text-ink underline underline-offset-4 transition-colors duration-200 hover:text-signal"
               >
-                View full bag
+                Lihat Keranjang Lengkap
               </Link>
               <button
                 type="button"
                 onClick={cart.close}
                 className="flex min-h-11 items-center justify-center text-center text-sm text-slate transition-colors duration-200 hover:text-ink"
               >
-                Continue shopping
+                Lanjutkan Belanja
               </button>
             </div>
           </>

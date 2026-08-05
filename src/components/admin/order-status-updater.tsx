@@ -54,7 +54,7 @@ export function OrderStatusUpdater({
     <div className="flex flex-col gap-3">
       <label className="flex flex-col gap-1.5">
         <span className="font-mono text-[11px] font-medium uppercase tracking-[0.14em] text-slate">
-          Order status
+          Status Pesanan
         </span>
         <select
           value={selected}
@@ -84,7 +84,7 @@ export function OrderStatusUpdater({
         {isSubmitting ? (
           <Loader2 className="h-4 w-4 animate-spin" strokeWidth={1.75} />
         ) : null}
-        {isSubmitting ? "Updating…" : "Update status"}
+        {isSubmitting ? "Memperbarui…" : "Perbarui Status"}
       </button>
     </div>
   );

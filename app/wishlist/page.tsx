@@ -18,14 +18,12 @@ export default function WishlistPage() {
         <section className="bg-paper py-16 sm:py-24">
           <Container className="flex flex-col gap-12">
             <SectionHeading
-              eyebrow="Saved"
-              title="Your wishlist"
+              eyebrow="Tersimpan"
+              title="Wishlist Anda"
               description={
                 wishlist.count > 0
-                  ? `${wishlist.count} ${
-                      wishlist.count === 1 ? "piece" : "pieces"
-                    } you've saved for later.`
-                  : "Pieces you save will show up here."
+                  ? `${wishlist.count} produk yang Anda simpan untuk nanti.`
+                  : "Produk yang Anda simpan akan muncul di sini."
               }
             />
 
@@ -40,12 +38,12 @@ export default function WishlistPage() {
                 <div className="flex h-16 w-16 items-center justify-center rounded-full bg-cloud">
                   <Heart className="h-7 w-7 text-slate" strokeWidth={1.5} />
                 </div>
-                <EmptyState message="Tap the heart on any product to save it here — your wishlist lives in this browser session." />
+                <EmptyState message="Ketuk ikon hati pada produk mana pun untuk menyimpannya di sini — wishlist Anda tersimpan selama sesi browser ini." />
                 <Link
                   href="/shop"
                   className="inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3 text-sm font-medium text-paper shadow-sm transition-all duration-200 hover:bg-ink/85 hover:shadow-md active:scale-[0.98]"
                 >
-                  Browse the shop
+                  Jelajahi Toko
                 </Link>
               </div>
             )}

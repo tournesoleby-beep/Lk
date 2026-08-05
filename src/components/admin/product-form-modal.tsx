@@ -210,7 +210,7 @@ export function ProductFormModal({
     if (weightInput.trim() === "") {
       weightGrams = EMPTY_VALUES.weightGrams;
     } else if (weightGrams <= 0) {
-      setWeightError("Weight must be greater than zero.");
+      setWeightError("Berat harus lebih besar dari nol.");
       return;
     }
     setWeightError(null);
@@ -226,7 +226,7 @@ export function ProductFormModal({
     setIsSubmitting(false);
 
     if (result && result.success === false) {
-      setError(result.error ?? "Something went wrong. Please try again.");
+      setError(result.error ?? "Terjadi kesalahan. Silakan coba lagi.");
     }
   }
 
@@ -241,17 +241,17 @@ export function ProductFormModal({
       <div
         role="dialog"
         aria-modal="true"
-        aria-label={product ? "Edit product" : "Add product"}
+        aria-label={product ? "Edit produk" : "Tambah produk"}
         className="fixed left-1/2 top-1/2 z-50 flex max-h-[90vh] w-full max-w-lg -translate-x-1/2 -translate-y-1/2 animate-in flex-col overflow-hidden rounded-2xl border border-line bg-paper shadow-lg zoom-in-95 fade-in duration-200"
       >
         <div className="flex items-center justify-between border-b border-line px-6 py-5">
           <h2 className="font-serif text-xl font-semibold text-ink">
-            {product ? "Edit product" : "Add product"}
+            {product ? "Edit Produk" : "Tambah Produk"}
           </h2>
           <button
             type="button"
             onClick={onClose}
-            aria-label="Close"
+            aria-label="Tutup"
             className="flex h-9 w-9 items-center justify-center rounded-full text-ink transition-all duration-200 hover:bg-cloud active:scale-90"
           >
             <X className="h-5 w-5" strokeWidth={1.75} />
@@ -264,13 +264,13 @@ export function ProductFormModal({
         >
           <label className="flex flex-col gap-1.5">
             <span className="font-mono text-[11px] font-medium uppercase tracking-[0.14em] text-slate">
-              Name
+              Nama
             </span>
             <input
               required
               value={values.name}
               onChange={(e) => setValues((v) => ({ ...v, name: e.target.value }))}
-              placeholder="e.g. Linen Wrap Blouse"
+              placeholder="cth. Blus Lilit Linen"
               className="w-full rounded-xl border border-line bg-cloud/60 px-3.5 py-2.5 text-sm text-ink outline-none transition-all duration-200 placeholder:text-slate focus:border-signal/50 focus:bg-paper focus:ring-4 focus:ring-signal/10"
             />
           </label>
@@ -290,7 +290,7 @@ export function ProductFormModal({
 
             <label className="flex flex-col gap-1.5">
               <span className="font-mono text-[11px] font-medium uppercase tracking-[0.14em] text-slate">
-                Category
+                Kategori
               </span>
               <select
                 value={values.category}
@@ -298,8 +298,8 @@ export function ProductFormModal({
                 className="w-full rounded-xl border border-line bg-cloud/60 px-3.5 py-2.5 text-sm text-ink outline-none transition-all duration-200 focus:border-signal/50 focus:bg-paper focus:ring-4 focus:ring-signal/10"
               >
                 <option value="Fashion">Fashion</option>
-                <option value="Food">Food</option>
-                <option value="Production">Production</option>
+                <option value="Food">Makanan</option>
+                <option value="Production">Produksi</option>
               </select>
             </label>
           </div>
@@ -307,7 +307,7 @@ export function ProductFormModal({
           <div className="grid grid-cols-2 gap-4">
             <label className="flex flex-col gap-1.5">
               <span className="font-mono text-[11px] font-medium uppercase tracking-[0.14em] text-slate">
-                Price (IDR)
+                Harga (IDR)
               </span>
               <input
                 required
@@ -324,7 +324,7 @@ export function ProductFormModal({
 
             <label className="flex flex-col gap-1.5">
               <span className="font-mono text-[11px] font-medium uppercase tracking-[0.14em] text-slate">
-                Stock
+                Stok
               </span>
               <input
                 required
@@ -341,7 +341,7 @@ export function ProductFormModal({
 
           <label className="flex flex-col gap-1.5">
             <span className="font-mono text-[11px] font-medium uppercase tracking-[0.14em] text-slate">
-              Product Weight (grams)
+              Berat Produk (gram)
             </span>
             <input
               type="number"
@@ -371,14 +371,14 @@ export function ProductFormModal({
               <span className="text-xs text-signal">{weightError}</span>
             ) : (
               <span className="font-mono text-[11px] text-slate">
-                Used for Biteship shipping calculation. Defaults to 500 if left blank.
+                Digunakan untuk perhitungan ongkir Biteship. Default 500 jika dikosongkan.
               </span>
             )}
           </label>
 
           <div className="flex flex-col gap-2">
             <span className="font-mono text-[11px] font-medium uppercase tracking-[0.14em] text-slate">
-              Product images
+              Gambar Produk
             </span>
 
             {values.images.length > 0 ? (
@@ -397,7 +397,7 @@ export function ProductFormModal({
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={image.url}
-                        alt={image.altText ?? "Product image"}
+                        alt={image.altText ?? "Gambar produk"}
                         className="h-full w-full object-cover"
                       />
 
@@ -416,14 +416,14 @@ export function ProductFormModal({
                                 className="h-2.5 w-2.5 fill-paper"
                                 strokeWidth={0}
                               />
-                              Cover
+                              Sampul
                             </span>
                           ) : (
                             <button
                               type="button"
                               onClick={() => setCoverImage(image.id)}
-                              aria-label="Set as cover image"
-                              title="Set as cover image"
+                              aria-label="Jadikan gambar sampul"
+                              title="Jadikan gambar sampul"
                               className="absolute left-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-ink/70 text-paper opacity-0 transition-opacity duration-150 hover:bg-ink group-hover:opacity-100"
                             >
                               <Star className="h-3.5 w-3.5" strokeWidth={1.75} />
@@ -433,8 +433,8 @@ export function ProductFormModal({
                           <button
                             type="button"
                             onClick={() => removeImage(image.id)}
-                            aria-label="Remove image"
-                            title="Remove image"
+                            aria-label="Hapus gambar"
+                            title="Hapus gambar"
                             className="absolute right-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-ink/70 text-paper opacity-0 transition-opacity duration-150 hover:bg-signal group-hover:opacity-100"
                           >
                             <Trash2 className="h-3.5 w-3.5" strokeWidth={1.75} />
@@ -445,8 +445,8 @@ export function ProductFormModal({
                               type="button"
                               onClick={() => moveImage(image.id, -1)}
                               disabled={index === 0}
-                              aria-label="Move image earlier"
-                              title="Move earlier"
+                              aria-label="Pindahkan lebih awal"
+                              title="Pindahkan lebih awal"
                               className="flex h-6 w-6 items-center justify-center rounded-full bg-ink/70 text-paper transition-colors hover:bg-ink disabled:cursor-not-allowed disabled:opacity-0"
                             >
                               <ChevronLeft className="h-3.5 w-3.5" strokeWidth={1.75} />
@@ -455,8 +455,8 @@ export function ProductFormModal({
                               type="button"
                               onClick={() => moveImage(image.id, 1)}
                               disabled={index === values.images.length - 1}
-                              aria-label="Move image later"
-                              title="Move later"
+                              aria-label="Pindahkan lebih akhir"
+                              title="Pindahkan lebih akhir"
                               className="flex h-6 w-6 items-center justify-center rounded-full bg-ink/70 text-paper transition-colors hover:bg-ink disabled:cursor-not-allowed disabled:opacity-0"
                             >
                               <ChevronRight className="h-3.5 w-3.5" strokeWidth={1.75} />
@@ -483,12 +483,12 @@ export function ProductFormModal({
                 className="w-full text-sm text-ink file:mr-3 file:cursor-pointer file:rounded-full file:border-0 file:bg-ink file:px-3.5 file:py-2 file:text-xs file:font-medium file:uppercase file:tracking-[0.1em] file:text-paper file:transition-colors hover:file:bg-ink/85"
               />
               <span className="font-mono text-[11px] text-slate">
-                The first image is the cover shown in listings. Hover a
-                thumbnail to reorder, set the cover, or remove it.
+                Gambar pertama adalah sampul yang ditampilkan di daftar produk. Arahkan kursor
+                ke thumbnail untuk mengatur ulang urutan, menjadikan sampul, atau menghapusnya.
               </span>
               {isUploadingImage ? (
                 <span className="font-mono text-xs text-slate">
-                  Uploading…
+                  Mengunggah…
                 </span>
               ) : null}
               {imageError ? (
@@ -513,7 +513,7 @@ export function ProductFormModal({
             >
               {STATUS_OPTIONS.map((option) => (
                 <option key={option} value={option}>
-                  {option.charAt(0) + option.slice(1).toLowerCase()}
+                  {{ DRAFT: "Draf", ACTIVE: "Aktif", ARCHIVED: "Diarsipkan" }[option]}
                 </option>
               ))}
             </select>
@@ -528,24 +528,24 @@ export function ProductFormModal({
               }
               className="h-4 w-4 rounded border-line accent-signal"
             />
-            <span className="text-sm text-ink">Featured on homepage</span>
+            <span className="text-sm text-ink">Tampilkan di beranda</span>
           </label>
 
           {product ? (
             <div className="flex flex-col gap-2 border-t border-line pt-4">
               <span className="inline-flex items-center gap-1.5 font-mono text-[11px] font-medium uppercase tracking-[0.14em] text-slate">
                 <History className="h-3.5 w-3.5" strokeWidth={1.75} />
-                Stock history
+                Riwayat Stok
               </span>
 
               {isLoadingHistory ? (
                 <div className="flex items-center gap-2 py-3 text-sm text-slate">
                   <Loader2 className="h-4 w-4 animate-spin" strokeWidth={2} />
-                  Loading history…
+                  Memuat riwayat…
                 </div>
               ) : stockHistory.length === 0 ? (
                 <p className="py-2 text-sm text-slate">
-                  No stock changes recorded yet.
+                  Belum ada perubahan stok yang tercatat.
                 </p>
               ) : (
                 <ul className="flex max-h-56 flex-col gap-2 overflow-y-auto pr-1">
@@ -592,7 +592,7 @@ export function ProductFormModal({
               onClick={onClose}
               className="rounded-full border border-ink/15 px-4 py-2.5 text-xs font-medium uppercase tracking-[0.1em] text-ink transition-all duration-200 hover:bg-cloud active:scale-95"
             >
-              Cancel
+              Batal
             </button>
             <button
               type="submit"
@@ -600,10 +600,10 @@ export function ProductFormModal({
               className="rounded-full bg-ink px-5 py-2.5 text-xs font-medium uppercase tracking-[0.1em] text-paper shadow-sm transition-all duration-200 hover:bg-ink/85 hover:shadow-md active:scale-95 disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100"
             >
               {isSubmitting
-                ? "Saving…"
+                ? "Menyimpan…"
                 : product
-                  ? "Save changes"
-                  : "Add product"}
+                  ? "Simpan Perubahan"
+                  : "Tambah Produk"}
             </button>
           </div>
         </form>

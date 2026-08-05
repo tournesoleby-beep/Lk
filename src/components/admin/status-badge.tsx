@@ -8,9 +8,9 @@ const STATUS_STYLES: Record<MockProductStatus, string> = {
 };
 
 const STATUS_LABELS: Record<MockProductStatus, string> = {
-  ACTIVE: "Active",
-  DRAFT: "Draft",
-  ARCHIVED: "Archived",
+  ACTIVE: "Aktif",
+  DRAFT: "Draf",
+  ARCHIVED: "Diarsipkan",
 };
 
 export function StatusBadge({ status }: { status: MockProductStatus }) {

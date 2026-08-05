@@ -29,7 +29,7 @@ export function LoginForm() {
     setSubmitting(false);
 
     if (!result || result.error) {
-      setError("That email or password isn't right. Please try again.");
+      setError("Email atau kata sandi salah. Silakan coba lagi.");
       return;
     }
 
@@ -56,7 +56,7 @@ export function LoginForm() {
 
       <label className="flex flex-col gap-1.5">
         <span className="font-mono text-[11px] font-medium uppercase tracking-[0.14em] text-slate">
-          Password
+          Kata Sandi
         </span>
         <input
           required
@@ -85,7 +85,7 @@ export function LoginForm() {
         ) : (
           <Lock className="h-4 w-4" strokeWidth={1.75} />
         )}
-        {submitting ? "Signing in…" : "Sign in"}
+        {submitting ? "Masuk…" : "Masuk"}
       </button>
     </form>
   );

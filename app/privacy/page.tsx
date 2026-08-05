@@ -9,24 +9,24 @@ export const metadata: Metadata = {
 
 const SECTIONS = [
   {
-    title: "What we collect",
-    body: "When you place an order, we collect the details needed to fulfil it: your name, phone number, email address, and shipping address. We don't require an account, and we don't collect anything beyond what checkout needs.",
+    title: "Data yang kami kumpulkan",
+    body: "Saat Anda membuat pesanan, kami mengumpulkan data yang diperlukan untuk memprosesnya: nama, nomor telepon, alamat email, dan alamat pengiriman Anda. Kami tidak mewajibkan akun, dan tidak mengumpulkan data di luar yang dibutuhkan saat checkout.",
   },
   {
-    title: "How we use it",
-    body: "Your details are used to process and ship your order, send order and payment status updates, and respond if you contact us. We don't sell your information to third parties.",
+    title: "Bagaimana data digunakan",
+    body: "Data Anda digunakan untuk memproses dan mengirim pesanan, mengirim pembaruan status pesanan dan pembayaran, serta membalas jika Anda menghubungi kami. Kami tidak menjual informasi Anda ke pihak ketiga.",
   },
   {
-    title: "Payment information",
-    body: "Payments are made by manual bank transfer. We ask you to upload a screenshot or photo of your payment confirmation so we can verify it; this proof is only used to confirm your payment.",
+    title: "Informasi pembayaran",
+    body: "Pembayaran dilakukan melalui transfer bank manual. Kami meminta Anda mengunggah tangkapan layar atau foto konfirmasi pembayaran agar dapat kami verifikasi; bukti ini hanya digunakan untuk memastikan pembayaran Anda.",
   },
   {
-    title: "Cookies & local data",
-    body: "Your shopping bag and wishlist are stored in your browser for this session so the site works smoothly as you shop — they are not shared or used for tracking.",
+    title: "Cookie & data lokal",
+    body: "Keranjang belanja dan wishlist Anda disimpan di browser untuk sesi ini agar situs berjalan lancar saat Anda berbelanja — data ini tidak dibagikan atau digunakan untuk pelacakan.",
   },
   {
-    title: "Contacting us",
-    body: "If you have questions about your data or want it removed, reach out through our contact page and we'll get back to you.",
+    title: "Menghubungi kami",
+    body: "Jika Anda memiliki pertanyaan tentang data Anda atau ingin menghapusnya, hubungi kami melalui halaman kontak dan kami akan membalas secepatnya.",
   },
 ] as const;
 
@@ -37,9 +37,9 @@ export default function PrivacyPage() {
         <section className="bg-paper py-16 sm:py-24">
           <Container className="flex flex-col gap-10">
             <SectionHeading
-              eyebrow="Company"
-              title="Privacy policy"
-              description="How Lapiita Karya collects and uses your information."
+              eyebrow="Perusahaan"
+              title="Kebijakan privasi"
+              description="Bagaimana Lapiita Karya mengumpulkan dan menggunakan informasi Anda."
             />
 
             <div className="flex max-w-2xl flex-col gap-8">

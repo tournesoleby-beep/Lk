@@ -71,7 +71,7 @@ export function ProductCard({
 
         {!inStock ? (
           <span className="absolute left-2.5 top-2.5 inline-flex items-center rounded-full bg-ink/80 px-2.5 py-1 font-mono text-[10px] font-medium uppercase tracking-[0.1em] text-paper backdrop-blur">
-            Out of Stock
+            Stok Habis
           </span>
         ) : null}
       </Link>
@@ -92,7 +92,7 @@ export function ProductCard({
           })
         }
         aria-pressed={saved}
-        aria-label={saved ? "Remove from wishlist" : "Save to wishlist"}
+        aria-label={saved ? "Hapus dari wishlist" : "Simpan ke wishlist"}
         className="absolute right-2.5 top-2.5 flex h-10 w-10 items-center justify-center rounded-full bg-paper/90 text-ink shadow-sm backdrop-blur transition-all duration-200 hover:scale-110 hover:text-signal active:scale-95 sm:h-8 sm:w-8"
       >
         <Heart
@@ -120,7 +120,7 @@ export function ProductCard({
 
         {isLowStock ? (
           <span className="font-mono text-[11px] font-medium text-signal">
-            Only {product.stock} left
+            Tersisa {product.stock} produk
           </span>
         ) : null}
 
@@ -140,7 +140,7 @@ export function ProductCard({
           ) : (
             <ShoppingBag className="h-3.5 w-3.5" strokeWidth={1.75} />
           )}
-          {!inStock ? "Out of Stock" : added ? "Added to bag" : "Add to bag"}
+          {!inStock ? "Stok Habis" : added ? "Berhasil Ditambahkan" : "Tambah ke Keranjang"}
         </button>
       </div>
     </div>

@@ -54,10 +54,10 @@ export default async function AdminAnalyticsPage() {
             Admin
           </span>
           <h1 className="font-serif text-2xl font-semibold tracking-tight text-ink">
-            Analytics
+            Analitik
           </h1>
           <p className="text-sm text-slate">
-            A quick overview of store performance.
+            Ringkasan singkat performa toko.
           </p>
         </div>
 

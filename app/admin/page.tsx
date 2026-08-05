@@ -23,20 +23,20 @@ export default async function AdminDashboardPage() {
 
   const cards = [
     {
-      label: "Products",
+      label: "Produk",
       icon: Package,
       value: products.length,
-      caption: products.length === 1 ? "product in catalog" : "products in catalog",
+      caption: "produk dalam katalog",
       href: "/admin/products",
     },
     {
-      label: "Orders",
+      label: "Pesanan",
       icon: Receipt,
       value: orders.length,
       caption:
         pendingOrders > 0
-          ? `${pendingOrders} awaiting action`
-          : "all caught up",
+          ? `${pendingOrders} menunggu tindakan`
+          : "semua sudah ditindaklanjuti",
       href: "/admin/orders",
     },
   ] as const;
@@ -51,10 +51,10 @@ export default async function AdminDashboardPage() {
             Admin
           </span>
           <h1 className="font-serif text-2xl font-semibold tracking-tight text-ink">
-            Dashboard
+            Dasbor
           </h1>
           <p className="text-sm text-slate">
-            A quick overview of the store. Jump into products or orders below.
+            Ringkasan singkat toko Anda. Buka produk atau pesanan di bawah ini.
           </p>
         </div>
 

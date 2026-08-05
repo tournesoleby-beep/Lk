@@ -5,35 +5,35 @@ import { InstagramIcon } from "@/components/icons/instagram-icon";
 
 const footerColumns = [
   {
-    heading: "Categories",
+    heading: "Kategori",
     links: [
       { label: "Fashion", href: "/shop?category=fashion" },
-      { label: "Food", href: "/shop?category=food" },
-      { label: "Production", href: "/shop?category=production" },
+      { label: "Makanan", href: "/shop?category=food" },
+      { label: "Produksi", href: "/shop?category=production" },
     ],
   },
   {
-    heading: "Shop",
+    heading: "Belanja",
     links: [
-      { label: "New arrivals", href: "/#new-arrivals" },
-      { label: "Featured", href: "/#featured" },
-      { label: "All products", href: "/shop" },
+      { label: "Produk Terbaru", href: "/#new-arrivals" },
+      { label: "Unggulan", href: "/#featured" },
+      { label: "Semua Produk", href: "/shop" },
     ],
   },
   {
-    heading: "Company",
+    heading: "Perusahaan",
     links: [
-      { label: "About us", href: "/about" },
-      { label: "Sustainability", href: "/sustainability" },
-      { label: "Careers", href: "/careers" },
+      { label: "Tentang Kami", href: "/about" },
+      { label: "Keberlanjutan", href: "/sustainability" },
+      { label: "Karier", href: "/careers" },
     ],
   },
   {
-    heading: "Support",
+    heading: "Bantuan",
     links: [
-      { label: "Track an order", href: "/orders/lookup" },
-      { label: "Contact us", href: "/contact" },
-      { label: "Shipping & returns", href: "/shipping-returns" },
+      { label: "Lacak Pesanan", href: "/orders/lookup" },
+      { label: "Hubungi Kami", href: "/contact" },
+      { label: "Pengiriman & Pengembalian", href: "/shipping-returns" },
       { label: "FAQ", href: "/faq" },
     ],
   },
@@ -67,7 +67,7 @@ export function Footer() {
               </span>
             </div>
             <p className="max-w-[220px] text-sm leading-relaxed text-slate">
-              Handmade with purpose, built on vocational training.
+              Dibuat dengan tangan penuh makna, dibangun dari pelatihan vokasi.
             </p>
             <div className="flex items-center gap-3 pt-1 sm:pt-2">
               {socialLinks.map(({ label, href, icon: Icon }) => (
@@ -108,20 +108,20 @@ export function Footer() {
 
         <div className="flex flex-col gap-4 border-t border-line pt-6 sm:flex-row sm:items-center sm:justify-between sm:pt-8">
           <p className="font-mono text-xs text-slate">
-            © {new Date().getFullYear()} Charolina Eydet. All rights reserved.
+            © {new Date().getFullYear()} Charolina Eydet. Hak cipta dilindungi.
           </p>
           <div className="flex items-center gap-6">
             <Link
               href="/privacy"
               className="font-mono text-xs text-slate transition-colors hover:text-ink"
             >
-              Privacy policy
+              Kebijakan Privasi
             </Link>
             <Link
               href="/terms"
               className="font-mono text-xs text-slate transition-colors hover:text-ink"
             >
-              Terms of service
+              Syarat dan Ketentuan
             </Link>
           </div>
         </div>

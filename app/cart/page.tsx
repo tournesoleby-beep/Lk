@@ -18,17 +18,17 @@ export default function CartPage() {
       <main className="flex flex-1 flex-col">
         <section className="bg-paper py-10 sm:py-16 md:py-24">
           <Container className="flex flex-col gap-8 sm:gap-10">
-            <SectionHeading eyebrow="Shop" title="Your bag" />
+            <SectionHeading eyebrow="Belanja" title="Keranjang Anda" />
 
             {cart.lines.length === 0 ? (
               <div className="flex flex-col items-center gap-6">
-                <EmptyState message="Your bag is empty. Pieces you add will show up here." />
+                <EmptyState message="Keranjang Anda kosong. Produk yang Anda tambahkan akan muncul di sini." />
                 <Link
                   href="/shop"
                   className="inline-flex min-h-11 items-center gap-2 rounded-full bg-ink px-6 py-3 text-sm font-medium text-paper shadow-sm transition-all duration-200 hover:bg-ink/85 hover:shadow-md active:scale-[0.98]"
                 >
                   <ShoppingBag className="h-4 w-4" strokeWidth={1.75} />
-                  Continue shopping
+                  Lanjutkan Belanja
                 </Link>
               </div>
             ) : (
@@ -56,7 +56,7 @@ export default function CartPage() {
                           <button
                             type="button"
                             onClick={() => cart.removeItem(line.id)}
-                            aria-label={`Remove ${line.name} from bag`}
+                            aria-label={`Hapus ${line.name} dari keranjang`}
                             className="-m-2.5 flex h-11 w-11 shrink-0 items-center justify-center text-slate transition-all duration-200 hover:scale-110 hover:text-signal active:scale-95 sm:-m-2 sm:h-9 sm:w-9"
                           >
                             <Trash2 className="h-4 w-4" strokeWidth={1.75} />
@@ -64,7 +64,7 @@ export default function CartPage() {
                         </div>
 
                         <span className="font-mono text-sm text-slate">
-                          {formatCurrency(line.price, line.currency)} each
+                          {formatCurrency(line.price, line.currency)} / item
                         </span>
 
                         <div className="mt-auto flex flex-wrap items-center justify-between gap-3 pt-2">
@@ -74,7 +74,7 @@ export default function CartPage() {
                               onClick={() =>
                                 cart.updateQuantity(line.id, line.quantity - 1)
                               }
-                              aria-label={`Decrease ${line.name} quantity`}
+                              aria-label={`Kurangi jumlah ${line.name}`}
                               className="flex h-11 w-11 items-center justify-center text-ink transition-colors duration-200 hover:bg-cloud active:scale-90 sm:h-8 sm:w-8"
                             >
                               <Minus className="h-3.5 w-3.5" strokeWidth={1.75} />
@@ -87,7 +87,7 @@ export default function CartPage() {
                               onClick={() =>
                                 cart.updateQuantity(line.id, line.quantity + 1)
                               }
-                              aria-label={`Increase ${line.name} quantity`}
+                              aria-label={`Tambah jumlah ${line.name}`}
                               className="flex h-11 w-11 items-center justify-center text-ink transition-colors duration-200 hover:bg-cloud active:scale-90 sm:h-8 sm:w-8"
                             >
                               <Plus className="h-3.5 w-3.5" strokeWidth={1.75} />
@@ -109,13 +109,13 @@ export default function CartPage() {
                 {/* Summary */}
                 <div className="flex flex-col gap-4 rounded-2xl border border-line bg-cloud/40 p-5 shadow-xs sm:p-6">
                   <h2 className="font-serif text-lg font-semibold text-ink">
-                    Order summary
+                    Ringkasan Pesanan
                   </h2>
 
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-slate">
                       Subtotal ({cart.count}{" "}
-                      {cart.count === 1 ? "item" : "items"})
+                      {cart.count === 1 ? "produk" : "produk"})
                     </span>
                     <span className="font-mono text-base font-medium text-ink">
                       {formatCurrency(cart.subtotal, currency)}
@@ -130,7 +130,7 @@ export default function CartPage() {
                   </div>
 
                   <p className="text-xs leading-relaxed text-slate">
-                    Shipping and taxes calculated at checkout.
+                    Ongkos kirim dan pajak dihitung saat checkout.
                   </p>
 
                   <Link
@@ -143,7 +143,7 @@ export default function CartPage() {
                     href="/shop"
                     className="flex min-h-11 items-center justify-center text-center text-sm font-medium text-ink underline underline-offset-4 transition-colors duration-200 hover:text-signal"
                   >
-                    Continue shopping
+                    Lanjutkan Belanja
                   </Link>
                 </div>
               </div>

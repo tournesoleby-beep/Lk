@@ -9,12 +9,19 @@ import { useToast } from "@/components/providers/toast-provider";
 // return type) — redeclared here rather than imported so this file has no
 // dependency on a server-only module (getAdminReviews calls prisma
 // directly), which "use client" components can't import.
+//
+// `images` mirrors ProductReview.images (Json? in schema.prisma): empty
+// array for reviews with no photos, so this stays compatible with every
+// review that existed before photo support was added. getAdminReviews
+// needs to select `images` and cast it from Json to string[] (Json can't
+// be `null` on the wire once cast — normalize null to []).
 type AdminReview = {
   id: string;
   productId: string;
   orderId: string;
   rating: number;
   comment: string | null;
+  images: string[];
   reviewerName: string;
   approved: boolean;
   featured: boolean;
@@ -27,12 +34,33 @@ function StarRating({ rating }: { rating: number }) {
   return (
     <div
       className="flex items-center gap-0.5 text-sm leading-none"
-      aria-label={`${rating} out of 5 stars`}
+      aria-label={`${rating} dari 5 bintang`}
     >
       {Array.from({ length: 5 }).map((_, i) => (
         <span key={i} className={i < rating ? "text-amber-500" : "text-line"}>
           ★
         </span>
+      ))}
+    </div>
+  );
+}
+
+function ReviewPhotos({ images }: { images: string[] }) {
+  if (images.length === 0) return null;
+
+  return (
+    <div className="flex flex-wrap gap-2">
+      {images.map((url) => (
+        <a
+          key={url}
+          href={url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block h-16 w-16 overflow-hidden rounded-lg border border-line"
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={url} alt="" className="h-full w-full object-cover" />
+        </a>
       ))}
     </div>
   );
@@ -57,7 +85,7 @@ function ReviewCard({
           <StarRating rating={review.rating} />
         </div>
         <span className="text-xs uppercase tracking-[0.1em] text-slate">
-          {review.createdAt.toLocaleDateString("en-US", {
+          {review.createdAt.toLocaleDateString("id-ID", {
             year: "numeric",
             month: "short",
             day: "numeric",
@@ -69,6 +97,8 @@ function ReviewCard({
 
       {review.comment && <p className="text-sm text-ink/80">{review.comment}</p>}
 
+      <ReviewPhotos images={review.images} />
+
       <div className="mt-2 flex items-center gap-2">
         {onApprove ? (
           <button
@@ -77,7 +107,7 @@ function ReviewCard({
             disabled={isPending}
             className="inline-flex min-h-9 items-center justify-center rounded-full bg-ink px-4 text-xs font-medium uppercase tracking-[0.1em] text-paper transition-all duration-200 hover:bg-ink/85 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
           >
-            Approve
+            Setujui
           </button>
         ) : null}
         <button
@@ -86,7 +116,7 @@ function ReviewCard({
           disabled={isPending}
           className="inline-flex min-h-9 items-center justify-center rounded-full border border-line px-4 text-xs font-medium uppercase tracking-[0.1em] text-slate transition-all duration-200 hover:border-signal/40 hover:text-signal active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {onApprove ? "Reject" : "Delete"}
+          {onApprove ? "Tolak" : "Hapus"}
         </button>
       </div>
     </div>
@@ -114,9 +144,9 @@ export function ReviewModerationList({
             review.id === id ? { ...review, approved: true } : review
           )
         );
-        toast({ title: "Review approved", variant: "success" });
+        toast({ title: "Ulasan disetujui", variant: "success" });
       } else {
-        toast({ title: "Couldn't approve review", description: result.error, variant: "info" });
+        toast({ title: "Gagal menyetujui ulasan", description: result.error, variant: "info" });
       }
     });
   }
@@ -126,9 +156,9 @@ export function ReviewModerationList({
       const result = await deleteReview(id);
       if (result.success) {
         setReviews((current) => current.filter((review) => review.id !== id));
-        toast({ title: "Review deleted", variant: "success" });
+        toast({ title: "Ulasan dihapus", variant: "success" });
       } else {
-        toast({ title: "Couldn't delete review", description: result.error, variant: "info" });
+        toast({ title: "Gagal menghapus ulasan", description: result.error, variant: "info" });
       }
     });
   }
@@ -136,9 +166,9 @@ export function ReviewModerationList({
   if (reviews.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center gap-1.5 rounded-2xl border border-line bg-paper py-16 text-center">
-        <p className="text-sm font-medium text-ink">No reviews yet</p>
+        <p className="text-sm font-medium text-ink">Belum ada ulasan</p>
         <p className="text-sm text-slate">
-          Customer reviews will show up here once they&apos;re submitted.
+          Ulasan pelanggan akan muncul di sini setelah dikirimkan.
         </p>
       </div>
     );
@@ -148,7 +178,7 @@ export function ReviewModerationList({
     <div className="flex flex-col gap-8">
       <div className="flex flex-col gap-3">
         <h2 className="font-serif text-base font-semibold text-ink">
-          Pending ({pending.length})
+          Menunggu Persetujuan ({pending.length})
         </h2>
         {pending.length > 0 ? (
           <div className="flex flex-col gap-3">
@@ -163,13 +193,13 @@ export function ReviewModerationList({
             ))}
           </div>
         ) : (
-          <p className="text-sm text-slate">No reviews waiting for approval.</p>
+          <p className="text-sm text-slate">Tidak ada ulasan yang menunggu persetujuan.</p>
         )}
       </div>
 
       <div className="flex flex-col gap-3">
         <h2 className="font-serif text-base font-semibold text-ink">
-          Approved ({approved.length})
+          Disetujui ({approved.length})
         </h2>
         {approved.length > 0 ? (
           <div className="flex flex-col gap-3">
@@ -183,7 +213,7 @@ export function ReviewModerationList({
             ))}
           </div>
         ) : (
-          <p className="text-sm text-slate">No approved reviews yet.</p>
+          <p className="text-sm text-slate">Belum ada ulasan yang disetujui.</p>
         )}
       </div>
     </div>

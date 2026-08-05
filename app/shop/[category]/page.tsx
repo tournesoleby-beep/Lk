@@ -30,7 +30,7 @@ export async function generateMetadata({
     return { title: `${product.name} — Lapiita Karya` };
   }
 
-  return { title: "Not found — Lapiita Karya" };
+  return { title: "Tidak ditemukan — Lapiita Karya" };
 }
 
 export default async function ShopCategoryPage({ params }: CategoryPageProps) {
@@ -46,7 +46,7 @@ export default async function ShopCategoryPage({ params }: CategoryPageProps) {
             {category ? (
               <>
                 <SectionHeading
-                  eyebrow="Shop"
+                  eyebrow="Belanja"
                   title={category.name}
                   description={category.description}
                 />
@@ -54,7 +54,7 @@ export default async function ShopCategoryPage({ params }: CategoryPageProps) {
                 <div className="flex items-center gap-2 font-mono text-xs uppercase tracking-[0.14em] text-slate">
                   <span>
                     {category.products.length}{" "}
-                    {category.products.length === 1 ? "piece" : "pieces"}
+                    {category.products.length === 1 ? "produk" : "produk"}
                   </span>
                 </div>
 
@@ -65,7 +65,7 @@ export default async function ShopCategoryPage({ params }: CategoryPageProps) {
                     ))}
                   </div>
                 ) : (
-                  <EmptyState message="No pieces are live in this category just yet — check back shortly." />
+                  <EmptyState message="Belum ada produk di kategori ini — silakan cek kembali nanti." />
                 )}
               </>
             ) : product ? (
@@ -73,11 +73,11 @@ export default async function ShopCategoryPage({ params }: CategoryPageProps) {
             ) : (
               <>
                 <SectionHeading
-                  eyebrow="Shop"
-                  title="We couldn't find that page"
-                  description="It may have moved, or it might not exist yet. Take a look at our full shop instead."
+                  eyebrow="Belanja"
+                  title="Halaman tidak ditemukan"
+                  description="Halaman ini mungkin sudah dipindahkan atau belum ada. Coba lihat toko kami secara lengkap."
                 />
-                <EmptyState message="Try Fashion, Food, or Production from the menu above — or head back to the homepage to browse everything we carry." />
+                <EmptyState message="Coba pilih Fashion, Makanan, atau Produksi dari menu di atas — atau kembali ke beranda untuk menjelajahi semua produk kami." />
               </>
             )}
           </Container>

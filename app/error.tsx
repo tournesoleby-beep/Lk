@@ -28,9 +28,9 @@ export default function GlobalError({
             </span>
 
             <SectionHeading
-              eyebrow="Error"
-              title="Something went wrong"
-              description="We hit an unexpected error loading this page. You can try again, or head back home."
+              eyebrow="Kesalahan"
+              title="Terjadi kesalahan"
+              description="Terjadi kesalahan tak terduga saat memuat halaman ini. Anda bisa mencoba lagi, atau kembali ke beranda."
               align="center"
             />
 
@@ -40,13 +40,13 @@ export default function GlobalError({
                 onClick={reset}
                 className="inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3 text-sm font-medium text-paper shadow-sm transition-all duration-200 hover:bg-ink/85 hover:shadow-md active:scale-[0.98]"
               >
-                Try again
+                Coba Lagi
               </button>
               <Link
                 href="/"
                 className="inline-flex items-center gap-2 rounded-full border border-ink/15 px-6 py-3 text-sm font-medium text-ink transition-all duration-200 hover:border-ink/35 hover:bg-cloud active:scale-[0.98]"
               >
-                Back to home
+                Kembali ke Beranda
               </Link>
             </div>
           </Container>

@@ -16,9 +16,9 @@ import {
 } from "@/components/admin/product-form-modal";
 
 const STATUS_FILTERS: { label: string; value: MockProductStatus | "ALL" }[] = [
-  { label: "All", value: "ALL" },
-  { label: "Active", value: "ACTIVE" },
-  { label: "Draft", value: "DRAFT" },
+  { label: "Semua", value: "ALL" },
+  { label: "Aktif", value: "ACTIVE" },
+  { label: "Draf", value: "DRAFT" },
 ];
 
 export function ProductsManager({
@@ -111,10 +111,10 @@ export function ProductsManager({
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-col gap-1">
           <span className="font-mono text-[11px] font-medium uppercase tracking-[0.2em] text-signal">
-            Catalog
+            Katalog
           </span>
           <h1 className="font-serif text-[1.75rem] font-semibold leading-[1.1] tracking-tight text-ink sm:text-3xl">
-            Products
+            Produk
           </h1>
         </div>
 
@@ -124,7 +124,7 @@ export function ProductsManager({
           className="inline-flex items-center justify-center gap-2 self-start rounded-full bg-ink px-5 py-2.5 text-xs font-medium uppercase tracking-[0.1em] text-paper shadow-sm transition-all duration-200 hover:bg-ink/85 hover:shadow-md active:scale-[0.98] sm:self-auto"
         >
           <Plus className="h-4 w-4" strokeWidth={1.75} />
-          Add Product
+          Tambah Produk
         </button>
       </div>
 
@@ -139,8 +139,8 @@ export function ProductsManager({
             type="search"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search by name, SKU, or category…"
-            aria-label="Search products"
+            placeholder="Cari berdasarkan nama, SKU, atau kategori…"
+            aria-label="Cari produk"
             className="w-full rounded-full border border-line bg-cloud/60 py-2.5 pl-10 pr-4 text-sm text-ink outline-none transition-all duration-200 placeholder:text-slate focus:border-signal/50 focus:bg-paper focus:ring-4 focus:ring-signal/10"
           />
         </div>
@@ -166,7 +166,7 @@ export function ProductsManager({
       </div>
 
       {filtered.length === 0 ? (
-        <EmptyState message="No products match your search or filter. Try a different name, SKU, category, or status." />
+        <EmptyState message="Tidak ada produk yang cocok dengan pencarian atau filter Anda. Coba nama, SKU, kategori, atau status lain." />
       ) : (
         <>
           {/* Desktop / tablet table */}
@@ -175,25 +175,25 @@ export function ProductsManager({
               <thead>
                 <tr className="border-b border-line bg-cloud/60">
                   <th className="px-5 py-3 font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-slate">
-                    Product
+                    Produk
                   </th>
                   <th className="px-5 py-3 font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-slate">
-                    Category
+                    Kategori
                   </th>
                   <th className="px-5 py-3 font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-slate">
-                    Price
+                    Harga
                   </th>
                   <th className="px-5 py-3 font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-slate">
-                    Stock
+                    Stok
                   </th>
                   <th className="px-5 py-3 font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-slate">
                     Status
                   </th>
                   <th className="px-5 py-3 font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-slate">
-                    Updated
+                    Diperbarui
                   </th>
                   <th className="px-5 py-3 text-right font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-slate">
-                    Actions
+                    Aksi
                   </th>
                 </tr>
               </thead>
@@ -284,7 +284,7 @@ export function ProductsManager({
                             setDeleteError(null);
                             setPendingDelete(product);
                           }}
-                          aria-label={`Delete ${product.name}`}
+                          aria-label={`Hapus ${product.name}`}
                           className="flex h-8 w-8 items-center justify-center rounded-full text-ink transition-all duration-200 hover:bg-accent-soft hover:text-signal active:scale-90"
                         >
                           <Trash2 className="h-4 w-4" strokeWidth={1.75} />
@@ -353,7 +353,7 @@ export function ProductsManager({
                       product.stock === 0 ? "text-signal" : "text-slate"
                     )}
                   >
-                    {product.stock} in stock
+                    {product.stock} tersedia
                   </span>
                 </div>
 
@@ -375,7 +375,7 @@ export function ProductsManager({
                     className="inline-flex flex-1 items-center justify-center gap-2 rounded-full border border-line py-2 text-xs font-medium uppercase tracking-[0.1em] text-signal transition-all duration-200 hover:bg-accent-soft active:scale-[0.98]"
                   >
                     <Trash2 className="h-3.5 w-3.5" strokeWidth={1.75} />
-                    Delete
+                    Hapus
                   </button>
                 </div>
               </div>
@@ -385,7 +385,7 @@ export function ProductsManager({
       )}
 
       <p className="font-mono text-xs text-slate">
-        Showing {filtered.length} of {products.length} products
+        Menampilkan {filtered.length} dari {products.length} produk
       </p>
 
       {modalOpen ? (
@@ -415,16 +415,16 @@ export function ProductsManager({
           <div
             role="alertdialog"
             aria-modal="true"
-            aria-label="Confirm delete"
+            aria-label="Konfirmasi hapus"
             className="fixed left-1/2 top-1/2 z-50 w-full max-w-sm -translate-x-1/2 -translate-y-1/2 animate-in rounded-2xl border border-line bg-paper p-6 shadow-lg zoom-in-95 fade-in duration-200"
           >
             <h2 className="font-serif text-lg font-semibold text-ink">
-              Delete product?
+              Hapus produk ini?
             </h2>
             <p className="mt-2 text-sm leading-relaxed text-slate">
-              This will remove{" "}
-              <span className="font-medium text-ink">{pendingDelete.name}</span> from
-              the catalog. This action can&apos;t be undone.
+              Tindakan ini akan menghapus{" "}
+              <span className="font-medium text-ink">{pendingDelete.name}</span> dari
+              katalog. Tindakan ini tidak dapat dibatalkan.
             </p>
             {deleteError ? (
               <p className="mt-3 rounded-xl bg-accent-soft px-3.5 py-2.5 text-sm text-signal">
@@ -441,7 +441,7 @@ export function ProductsManager({
                 disabled={isDeleting}
                 className="rounded-full border border-ink/15 px-4 py-2.5 text-xs font-medium uppercase tracking-[0.1em] text-ink transition-all duration-200 hover:bg-cloud active:scale-95 disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100"
               >
-                Cancel
+                Batal
               </button>
               <button
                 type="button"
@@ -449,7 +449,7 @@ export function ProductsManager({
                 disabled={isDeleting}
                 className="rounded-full bg-signal px-4 py-2.5 text-xs font-medium uppercase tracking-[0.1em] text-paper shadow-sm transition-all duration-200 hover:bg-signal/90 hover:shadow-md active:scale-95 disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100"
               >
-                {isDeleting ? "Deleting…" : "Delete"}
+                {isDeleting ? "Menghapus…" : "Hapus"}
               </button>
             </div>
           </div>

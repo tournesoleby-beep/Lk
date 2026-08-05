@@ -27,7 +27,7 @@ const steps = [
   },
   {
     icon: ShieldCheck,
-    title: "Quality Control",
+    title: "Kontrol Kualitas",
     description:
       "Produk diperiksa satu per satu untuk memastikan kualitas dan kerapian sebelum lolos standar kami.",
   },

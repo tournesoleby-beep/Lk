@@ -13,7 +13,7 @@ import { WhatsAppButton } from "@/components/checkout/whatsapp-button";
 import { SaveRecentOrder } from "@/components/checkout/save-recent-order";
 
 export const metadata: Metadata = {
-  title: "Payment proof received — Lapiita Karya",
+  title: "Bukti Pembayaran Diterima — Lapiita Karya",
 };
 
 const LABEL_CLASS =
@@ -33,13 +33,13 @@ export default async function CheckoutPaymentSuccessPage({
         <main className="flex flex-1 flex-col">
           <section className="bg-paper py-10 sm:py-16 md:py-24">
             <Container className="flex flex-col items-center gap-6">
-              <SectionHeading eyebrow="Shop" title="Payment" align="center" />
-              <EmptyState message="We couldn't find that order. Check the link, or start a new order from the shop." />
+              <SectionHeading eyebrow="Belanja" title="Pembayaran" align="center" />
+              <EmptyState message="Pesanan tidak ditemukan. Periksa kembali tautannya, atau buat pesanan baru dari toko." />
               <Link
                 href="/shop"
                 className="inline-flex min-h-11 items-center gap-2 rounded-full bg-ink px-6 py-3 text-sm font-medium text-paper shadow-sm transition-all duration-200 hover:bg-ink/85 hover:shadow-md active:scale-[0.98]"
               >
-                Continue shopping
+                Lanjutkan Belanja
               </Link>
             </Container>
           </section>
@@ -70,35 +70,35 @@ export default async function CheckoutPaymentSuccessPage({
             </span>
 
             <SectionHeading
-              eyebrow="Shop"
-              title="Payment proof received"
-              description="Thanks — we're verifying your payment now and will confirm your order shortly."
+              eyebrow="Belanja"
+              title="Bukti Pembayaran Diterima"
+              description="Terima kasih — kami sedang memverifikasi pembayaran Anda dan akan segera mengonfirmasi pesanan Anda."
               align="center"
             />
 
             <div className="flex w-full max-w-sm flex-col gap-4 rounded-2xl border border-line p-6 text-left shadow-xs">
               <div className="flex items-center justify-between gap-3">
                 <div className="flex flex-col gap-0.5">
-                  <span className={LABEL_CLASS}>Order number</span>
+                  <span className={LABEL_CLASS}>Nomor pesanan</span>
                   <span className="font-mono text-sm text-ink">{order.orderNumber}</span>
                 </div>
                 <CopyOrderNumberButton orderNumber={order.orderNumber} />
               </div>
 
               <div className="flex items-center justify-between border-t border-line pt-4">
-                <span className={LABEL_CLASS}>Payment status</span>
+                <span className={LABEL_CLASS}>Status pembayaran</span>
                 <OrderStatusBadge status={order.status} />
               </div>
 
               <div className="flex items-center justify-between border-t border-line pt-4">
-                <span className={LABEL_CLASS}>Total paid</span>
+                <span className={LABEL_CLASS}>Total dibayar</span>
                 <span className="font-mono text-base font-semibold text-ink">
                   {formatCurrency(order.total, order.currency)}
                 </span>
               </div>
 
               <div className="flex items-center justify-between border-t border-line pt-4 text-xs text-slate">
-                <span>Placed</span>
+                <span>Dibuat</span>
                 <span>{formatDate(order.createdAt)}</span>
               </div>
             </div>
@@ -108,11 +108,11 @@ export default async function CheckoutPaymentSuccessPage({
                 href={`/orders/lookup?order=${encodeURIComponent(order.orderNumber)}`}
                 className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full bg-ink px-6 py-3 text-sm font-medium text-paper shadow-sm transition-all duration-200 hover:bg-ink/85 hover:shadow-md active:scale-[0.98]"
               >
-                Track order
+                Lacak Pesanan
               </Link>
               <WhatsAppButton
                 className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full border border-line bg-cloud/60 px-6 py-3 text-sm font-medium text-ink shadow-xs transition-all duration-200 hover:bg-cloud active:scale-[0.98]"
-                message={`Hi, I'd like to ask about my order ${order.orderNumber}.`}
+                message={`Halo, saya ingin bertanya tentang pesanan saya ${order.orderNumber}.`}
               />
             </div>
 
@@ -120,7 +120,7 @@ export default async function CheckoutPaymentSuccessPage({
               href="/shop"
               className="text-sm font-medium text-slate underline-offset-4 transition-colors duration-200 hover:text-ink hover:underline"
             >
-              Continue shopping
+              Lanjutkan Belanja
             </Link>
           </Container>
         </section>

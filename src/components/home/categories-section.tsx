@@ -19,9 +19,9 @@ export async function CategoriesSection() {
       <Container className="flex flex-col gap-7 px-5 sm:gap-12 sm:px-6">
         <Reveal variant="fade-up" duration={DURATION} easing={EASING}>
           <SectionHeading
-            eyebrow="Our collections"
-            title="Shop by category"
-            description="Fashion, food, and production — every piece handmade by women building new skills through our vocational training program."
+            eyebrow="Koleksi kami"
+            title="Belanja per Kategori"
+            description="Fashion, makanan, dan produksi — setiap produk dibuat tangan oleh perempuan yang mengembangkan keterampilan baru melalui program pelatihan vokasi kami."
             compact
           />
         </Reveal>
@@ -41,7 +41,7 @@ export async function CategoriesSection() {
             ))}
           </Reveal>
         ) : (
-          <EmptyState message="Categories will show up here once they're added in the catalog." />
+          <EmptyState message="Kategori akan muncul di sini setelah ditambahkan ke katalog." />
         )}
       </Container>
     </section>

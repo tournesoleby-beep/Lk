@@ -30,13 +30,13 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://lapiitakarya.com";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: "Lapiita Karya — Handmade goods from a vocational training program",
+  title: "Lapiita Karya — Produk buatan tangan dari program pelatihan vokasi",
   description:
-    "Lapiita Karya offers premium handmade fashion, food, and production pieces made by women building new skills through vocational training.",
+    "Lapiita Karya menghadirkan produk fashion, makanan, dan hasil produksi buatan tangan berkualitas premium yang dibuat oleh perempuan yang sedang mengembangkan keterampilan baru melalui pelatihan vokasi.",
   openGraph: {
-    title: "Lapiita Karya — Handmade goods from a vocational training program",
+    title: "Lapiita Karya — Produk buatan tangan dari program pelatihan vokasi",
     description:
-      "Lapiita Karya offers premium handmade fashion, food, and production pieces made by women building new skills through vocational training.",
+      "Lapiita Karya menghadirkan produk fashion, makanan, dan hasil produksi buatan tangan berkualitas premium yang dibuat oleh perempuan yang sedang mengembangkan keterampilan baru melalui pelatihan vokasi.",
     url: siteUrl,
     siteName: "Lapiita Karya",
     locale: "id_ID",

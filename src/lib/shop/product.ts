@@ -4,6 +4,7 @@ export type ShopProductReview = {
   id: string;
   rating: number;
   comment: string | null;
+  images: string[];
   reviewerName: string;
   createdAt: string;
 };
@@ -75,6 +76,7 @@ export async function getProductBySlug(
             id: true,
             rating: true,
             comment: true,
+            images: true,
             reviewerName: true,
             createdAt: true,
           },
@@ -88,6 +90,9 @@ export async function getProductBySlug(
       id: review.id,
       rating: review.rating,
       comment: review.comment,
+      // ProductReview.images is Json? — normalize null/anything-not-an-array
+      // to [] so every caller can treat it as a plain string array.
+      images: Array.isArray(review.images) ? (review.images as string[]) : [],
       reviewerName: review.reviewerName,
       createdAt: review.createdAt.toISOString(),
     }));

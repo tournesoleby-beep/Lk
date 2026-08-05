@@ -11,9 +11,9 @@ import { InstagramIcon } from "@/components/icons/instagram-icon";
 
 const CATEGORY_LINKS = [
   { label: "Fashion", href: "/shop?category=fashion" },
-  { label: "Food", href: "/shop?category=food" },
-  { label: "Production", href: "/shop?category=production" },
-  { label: "Contact us", href: "/contact" },
+  { label: "Makanan", href: "/shop?category=food" },
+  { label: "Produksi", href: "/shop?category=production" },
+  { label: "Hubungi Kami", href: "/contact" },
 ] as const;
 
 export function Navbar() {
@@ -53,7 +53,7 @@ export function Navbar() {
           type="button"
           onClick={() => setMobileOpen((open) => !open)}
           className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-ink transition-all duration-200 hover:bg-cloud active:scale-95 md:hidden"
-          aria-label={mobileOpen ? "Close menu" : "Open menu"}
+          aria-label={mobileOpen ? "Tutup menu" : "Buka menu"}
           aria-expanded={mobileOpen}
         >
           {mobileOpen ? (
@@ -102,8 +102,8 @@ export function Navbar() {
             type="search"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search products, brands…"
-            aria-label="Search products"
+            placeholder="Cari produk, merek…"
+            aria-label="Cari produk"
             className="w-full rounded-full border border-line bg-cloud/60 py-2.5 pl-10 pr-4 text-sm text-ink outline-none transition-all duration-200 placeholder:text-slate focus:border-signal/50 focus:bg-paper focus:ring-4 focus:ring-signal/10"
           />
         </form>
@@ -113,7 +113,7 @@ export function Navbar() {
             type="button"
             onClick={() => setSearchOpen((open) => !open)}
             className="flex h-11 w-11 items-center justify-center rounded-full text-ink transition-all duration-200 hover:bg-cloud active:scale-95 md:hidden"
-            aria-label="Toggle search"
+            aria-label="Buka/tutup pencarian"
             aria-expanded={searchOpen}
           >
             <Search className="h-5 w-5" strokeWidth={1.75} />
@@ -125,7 +125,7 @@ export function Navbar() {
           <Link
             href="/wishlist"
             className="relative flex h-11 w-11 items-center justify-center rounded-full text-ink transition-all duration-200 hover:bg-cloud hover:text-signal active:scale-95 md:h-9 md:w-9"
-            aria-label={`Wishlist, ${wishlist.count} saved`}
+            aria-label={`Wishlist, ${wishlist.count} tersimpan`}
           >
             <Heart className="h-5 w-5" strokeWidth={1.75} />
             {wishlist.count > 0 ? (
@@ -139,7 +139,7 @@ export function Navbar() {
             type="button"
             onClick={cart.open}
             className="relative flex h-11 w-11 items-center justify-center rounded-full text-ink transition-all duration-200 hover:bg-cloud hover:text-signal active:scale-95 md:h-9 md:w-9"
-            aria-label={`Shopping bag, ${cart.count} items`}
+            aria-label={`Keranjang belanja, ${cart.count} produk`}
           >
             <ShoppingBag className="h-5 w-5" strokeWidth={1.75} />
             {cart.count > 0 ? (
@@ -168,8 +168,8 @@ export function Navbar() {
               type="search"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search products, brands…"
-              aria-label="Search products"
+              placeholder="Cari produk, merek…"
+              aria-label="Cari produk"
               autoFocus
               className="h-11 w-full rounded-full border border-line bg-cloud/60 pl-10 pr-4 text-base text-ink outline-none transition-all duration-200 focus:border-signal/50 focus:bg-paper focus:ring-4 focus:ring-signal/10"
             />
@@ -202,7 +202,7 @@ export function Navbar() {
             onClick={() => setMobileOpen(false)}
             className="flex min-h-11 items-center rounded-xl px-3.5 text-base font-medium text-ink transition-colors duration-200 hover:bg-cloud hover:text-signal active:bg-cloud"
           >
-            Track an order
+            Lacak Pesanan
           </Link>
         </nav>
       ) : null}

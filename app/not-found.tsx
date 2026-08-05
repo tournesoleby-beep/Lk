@@ -16,8 +16,8 @@ export default function NotFound() {
 
             <SectionHeading
               eyebrow="404"
-              title="We couldn't find that page"
-              description="It may have moved, or it might not exist. Try the shop, or head back home."
+              title="Halaman tidak ditemukan"
+              description="Halaman ini mungkin sudah dipindahkan atau tidak ada. Coba kunjungi toko, atau kembali ke beranda."
               align="center"
             />
 
@@ -26,13 +26,13 @@ export default function NotFound() {
                 href="/"
                 className="inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3 text-sm font-medium text-paper shadow-sm transition-all duration-200 hover:bg-ink/85 hover:shadow-md active:scale-[0.98]"
               >
-                Back to home
+                Kembali ke Beranda
               </Link>
               <Link
                 href="/shop"
                 className="inline-flex items-center gap-2 rounded-full border border-ink/15 px-6 py-3 text-sm font-medium text-ink transition-all duration-200 hover:border-ink/35 hover:bg-cloud active:scale-[0.98]"
               >
-                Browse the shop
+                Jelajahi Toko
               </Link>
             </div>
           </Container>

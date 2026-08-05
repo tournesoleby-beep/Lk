@@ -9,34 +9,34 @@ export const metadata: Metadata = {
 
 const FAQS = [
   {
-    question: "Do I need an account to order?",
+    question: "Apakah saya perlu akun untuk memesan?",
     answer:
-      "No. Lapiita Karya doesn't use customer accounts — browsing, your bag, wishlist, and checkout all work as a guest. You'll just need a name, phone number, and email to place an order.",
+      "Tidak. Lapiita Karya tidak menggunakan akun pelanggan — menjelajah, keranjang, wishlist, dan checkout semuanya bisa dilakukan sebagai tamu. Anda hanya perlu nama, nomor telepon, dan email untuk membuat pesanan.",
   },
   {
-    question: "How do I pay?",
+    question: "Bagaimana cara membayar?",
     answer:
-      "Payment is by manual bank transfer (or QRIS, where available). After you place an order, you'll land on a payment page with the account details and an upload form for your payment proof.",
+      "Pembayaran dilakukan melalui transfer bank manual (atau QRIS, jika tersedia). Setelah membuat pesanan, Anda akan diarahkan ke halaman pembayaran dengan detail rekening dan formulir unggah bukti pembayaran.",
   },
   {
-    question: "How long does verification take?",
+    question: "Berapa lama proses verifikasi?",
     answer:
-      "Once you upload your payment proof, our team reviews it and updates your order status — usually within a short while. You'll be able to see the current status on the payment page at any time using your order number.",
+      "Setelah Anda mengunggah bukti pembayaran, tim kami akan memeriksanya dan memperbarui status pesanan Anda — biasanya dalam waktu singkat. Anda dapat melihat status terkini kapan saja di halaman pembayaran menggunakan nomor pesanan Anda.",
   },
   {
-    question: "How do I track an order?",
+    question: "Bagaimana cara melacak pesanan?",
     answer:
-      "Use the \"Track an order\" link in the menu or footer and enter your order number. You can find it in your confirmation email or on the payment page you saw right after checkout.",
+      "Gunakan tautan \"Lacak Pesanan\" di menu atau footer, lalu masukkan nomor pesanan Anda. Nomor ini bisa ditemukan di email konfirmasi atau di halaman pembayaran yang muncul setelah checkout.",
   },
   {
-    question: "What's your return policy?",
+    question: "Bagaimana kebijakan pengembalian barang?",
     answer:
-      "We offer easy returns within 60 days of delivery. See our Shipping & returns page for the full details.",
+      "Kami menyediakan retur mudah dalam 60 hari setelah barang diterima. Lihat halaman Pengiriman & Pengembalian kami untuk detail lengkapnya.",
   },
   {
-    question: "How can I reach you?",
+    question: "Bagaimana cara menghubungi Anda?",
     answer:
-      "Send us a message through the Contact us page and we'll get back to you as soon as we can.",
+      "Kirim pesan melalui halaman Hubungi Kami dan kami akan membalas secepat mungkin.",
   },
 ] as const;
 
@@ -47,9 +47,9 @@ export default function FaqPage() {
         <section className="bg-paper py-16 sm:py-24">
           <Container className="flex flex-col gap-10">
             <SectionHeading
-              eyebrow="Support"
-              title="Frequently asked questions"
-              description="Everything you need to know about ordering, paying, and tracking with Lapiita Karya."
+              eyebrow="Bantuan"
+              title="Pertanyaan yang sering diajukan"
+              description="Semua yang perlu Anda ketahui tentang memesan, membayar, dan melacak pesanan di Lapiita Karya."
             />
 
             <div className="flex max-w-2xl flex-col divide-y divide-line rounded-2xl border border-line shadow-xs">

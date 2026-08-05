@@ -4,7 +4,7 @@ import { Container } from "@/components/home/container";
 import { SectionHeading } from "@/components/home/section-heading";
 
 export const metadata: Metadata = {
-  title: "About us — Lapiita Karya",
+  title: "Tentang Kami — Lapiita Karya",
 };
 
 export default function AboutPage() {
@@ -14,37 +14,40 @@ export default function AboutPage() {
         <section className="bg-paper py-16 sm:py-24">
           <Container className="flex flex-col gap-10">
             <SectionHeading
-              eyebrow="Company"
-              title="About Lapiita Karya"
-              description="Considered pieces, made to last."
+              eyebrow="Perusahaan"
+              title="Tentang Lapiita Karya"
+              description="Produk yang dipikirkan matang, dibuat untuk awet."
             />
 
             <div className="flex max-w-2xl flex-col gap-6 text-base leading-relaxed text-slate">
               <p>
-                Lapiita Karya started from a simple frustration: too much of
-                what&apos;s sold today is designed to be replaced, not kept.
-                We set out to build a small, focused catalog of clothing,
-                food, and production goods chosen for how well they&apos;re
-                made — not how quickly they can be shipped.
+                Lapiita Karya lahir dari sebuah keresahan sederhana: terlalu
+                banyak produk yang dijual saat ini dirancang untuk cepat
+                diganti, bukan untuk terus dipakai. Kami ingin membangun
+                katalog kecil dan terfokus berisi pakaian, makanan, dan hasil
+                produksi yang dipilih berdasarkan kualitas pembuatannya —
+                bukan seberapa cepat bisa dikirim.
               </p>
               <p>
-                Every piece we carry is selected for fabric, fit, and
-                function first. We work with a small number of makers we
-                trust, favor natural materials where we can, and would rather
-                offer fewer things done well than a catalog padded out for
-                its own sake.
+                Setiap produk yang kami jual dipilih berdasarkan bahan,
+                kesesuaian, dan fungsinya terlebih dahulu. Kami bekerja sama
+                dengan sejumlah kecil pengrajin yang kami percaya,
+                mengutamakan bahan alami sebisa mungkin, dan lebih memilih
+                menawarkan lebih sedikit produk yang benar-benar berkualitas
+                daripada katalog yang dibuat penuh sekadar untuk terlihat
+                ramai.
               </p>
               <p>
-                We&apos;re a small team, and we read every message that comes
-                through our{" "}
+                Kami adalah tim kecil, dan kami membaca setiap pesan yang
+                masuk melalui{" "}
                 <a
                   href="/contact"
                   className="text-ink underline underline-offset-4 transition-colors hover:text-signal"
                 >
-                  contact page
+                  halaman kontak
                 </a>
-                . If you have a question about a piece, an order, or just
-                want to say hello, we&apos;d like to hear from you.
+                . Jika Anda punya pertanyaan tentang produk, pesanan, atau
+                sekadar ingin menyapa, kami senang mendengarnya.
               </p>
             </div>
           </Container>

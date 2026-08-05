@@ -6,10 +6,10 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 const ADMIN_LINKS = [
-  { label: "Products", href: "/admin/products" },
-  { label: "Orders", href: "/admin/orders" },
-  { label: "Reviews", href: "/admin/reviews" },
-  { label: "Analytics", href: "/admin/analytics" },
+  { label: "Produk", href: "/admin/products" },
+  { label: "Pesanan", href: "/admin/orders" },
+  { label: "Ulasan", href: "/admin/reviews" },
+  { label: "Analitik", href: "/admin/analytics" },
 ] as const;
 
 export function AdminNav() {

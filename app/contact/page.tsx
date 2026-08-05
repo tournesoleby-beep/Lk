@@ -6,7 +6,7 @@ import { SectionHeading } from "@/components/home/section-heading";
 import { ContactForm } from "@/components/contact/contact-form";
 
 export const metadata: Metadata = {
-  title: "Contact us — Lapiita Karya",
+  title: "Hubungi Kami — Lapiita Karya",
 };
 
 const DETAILS = [
@@ -17,13 +17,13 @@ const DETAILS = [
   },
   {
     icon: Clock,
-    label: "Response time",
-    value: "We usually reply within 1–2 business days.",
+    label: "Waktu respons",
+    value: "Kami biasanya membalas dalam 1–2 hari kerja.",
   },
   {
     icon: MapPin,
-    label: "Based in",
-    value: "A small studio, shipping nationwide.",
+    label: "Lokasi",
+    value: "Studio kecil, mengirim ke seluruh Indonesia.",
   },
 ] as const;
 
@@ -34,9 +34,9 @@ export default function ContactPage() {
         <section className="bg-paper py-16 sm:py-24">
           <Container className="flex flex-col gap-12">
             <SectionHeading
-              eyebrow="Support"
-              title="Contact us"
-              description="Questions about an order, a product, or anything else — we'd like to hear from you."
+              eyebrow="Bantuan"
+              title="Hubungi Kami"
+              description="Pertanyaan tentang pesanan, produk, atau hal lainnya — kami senang mendengarnya."
             />
 
             <div className="grid grid-cols-1 gap-10 lg:grid-cols-[320px_1fr] lg:items-start">

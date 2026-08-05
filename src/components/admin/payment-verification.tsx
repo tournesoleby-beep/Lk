@@ -41,7 +41,7 @@ export function PaymentVerification({ orderId }: { orderId: string }) {
   return (
     <div className="flex flex-col gap-3">
       <p className="text-sm text-slate">
-        The customer is emailed automatically once you decide.
+        Pelanggan akan menerima email otomatis setelah Anda memutuskan.
       </p>
 
       {error ? (
@@ -58,7 +58,7 @@ export function PaymentVerification({ orderId }: { orderId: string }) {
           {pending === "approve" ? (
             <Loader2 className="h-4 w-4 animate-spin" strokeWidth={1.75} />
           ) : null}
-          {pending === "approve" ? "Approving…" : "Approve payment"}
+          {pending === "approve" ? "Menyetujui…" : "Setujui Pembayaran"}
         </button>
 
         <button
@@ -70,7 +70,7 @@ export function PaymentVerification({ orderId }: { orderId: string }) {
           {pending === "reject" ? (
             <Loader2 className="h-4 w-4 animate-spin" strokeWidth={1.75} />
           ) : null}
-          {pending === "reject" ? "Rejecting…" : "Reject payment"}
+          {pending === "reject" ? "Menolak…" : "Tolak Pembayaran"}
         </button>
       </div>
     </div>
