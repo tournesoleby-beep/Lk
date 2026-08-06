@@ -15,6 +15,9 @@ export type UploadPaymentProofResult =
 // a new upload.
 const CLOSED_STATUSES = new Set<OrderStatus>(["PAID", "CANCELLED", "REFUNDED"]);
 
+// Payment proof uploads (see uploadPaymentProof below) are capped at 5MB.
+const MAX_PAYMENT_PROOF_BYTES = 5 * 1024 * 1024; // 5MB
+
 /**
  * Upload a customer's manual bank-transfer payment proof from the
  * /checkout/payment page.
@@ -31,6 +34,9 @@ export async function uploadPaymentProof(
   const file = formData.get("file");
   if (!(file instanceof File)) {
     return { success: false, error: "No image file was provided." };
+  }
+  if (file.size > MAX_PAYMENT_PROOF_BYTES) {
+    return { success: false, error: "Image must be smaller than 5MB." };
   }
 
   try {

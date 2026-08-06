@@ -9,6 +9,11 @@ import { uploadPaymentProof } from "@/lib/checkout/payment-actions";
 const LABEL_CLASS =
   "font-mono text-[11px] font-medium uppercase tracking-[0.14em] text-slate";
 
+// Mirrors MAX_PAYMENT_PROOF_BYTES in src/lib/checkout/payment-actions.ts —
+// checked here too so an oversized file is rejected immediately instead of
+// round-tripping to the server first.
+const MAX_FILE_BYTES = 5 * 1024 * 1024; // 5MB
+
 export function PaymentProofUpload({
   orderId,
   orderNumber,
@@ -28,6 +33,10 @@ export function PaymentProofUpload({
     const file = inputRef.current?.files?.[0];
     if (!file) {
       setError("Please choose an image of your payment proof.");
+      return;
+    }
+    if (file.size > MAX_FILE_BYTES) {
+      setError("Image must be smaller than 5MB.");
       return;
     }
 

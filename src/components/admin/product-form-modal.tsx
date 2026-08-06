@@ -30,6 +30,11 @@ import type {
 
 const STATUS_OPTIONS: MockProductStatus[] = ["DRAFT", "ACTIVE", "ARCHIVED"];
 
+// Mirrors MAX_PRODUCT_IMAGE_BYTES in src/lib/admin/actions.ts — checked here
+// too so an oversized file is rejected immediately instead of round-tripping
+// to the server first.
+const MAX_IMAGE_BYTES = 5 * 1024 * 1024; // 5MB
+
 export type ProductFormValues = Omit<MockProduct, "id" | "updatedAt">;
 
 const EMPTY_VALUES: ProductFormValues = {
@@ -110,12 +115,16 @@ export function ProductFormModal({
   }, [product]);
 
   async function handleImagesChange(event: ChangeEvent<HTMLInputElement>) {
-    const files = Array.from(event.target.files ?? []);
+    const selected = Array.from(event.target.files ?? []);
     // Reset the input so selecting the same file again still fires onChange.
     event.target.value = "";
-    if (files.length === 0) return;
+    if (selected.length === 0) return;
 
-    setImageError(null);
+    const files = selected.filter((file) => file.size <= MAX_IMAGE_BYTES);
+    const oversized = selected.length - files.length;
+
+    setImageError(oversized > 0 ? "Image must be smaller than 5MB." : null);
+    if (files.length === 0) return;
 
     const placeholders: AdminProductImage[] = files.map((file) => ({
       id: makeLocalImageId(),

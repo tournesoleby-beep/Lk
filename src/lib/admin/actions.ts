@@ -16,6 +16,9 @@ import {
 
 export type { UploadImageResult };
 
+// Product image uploads (see uploadProductImage below) are capped at 5MB.
+const MAX_PRODUCT_IMAGE_BYTES = 5 * 1024 * 1024; // 5MB
+
 /**
  * Fetch a single product's stock ledger, newest first, for the Stock
  * History section of the admin "Edit product" modal (see
@@ -39,6 +42,9 @@ export async function uploadProductImage(
   const file = formData.get("file");
   if (!(file instanceof File)) {
     return { success: false, error: "No image file was provided." };
+  }
+  if (file.size > MAX_PRODUCT_IMAGE_BYTES) {
+    return { success: false, error: "Image must be smaller than 5MB." };
   }
 
   return uploadImageToCloudinary(file, "lapiita-karya/products");
