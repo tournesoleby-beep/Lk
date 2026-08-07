@@ -9,7 +9,6 @@ const footerColumns = [
     links: [
       { label: "Fashion", href: "/shop?category=fashion" },
       { label: "Makanan", href: "/shop?category=food" },
-      { label: "Produksi", href: "/shop?category=production" },
     ],
   },
   {

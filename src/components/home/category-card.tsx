@@ -6,14 +6,19 @@ import { PlaceholderTile } from "@/components/home/placeholder-tile";
 
 export function CategoryCard({
   category,
+  href,
   className,
 }: {
   category: CategoryCardData;
+  /** Optional link override — defaults to the top-level `/shop?category=`
+   *  pattern. Used by the homepage subcategory tiles to link into a
+   *  category's dedicated page with a subcategory filter instead. */
+  href?: string;
   className?: string;
 }) {
   return (
     <Link
-      href={`/shop?category=${category.slug}`}
+      href={href ?? `/shop?category=${category.slug}`}
       className={cn(
         "group relative flex aspect-[3/4] w-full flex-col justify-end overflow-hidden rounded-2xl shadow-xs transition-shadow duration-300 hover:shadow-lg",
         className

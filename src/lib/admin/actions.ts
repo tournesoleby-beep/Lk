@@ -134,6 +134,55 @@ function normalizeWeightGrams(value: number | undefined | null): number {
   return Math.round(value);
 }
 
+// The "Produksi" / "Production" category was retired — we no longer sell
+// or upload products under it. Blocked by slug (not just name) so it can
+// never be recreated through the product form, regardless of what casing
+// or label the client sends. Kept as a small explicit blocklist rather
+// than only relying on the category no longer existing in the DB, so a
+// stray re-seed or manual insert can't quietly reopen this path.
+const BLOCKED_CATEGORY_SLUGS = new Set(["produksi", "production"]);
+
+/**
+ * Resolve `values.category` (a category name/label from the admin form,
+ * e.g. "Fashion") to an existing `Category` row by slug.
+ *
+ * This intentionally does NOT create categories. Previously both
+ * createProduct and updateProduct called `prisma.category.upsert(...)`
+ * here, which meant any free-text/unexpected category value from the
+ * client silently created a new Category row — that's how a retired
+ * category like "Produksi" could get recreated. Category management is
+ * now out of scope for the product save flow: a product may only be
+ * filed under a category that already exists, and a blocked or unknown
+ * category slug fails the save with a clear error instead of creating
+ * anything.
+ */
+async function resolveCategoryId(
+  categoryInput: string
+): Promise<{ id: string } | { id: null; error: string }> {
+  const categorySlug = slugify(categoryInput);
+
+  if (BLOCKED_CATEGORY_SLUGS.has(categorySlug)) {
+    return {
+      id: null,
+      error: "This category is no longer available. Please choose a different category.",
+    };
+  }
+
+  const category = await prisma.category.findUnique({
+    where: { slug: categorySlug },
+    select: { id: true },
+  });
+
+  if (!category) {
+    return {
+      id: null,
+      error: "Please select a valid, existing category.",
+    };
+  }
+
+  return category;
+}
+
 /**
  * Create a new product from the admin "Add Product" form.
  *
@@ -146,22 +195,21 @@ function normalizeWeightGrams(value: number | undefined | null): number {
  *   `Product` directly.
  *
  * The product's category (a plain string on the form, e.g. "Fashion") is
- * resolved to a `Category` row by slug, creating it if it doesn't exist yet
- * — the storefront already expects `fashion` / `food` / `production` to
- * exist, so this only ever matters for a category that hasn't been seeded.
+ * resolved to an existing `Category` row by slug (see resolveCategoryId
+ * above). It is never created here — a category must already exist (and
+ * not be on the blocklist) for the product to save, so arbitrary or
+ * retired category text can't silently create/recreate a Category row.
  */
 export async function createProduct(
   values: ProductFormValues
 ): Promise<SaveProductResult> {
   try {
     const slug = values.slug || slugify(values.name);
-    const categorySlug = slugify(values.category);
 
-    const category = await prisma.category.upsert({
-      where: { slug: categorySlug },
-      update: {},
-      create: { name: values.category, slug: categorySlug },
-    });
+    const category = await resolveCategoryId(values.category);
+    if (category.id === null) {
+      return { success: false, error: category.error };
+    }
 
     const product = await prisma.product.create({
       data: {
@@ -238,10 +286,12 @@ export async function createProduct(
  * Update an existing product from the admin "Edit product" modal.
  *
  * Reuses the same field-mapping and category-resolution logic as
- * `createProduct`. Images are replaced wholesale on every save — the form
- * always starts from the product's current images (see
- * `ProductFormModal`), so `values.images` already reflects any adds,
- * removes, or reordering the admin made before submitting.
+ * `createProduct` (see resolveCategoryId) — a product can only be moved to
+ * a category that already exists and isn't blocked; it never creates one.
+ * Images are replaced wholesale on every save — the form always starts
+ * from the product's current images (see `ProductFormModal`), so
+ * `values.images` already reflects any adds, removes, or reordering the
+ * admin made before submitting.
  */
 export async function updateProduct(
   id: string,
@@ -249,13 +299,11 @@ export async function updateProduct(
 ): Promise<SaveProductResult> {
   try {
     const slug = values.slug || slugify(values.name);
-    const categorySlug = slugify(values.category);
 
-    const category = await prisma.category.upsert({
-      where: { slug: categorySlug },
-      update: {},
-      create: { name: values.category, slug: categorySlug },
-    });
+    const category = await resolveCategoryId(values.category);
+    if (category.id === null) {
+      return { success: false, error: category.error };
+    }
 
     // Stock is tracked on `ProductVariant`, not `Product` directly, so
     // update the existing "Default" variant if there is one, or create it

@@ -12,6 +12,14 @@ const EASING = "cubic-bezier(0.16, 1, 0.3, 1)";
 const DURATION = 650;
 const STAGGER = 90;
 
+// Continues the same warm taupe surface used by every section below the
+// hero (CardsSection, CategoriesSection, NewArrivals, InstagramHighlights)
+// — same base fill, same radial gradient values — so this section reads
+// as one uninterrupted background rather than its own bg-cloud block.
+const SECTION_BASE_COLOR = "#B09F90";
+const SECTION_BACKGROUND =
+  "radial-gradient(ellipse 80% 60% at 20% 0%, rgba(208,196,184,0.95) 0%, rgba(196,182,168,0.85) 45%, rgba(176,159,144,0.95) 100%)";
+
 const steps = [
   {
     icon: GraduationCap,
@@ -41,8 +49,18 @@ const steps = [
 
 export function ProcessTimeline() {
   return (
-    <section className="bg-cloud py-14 sm:py-32">
-      <Container className="flex flex-col gap-8 px-5 sm:gap-14 sm:px-6">
+    // `relative` + `overflow-hidden` makes this section the containing
+    // block for the background layer below, so it stays a normal
+    // document-flow box — no `fixed` positioning, no `vw`/`vh` sizing —
+    // and rescales/repositions with the section at every browser zoom
+    // level, same as the text and cards already do.
+    <section className="relative w-full overflow-hidden py-14 sm:py-32">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0"
+        style={{ backgroundColor: SECTION_BASE_COLOR, backgroundImage: SECTION_BACKGROUND }}
+      />
+      <Container className="relative z-10 flex flex-col gap-8 px-5 sm:gap-14 sm:px-6">
         <Reveal variant="fade-up" duration={DURATION} easing={EASING}>
           <SectionHeading
             eyebrow="Proses kami"

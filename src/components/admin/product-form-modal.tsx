@@ -306,9 +306,15 @@ export function ProductFormModal({
                 onChange={(e) => setValues((v) => ({ ...v, category: e.target.value }))}
                 className="w-full rounded-xl border border-line bg-cloud/60 px-3.5 py-2.5 text-sm text-ink outline-none transition-all duration-200 focus:border-signal/50 focus:bg-paper focus:ring-4 focus:ring-signal/10"
               >
+                {/* "Production" ("Produksi") removed — that category is
+                    retired; we no longer sell/upload products under it.
+                    This <select> only ever offers valid, existing
+                    categories, and src/lib/admin/actions.ts independently
+                    rejects any category that isn't a real, non-blocked
+                    Category row, so this list is the only category input
+                    surface, not a free-text field. */}
                 <option value="Fashion">Fashion</option>
                 <option value="Food">Makanan</option>
-                <option value="Production">Produksi</option>
               </select>
             </label>
           </div>

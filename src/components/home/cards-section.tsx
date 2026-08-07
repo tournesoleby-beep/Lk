@@ -20,8 +20,11 @@ import { Container } from "@/components/home/container";
 // there is no "fan" spread. Card content is untouched: same CARDS data,
 // same CardShell, same FlipCard (its own click-to-flip rotateY
 // interaction, gradients, shadows, typography, internal padding). The
-// section's background gradient (SECTION_BACKGROUND) is untouched too,
-// so Hero -> Cards -> Belanja still reads exactly as before.
+// section's background is now the warm taupe/beige radial atmosphere in
+// CARDS_SECTION_BACKGROUND below (still handing off from HeroBanner's own
+// fade the same way), and every card face now sits under one shared warm
+// translucent-glass layer instead of its old standalone gradient, so
+// Hero -> Cards -> Belanja reads as one continuous warm surface.
 //
 // LIBRARY: uses `framer-motion` for the spring-based transform / scale /
 // opacity animation between the three slots (previous -> active,
@@ -43,12 +46,29 @@ type GridCard = {
   back: ReactNode;
 };
 
-// Unchanged: starts at rgba(177,162,149,0.32) — exactly the color
-// HeroBanner's own bottom fade ends at — and deepens to solid #B1A295 by
-// ~78% of the section's height, with a flat solid tail so the handoff into
-// "Belanja per Kategori" stays seam-free.
-const SECTION_BACKGROUND =
-  "linear-gradient(to bottom, rgba(177,162,149,0.32) 0%, rgba(177,162,149,0.48) 18%, rgba(177,162,149,0.66) 38%, rgba(177,162,149,0.85) 58%, #B1A295 78%, #B1A295 100%)";
+// Solid fallback (paints instantly, before the gradient layers below are
+// parsed/painted, and backs up any pixel the radial ellipse doesn't
+// reach) — the palette's own mid taupe.
+const CARDS_SECTION_BASE_COLOR = "#B09F90";
+
+// Two stacked layers:
+//  1. A short top-only fade starting at rgba(177,162,149,0.32) — exactly
+//     the color HeroBanner's own bottom fade ends at — dissolving to
+//     fully transparent by 24% of the section's height, so the seam
+//     where HeroBanner hands off into this section stays invisible
+//     before the section's own radial atmosphere takes over.
+//  2. The section's actual background: an ellipse radial gradient
+//     anchored top-left (20%, 0%), sweeping through the palette's three
+//     warm neutrals (light beige -> warm beige -> taupe).
+// This whole value is applied on an absolutely-positioned `inset-0`
+// child of the section (see the JSX below) rather than as a `fixed`
+// layer or with viewport (`vw`/`vh`) units — that's the root-cause fix
+// for the browser-zoom bug: an `inset: 0` layer's size is entirely
+// derived from its parent's box, so it resizes/repositions in lockstep
+// with the section at every zoom level, exactly like the text and cards
+// already do.
+const CARDS_SECTION_BACKGROUND =
+  "linear-gradient(to bottom, rgba(177,162,149,0.32) 0%, rgba(177,162,149,0.08) 14%, rgba(177,162,149,0) 24%), radial-gradient(ellipse 80% 60% at 20% 0%, rgba(208,196,184,0.95) 0%, rgba(196,182,168,0.85) 45%, rgba(176,159,144,0.95) 100%)";
 
 function CardShell({
   eyebrow,
@@ -101,12 +121,18 @@ function CardShell({
   );
 }
 
-// Same three-part "product photography" shadow used on every card in
-// hero-card-carousel.tsx.
-const CARD_SURFACE_SHADOW =
-  "shadow-[0_1px_1px_rgba(23,17,10,0.04),0_10px_20px_-8px_rgba(23,17,10,0.16),0_32px_64px_-24px_rgba(23,17,10,0.24),inset_0_1px_0_rgba(255,255,255,0.35)]";
-const CARD_HOVER_SHADOW_CLASS =
-  "group-hover:shadow-[0_1px_1px_rgba(23,17,10,0.05),0_16px_28px_-10px_rgba(23,17,10,0.22),0_40px_80px_-24px_rgba(23,17,10,0.32),inset_0_1px_0_rgba(255,255,255,0.4)]";
+// Warm translucent glass surface, shared by every card face. Painted as
+// the TOP background layer with each card's own `gradient` underneath it
+// (see FlipCard) — the glass layer's opacity (0.78/0.72/0.68) lets that
+// underlying color family show through, tinted warm, so card 2's dark
+// espresso face stays legibly dark under the glass instead of flattening
+// to the same tone as cards 1 and 3.
+const GLASS_CARD_BACKGROUND =
+  "linear-gradient(135deg, rgba(196,182,168,0.78) 0%, rgba(176,159,144,0.72) 55%, rgba(132,115,97,0.68) 100%)";
+const GLASS_CARD_BORDER = "1px solid rgba(255,248,240,0.28)";
+const GLASS_CARD_SHADOW =
+  "0 12px 40px rgba(31,23,14,0.14), inset 0 1px 0 rgba(255,248,240,0.12)";
+const GLASS_CARD_BLUR = "blur(14px)";
 
 const FLIP_EASE = "cubic-bezier(0.32, 0.72, 0, 1)";
 
@@ -225,15 +251,27 @@ function FlipCard({ card }: { card: GridCard }) {
       >
         {/* Front face */}
         <div
-          className={`absolute inset-0 overflow-hidden rounded-[32px] ring-1 ring-inset [backface-visibility:hidden] ${CARD_SURFACE_SHADOW} ${card.ring} transition-shadow duration-300 ${CARD_HOVER_SHADOW_CLASS}`}
-          style={{ background: card.gradient }}
+          className="absolute inset-0 overflow-hidden rounded-[32px] [backface-visibility:hidden]"
+          style={{
+            background: `${GLASS_CARD_BACKGROUND}, ${card.gradient}`,
+            border: GLASS_CARD_BORDER,
+            boxShadow: GLASS_CARD_SHADOW,
+            backdropFilter: GLASS_CARD_BLUR,
+            WebkitBackdropFilter: GLASS_CARD_BLUR,
+          }}
         >
           {card.front}
         </div>
         {/* Back face */}
         <div
-          className={`absolute inset-0 overflow-hidden rounded-[32px] ring-1 ring-inset [backface-visibility:hidden] [transform:rotateY(180deg)] ${CARD_SURFACE_SHADOW} ${card.ring}`}
-          style={{ background: card.gradient }}
+          className="absolute inset-0 overflow-hidden rounded-[32px] [backface-visibility:hidden] [transform:rotateY(180deg)]"
+          style={{
+            background: `${GLASS_CARD_BACKGROUND}, ${card.gradient}`,
+            border: GLASS_CARD_BORDER,
+            boxShadow: GLASS_CARD_SHADOW,
+            backdropFilter: GLASS_CARD_BLUR,
+            WebkitBackdropFilter: GLASS_CARD_BLUR,
+          }}
         >
           {card.back}
         </div>
@@ -352,12 +390,39 @@ export function CardsSection() {
   );
 
   return (
-    <section className="w-full" style={{ background: SECTION_BACKGROUND }}>
+    // `relative` + `overflow-hidden` makes this section the containing
+    // block for the background layer below, so that layer's `inset-0`
+    // resolves against THIS box — not the viewport — at every zoom
+    // level. `backgroundColor` here is a plain, non-positioned fallback
+    // fill (paints immediately, and backs up any pixel the ellipse
+    // gradient doesn't reach); it carries no size/position info of its
+    // own, so there's nothing about it that can drift out of sync when
+    // the page is zoomed.
+    <section
+      className="relative w-full overflow-hidden"
+      style={{ backgroundColor: CARDS_SECTION_BASE_COLOR }}
+    >
+      {/* The actual atmosphere layer. `absolute inset-0` — NOT `fixed`,
+          NOT sized with `vw`/`vh`, NOT a fixed pixel width/height — so
+          its box is derived purely from the section's own rendered
+          dimensions above. Browser zoom rescales the section (like any
+          other block box) and this layer rescales/repositions with it
+          in the same reflow, instead of staying pinned to the old
+          viewport-relative frame. `pointer-events-none` + `aria-hidden`
+          since it's purely decorative and must never intercept the
+          carousel's drag/click handling underneath it. */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0"
+        style={{ background: CARDS_SECTION_BACKGROUND }}
+      />
+
       {/* Compact, editorial rhythm — a showcase moment inside the page,
           not a second hero. Horizontal padding matches the rest of the
           page; vertical padding is generous but noticeably lighter than a
-          hero section's. */}
-      <Container className="px-5 py-14 sm:px-6 sm:py-16 lg:py-20">
+          hero section's. `relative z-10` keeps all real content painting
+          above the background layer. */}
+      <Container className="relative z-10 px-5 py-14 sm:px-6 sm:py-16 lg:py-20">
         <div className="relative">
           {/* Width-scoped wrapper: sized to the ACTIVE card only. The
               previous/next cards are absolutely positioned siblings that

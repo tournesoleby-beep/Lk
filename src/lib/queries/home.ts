@@ -114,11 +114,29 @@ export async function getNewArrivals(limit = 8): Promise<ProductCardData[]> {
   }, []);
 }
 
+// Retired categories that must never appear on the homepage, keyed by
+// slug (the schema's unique, safe identifier for a category — unlike
+// `name`, which is free text and could be relabeled). Kept in sync with
+// the same blocklist enforced in src/lib/admin/actions.ts so a category
+// can't be re-created through the product form and still slip back onto
+// the homepage. Includes both slugs seen for this category historically:
+// the original "production" row, and "produksi" from when it was
+// recreated with a different label.
+const BLOCKED_CATEGORY_SLUGS = ["production", "produksi"];
+
 /** Top-level categories (no parent), with a live product count each. */
 export async function getTopCategories(limit = 6): Promise<CategoryCardData[]> {
   return safeQuery(async () => {
     const categories = await prisma.category.findMany({
-      where: { parentId: null },
+      where: {
+        parentId: null,
+        // Excluded from the homepage grid — the storefront no longer
+        // sells this category. See BLOCKED_CATEGORY_SLUGS above; delete
+        // the row(s) in the Category table when convenient (see
+        // scripts/remove-produksi-category), this filter is a safety net
+        // that keeps it out of the UI even if such a row exists.
+        slug: { notIn: BLOCKED_CATEGORY_SLUGS },
+      },
       take: limit,
       orderBy: { name: "asc" },
       select: {

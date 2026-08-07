@@ -2,7 +2,14 @@
 @plugin "tailwindcss-animate";
 
 :root {
-  --background: #ffffff;
+  /* Was #ffffff. All sections below the hero now paint their own warm
+     taupe background (#B09F90 + radial gradient) edge-to-edge, so this
+     value is only ever visible in the gap it used to show white in —
+     e.g. iOS rubber-band overscroll past the top/bottom of the page.
+     Matching that fallback to the same taupe family keeps any such
+     glimpse consistent with the rest of the page instead of flashing
+     white. */
+  --background: #b09f90;
   --foreground: #171717;
 
   /* Lapiita Karya design tokens — quiet-luxury boutique palette (clean

@@ -17,6 +17,12 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
   const { q, category } = await searchParams;
   const products = await getShopProducts();
 
+  // `fashion` is the parent category — filter chips are its subcategories
+  // (tas-rajut, aksesoris, etc.), so a product's `category.slug` never
+  // equals "fashion" and the filter would otherwise match nothing.
+  // Treat the parent slug as "show everything" instead.
+  const normalizedCategory = category === "fashion" ? "ALL" : category;
+
   return (
     <div className="flex flex-1 flex-col">
       <main className="flex flex-1 flex-col">
@@ -31,7 +37,7 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
             <ShopBrowser
               initialProducts={products}
               initialQuery={q ?? ""}
-              initialCategory={category ?? "ALL"}
+              initialCategory={normalizedCategory ?? "ALL"}
             />
           </Container>
         </section>

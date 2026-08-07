@@ -63,12 +63,12 @@ function CardShell({
   return (
     <div className="flex h-full w-full flex-col p-5 sm:p-7 lg:p-8">
       <span
-        className={`font-mono text-[11px] font-medium uppercase tracking-[0.16em] ${eyebrowTone}`}
+        className={`font-mono text-[10px] font-medium uppercase tracking-[0.16em] ${eyebrowTone}`}
       >
         {eyebrow}
       </span>
 
-      <div className="flex flex-1 flex-col justify-center gap-4 py-2">
+      <div className="flex flex-1 flex-col justify-center gap-3.5 py-2">
         {children}
       </div>
 
@@ -100,6 +100,15 @@ function CardShell({
   );
 }
 
+// Shared hairline-ring tokens so all four cards read as one system
+// instead of four separately-tuned borders: a warm umber tint for the
+// three light (ivory/sand/olive) cards, and a soft warm-paper tint for
+// the one dark (espresso) card — same family, just inverted for
+// contrast, rather than the old "generic ink/paper opacity" rings that
+// didn't relate to the palette at all.
+const CARD_RING_LIGHT = "ring-[rgba(148,122,87,0.12)]";
+const CARD_RING_DARK = "ring-[rgba(214,187,145,0.14)]";
+
 const SLIDES: Slide[] = [
   {
     id: 0,
@@ -113,9 +122,10 @@ const SLIDES: Slide[] = [
     // picture dropped onto a differently-toned card.
     gradient:
       "radial-gradient(circle at 25% 18%, rgba(255,255,255,0.65) 0%, rgba(255,255,255,0) 32%), radial-gradient(circle at 82% 12%, rgba(214,190,150,0.18) 0%, rgba(214,190,150,0) 42%), linear-gradient(180deg, #F6F1E8 0%, #F2EBE0 48%, #EEE4D6 100%)",
-    // Hairline border, tuned to the new warm palette above instead of
-    // the generic ink-tinted ring the other three cards use.
-    ring: "ring-[rgba(148,122,87,0.10)]",
+    // Hairline border — same warm-umber ring token the other three
+    // cards use (this one just got there first, before the shared
+    // constant existed).
+    ring: CARD_RING_LIGHT,
     // Softer, warmer-tinted shadow than the shared CARD_SURFACE_SHADOW
     // below — same three-part structure (near/far/inner-highlight) but
     // tuned to this card's stone tones instead of the near-black tint
@@ -234,10 +244,10 @@ const SLIDES: Slide[] = [
         />
         <div className="relative z-10 h-full w-full">
           <CardShell eyebrow="Tentang Kami" footer="Selamat Datang" tone="dark">
-            <p className="max-w-[24ch] text-balance font-serif text-2xl font-medium leading-snug text-ink sm:text-3xl">
+            <p className="max-w-[24ch] text-balance font-serif text-xl font-medium leading-snug text-ink sm:text-2xl">
               Lapiita Karya
             </p>
-            <p className="max-w-[26ch] text-balance text-sm leading-relaxed text-ink/60 sm:text-base">
+            <p className="max-w-[26ch] text-balance text-[13px] leading-relaxed text-ink/60 sm:text-sm">
               Wujud pembinaan, keterampilan, dan kemandirian warga binaan.
             </p>
           </CardShell>
@@ -248,28 +258,37 @@ const SLIDES: Slide[] = [
   {
     id: 1,
     label: "Tugas dan Fungsi",
-    gradient: "linear-gradient(145deg, #efe3d8 0%, #d9c4ae 55%, #a9843f 100%)",
-    ring: "ring-ink/5",
+    // Same construction as card 0's ivory base — a warm three-stop
+    // ivory->sand vertical gradient with one soft corner accent — using
+    // the hero section's own taupe (rgba(177,162,149,...), the tone
+    // its bottom fade settles into) as the accent color instead of a
+    // separate sand/gold palette. The card is still ~90% the same
+    // ivory as its neighbors; only the top-right corner carries this
+    // slide's identifying warmth, so it reads as "the same material,
+    // lightly tinted" rather than a distinct colored panel.
+    gradient:
+      "radial-gradient(circle at 84% 14%, rgba(177,162,149,0.26) 0%, rgba(177,162,149,0) 46%), linear-gradient(180deg, #F6F1E8 0%, #F1E9DC 55%, #E4D8C4 100%)",
+    ring: CARD_RING_LIGHT,
     textTone: "dark",
     front: (
       <CardShell eyebrow="Tugas dan Fungsi" footer="01 — Seksi Kegiatan Kerja" tone="dark">
-        <span className="font-mono text-xs font-medium uppercase tracking-[0.14em] text-ink/50">
+        <span className="font-mono text-[11px] font-medium uppercase tracking-[0.14em] text-ink/50">
           Seksi
         </span>
-        <h2 className="max-w-[14ch] text-balance font-serif text-4xl font-semibold leading-[1.1] tracking-tight text-ink sm:text-[2.75rem] lg:text-5xl">
+        <h2 className="max-w-[14ch] text-balance font-serif text-[2rem] font-semibold leading-[1.1] tracking-tight text-ink sm:text-4xl lg:text-[2.75rem]">
           Kegiatan Kerja
         </h2>
-        <p className="max-w-[26ch] text-balance text-sm leading-relaxed text-ink/60 sm:text-base">
+        <p className="max-w-[26ch] text-balance text-[13px] leading-relaxed text-ink/60 sm:text-sm">
           Unit pelaksana pembinaan kerja bagi warga binaan.
         </p>
       </CardShell>
     ),
     back: (
       <CardShell eyebrow="Landasan Hukum" footer="Seksi Kegiatan Kerja" tone="dark">
-        <p className="max-w-[22ch] text-balance font-serif text-xl font-medium leading-snug text-ink sm:text-2xl">
+        <p className="max-w-[22ch] text-balance font-serif text-lg font-medium leading-snug text-ink sm:text-xl">
           Undang-Undang Nomor 22 Tahun 2022 tentang Pemasyarakatan
         </p>
-        <p className="max-w-[26ch] text-balance text-sm leading-relaxed text-ink/60">
+        <p className="max-w-[26ch] text-balance text-[13px] leading-relaxed text-ink/60">
           Dasar hukum pembentukan dan tugas unit.
         </p>
       </CardShell>
@@ -278,41 +297,59 @@ const SLIDES: Slide[] = [
   {
     id: 2,
     label: "Pasal 38",
-    gradient: "linear-gradient(160deg, #2c232a 0%, #17151a 100%)",
-    ring: "ring-paper/10",
+    // Warm espresso/brown (was a purple-tinted near-black, #2c232a —
+    // off-family next to the ivory/sand/olive cards around it). Same
+    // dark-roast tone the shared CARD_SURFACE_SHADOW is already tinted
+    // toward, so this card's shadow and the others' don't feel like two
+    // different palettes.
+    gradient: "linear-gradient(160deg, #3B2A20 0%, #241811 100%)",
+    ring: CARD_RING_DARK,
     textTone: "light",
     front: (
-      <CardShell eyebrow="Pasal" footer="02 — Pasal 38 Huruf b" tone="light">
-        {/* Hierarchy redesigned so the eye travels 38 -> Huruf b -> the
-            legal citation -> the flip hint, instead of stopping dead
-            at one giant number with a copyright-sized line at the very
-            bottom. "38" is ~17% smaller than before (128px/96px ->
-            106px/80px) — still clearly the hero element, just not the
-            card's only content. The citation moved out of the footer
-            (which now just carries the short "02 — Pasal 38 Huruf b"
-            label, matching the numbering pattern the other three cards
-            use) and into the body at 15px/medium contrast — legible as
-            real content, not footer-sized fine print. */}
-        <div className="flex flex-col gap-5">
-          <span className="font-serif text-[80px] font-semibold leading-none text-paper sm:text-[106px]">
-            38
-          </span>
-          <div className="flex flex-col gap-2.5">
-            <span className="font-mono text-xs font-medium uppercase tracking-[0.16em] text-paper/60">
-              Huruf b
-            </span>
-            <p className="text-[15px] font-medium leading-snug text-paper/80">
-              UU No. 22 Tahun 2022
-              <br />
-              Tentang Pemasyarakatan
-            </p>
-          </div>
+      <>
+        {/* One quiet warm spotlight behind "38" — the museum-panel cue
+            that ties this card back to card 0's gallery lighting,
+            without stacking on the extra ambient glows a flat dark
+            surface doesn't need. */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -left-16 -top-24 z-0 h-[320px] w-[320px] rounded-full blur-[60px]"
+          style={{
+            background: "radial-gradient(circle, rgba(214,187,145,0.16) 0%, transparent 70%)",
+          }}
+        />
+        <div className="relative z-10 h-full w-full">
+          <CardShell eyebrow="Pasal" footer="02 — Pasal 38 Huruf b" tone="light">
+            {/* Hierarchy: the eye travels 38 -> Huruf b -> the legal
+                citation -> the flip hint, instead of stopping dead at
+                one giant number with a copyright-sized line at the very
+                bottom. The citation moved out of the footer (which now
+                just carries the short "02 — Pasal 38 Huruf b" label,
+                matching the numbering pattern the other three cards
+                use) and into the body — legible as real content, not
+                footer-sized fine print. */}
+            <div className="flex flex-col gap-4">
+              <span className="font-serif text-[64px] font-semibold leading-none text-paper sm:text-[84px]">
+                38
+              </span>
+              <div className="flex flex-col gap-2">
+                <span className="font-mono text-[11px] font-medium uppercase tracking-[0.16em] text-paper/60">
+                  Huruf b
+                </span>
+                <p className="text-[14px] font-medium leading-snug text-paper/80">
+                  UU No. 22 Tahun 2022
+                  <br />
+                  Tentang Pemasyarakatan
+                </p>
+              </div>
+            </div>
+          </CardShell>
         </div>
-      </CardShell>
+      </>
     ),
     back: (
       <CardShell eyebrow="Pembinaan Kemandirian" footer="Pasal 38 Huruf b" tone="light">
-        <p className="max-w-[32ch] text-balance font-serif text-lg leading-relaxed text-paper/90 sm:text-xl">
+        <p className="max-w-[32ch] text-balance font-serif text-base leading-relaxed text-paper/90 sm:text-lg">
           Bentuk pembinaan kemandirian antara lain pelatihan keterampilan untuk
           mendukung usaha mandiri dan industri, pelatihan kerja, serta
           pengembangan minat dan bakat.
@@ -323,12 +360,19 @@ const SLIDES: Slide[] = [
   {
     id: 3,
     label: "Pembinaan Kemandirian",
-    gradient: "linear-gradient(145deg, #edf3e6 0%, #9db18d 50%, #4f6b46 100%)",
-    ring: "ring-ink/5",
+    // Same construction again — ivory base, one corner accent — this
+    // time in a quiet olive rather than taupe, so it's identifiable as
+    // "the olive card" without ever being a solid green panel. The
+    // olive only shows up as a soft wash in the bottom-right corner;
+    // everything else is the same warm cream the other light cards
+    // share.
+    gradient:
+      "radial-gradient(circle at 82% 88%, rgba(138,135,96,0.30) 0%, rgba(138,135,96,0) 48%), linear-gradient(180deg, #F6F1E8 0%, #F0ECDC 55%, #DDD9BE 100%)",
+    ring: CARD_RING_LIGHT,
     textTone: "dark",
     front: (
       <CardShell eyebrow="Pembinaan Kemandirian" footer="03 — Pasal 38 Huruf b" tone="dark">
-        <p className="max-w-[30ch] text-balance font-serif text-xl font-medium leading-relaxed text-ink sm:text-2xl">
+        <p className="max-w-[30ch] text-balance font-serif text-lg font-medium leading-relaxed text-ink sm:text-xl">
           Pembinaan kemandirian sebagaimana dimaksud dalam Pasal 38 huruf b
           dapat ditingkatkan menjadi kegiatan menghasilkan barang dan jasa
           yang memiliki manfaat dan nilai tambah.
@@ -337,11 +381,11 @@ const SLIDES: Slide[] = [
     ),
     back: (
       <CardShell eyebrow="Lapas Perempuan" footer="Kemandirian Warga Binaan" tone="dark">
-        <div className="flex flex-col gap-1">
-          <span className="font-serif text-3xl font-semibold leading-[1.05] text-ink sm:text-4xl">
+        <div className="flex flex-col gap-0.5">
+          <span className="font-serif text-2xl font-semibold leading-[1.05] text-ink sm:text-3xl">
             Lapas Perempuan
           </span>
-          <span className="font-serif text-3xl font-semibold italic leading-[1.05] text-ink/80 sm:text-4xl">
+          <span className="font-serif text-2xl font-semibold italic leading-[1.05] text-ink/80 sm:text-3xl">
             Kelas IIA Jakarta
           </span>
         </div>
@@ -365,14 +409,23 @@ const REST_OFFSET = 28;
 // the finger moves — keeps the whole system, drag included, inside the
 // same "small, calm" motion budget instead of a raw 1:1 throw.
 const DRAG_MAX = 56;
-const REST_BLUR = 6;
 
 // A soft, decelerating curve (similar to what Apple uses for sheet/card
 // transitions) instead of linear/ease — gives the settle its "weight"
 // without ever feeling bouncy or slow.
 const EASE = "cubic-bezier(0.32, 0.72, 0, 1)";
 const DURATION_MS = 640;
-const TRANSITION = `transform ${DURATION_MS}ms ${EASE}, opacity ${DURATION_MS}ms ${EASE}, filter ${DURATION_MS}ms ${EASE}`;
+// No `filter` in this transition (there used to be one, driving a
+// `blur()` depth cue on the resting/off-stage card) — `filter` on an
+// element inside a 3D-transformed, `backface-visibility: hidden` stack
+// is what was making the ACTIVE card render soft on iOS Safari: the
+// browser puts the blurred and unblurred layers in the same compositing
+// pass, and the active card's text picks up the neighbor's blur radius
+// instead of staying crisp. Depth between the active and resting cards
+// is now carried by scale + opacity alone (see `scale` in the render
+// loop below), which is enough for the "cross-fade" feel without ever
+// touching a compositing property that iOS mishandles.
+const TRANSITION = `transform ${DURATION_MS}ms ${EASE}, opacity ${DURATION_MS}ms ${EASE}`;
 const FLIP_TRANSITION = `transform 620ms ${EASE}`;
 
 // Layered "product photography" shadow for the card faces themselves —
@@ -525,14 +578,13 @@ export function HeroCardCarousel() {
           const liveOffset = isActive && dragging ? dampen(dragDelta, DRAG_MAX) : 0;
           const offset = restOffset + liveOffset;
 
-          // Subtle depth cues: the active card stays essentially full
-          // scale/sharp, only easing very slightly under an active drag;
-          // a resting (off-stage) card sits a touch smaller and softly
-          // blurred, so the transition reads as a gentle cross-fade
-          // rather than a hard slide.
+          // Subtle depth cue: the active card stays full scale, only
+          // easing very slightly under an active drag; a resting
+          // (off-stage) card sits a touch smaller — scale and opacity
+          // alone carry the "cross-fade" feel now, with nothing in
+          // `filter`/blur for iOS to mis-composite onto the active card.
           const dragProgress = isActive && dragging ? Math.min(Math.abs(dragDelta) / SWIPE_THRESHOLD, 1) : 0;
           const scale = isActive ? 1 - dragProgress * 0.015 : 0.96;
-          const blur = isActive ? 0 : REST_BLUR;
           const skipTransition = isActive && dragging;
 
           return (
@@ -543,10 +595,9 @@ export function HeroCardCarousel() {
               style={{
                 opacity: isActive ? 1 : 0,
                 transform: `translateX(${offset}px) scale(${scale})`,
-                filter: blur ? `blur(${blur}px)` : "none",
                 pointerEvents: isActive ? "auto" : "none",
                 transition: skipTransition ? "none" : TRANSITION,
-                willChange: "transform, opacity, filter",
+                willChange: "transform, opacity",
                 zIndex: isActive ? 2 : 1,
               }}
             >

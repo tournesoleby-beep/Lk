@@ -13,7 +13,6 @@ const CATEGORY_LINKS = [
   { label: "Fashion", href: "/shop?category=fashion" },
   { label: "Makanan", href: "/shop?category=food" },
   { label: "Lacak Pesanan", href: "/orders/lookup" },
-  { label: "Produksi", href: "/shop?category=production" },
   { label: "Hubungi Kami", href: "/contact" },
 ] as const;
 
