@@ -66,7 +66,7 @@ export function HeroBanner() {
           preserving the top blank space. `38%` (the x-bias, keeping the
           dolls in frame on true phones) is unchanged. */}
       <Image
-        src="/hero/Background-mobile.png"
+        src="/hero/background-mobile.png"
         alt="Diorama warga binaan Lapas Perempuan Kelas IIA Jakarta membuat dan menyiapkan produk batik dan kerajinan tangan"
         fill
         priority
