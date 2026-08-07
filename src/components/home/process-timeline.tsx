@@ -64,8 +64,8 @@ export function ProcessTimeline() {
         <Reveal variant="fade-up" duration={DURATION} easing={EASING}>
           <SectionHeading
             eyebrow="Proses kami"
-            title="Perjalanan Sebuah Karya"
-            description="Setiap produk merupakan hasil proses pembinaan yang bertujuan membangun keterampilan, kreativitas, dan kemandirian warga binaan sebelum sampai ke tangan Anda."
+            title="Proses Kami"
+            description="Setiap produk dibuat dengan tangan oleh warga binaan."
             compact
           />
         </Reveal>

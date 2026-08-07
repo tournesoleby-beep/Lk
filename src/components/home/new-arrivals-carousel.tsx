@@ -28,7 +28,7 @@ export function NewArrivalsCarousel({ products }: { products: ProductCardData[] 
             <SectionHeading
               eyebrow="Baru tiba"
               title="Produk Terbaru"
-              description="Baru dari bengkel kerja kami — produk terbaru buatan tangan, siap menemukan rumah barunya."
+              description="Karya terbaru kami"
               compact
             />
           </Reveal>
