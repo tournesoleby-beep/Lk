@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type PointerEvent } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowUpRight, Camera } from "lucide-react";
 
@@ -8,6 +8,8 @@ import { Container } from "@/components/home/container";
 import { Parallax } from "@/components/home/parallax";
 import { Reveal } from "@/components/home/reveal";
 import { SectionHeading } from "@/components/home/section-heading";
+import { CarouselArrowButton } from "@/components/home/carousel-arrow-button";
+import { useHorizontalCarousel } from "@/components/home/use-horizontal-carousel";
 import { getPlaceholderGradient } from "@/lib/utils";
 
 // This section's own motion signature: a snappier, shorter ease-out —
@@ -57,68 +59,59 @@ export function InstagramHighlights() {
     setSeeds(shuffled(IMAGE_POOL).slice(0, VISIBLE_COUNT));
   }, []);
 
-  const scrollerRef = useRef<HTMLDivElement>(null);
-  const dragState = useRef({ active: false, startX: 0, startScroll: 0 });
-
-  function handlePointerDown(event: PointerEvent<HTMLDivElement>) {
-    // Touch devices already get native swipe/snap scrolling on this
-    // overflow-x-auto container — only take over for mouse/pen drag so we
-    // don't fight the browser's own touch scrolling with manual
-    // scrollLeft writes (which caused jittery, half-working swipes).
-    if (event.pointerType === "touch") return;
-    const scroller = scrollerRef.current;
-    if (!scroller) return;
-    dragState.current = {
-      active: true,
-      startX: event.clientX,
-      startScroll: scroller.scrollLeft,
-    };
-    scroller.setPointerCapture(event.pointerId);
-  }
-
-  function handlePointerMove(event: PointerEvent<HTMLDivElement>) {
-    const scroller = scrollerRef.current;
-    if (!scroller || !dragState.current.active) return;
-    scroller.scrollLeft =
-      dragState.current.startScroll - (event.clientX - dragState.current.startX);
-  }
-
-  function endDrag(event: PointerEvent<HTMLDivElement>) {
-    const scroller = scrollerRef.current;
-    dragState.current.active = false;
-    if (scroller?.hasPointerCapture(event.pointerId)) {
-      scroller.releasePointerCapture(event.pointerId);
-    }
-  }
+  const { scrollerRef, atStart, atEnd, canScroll, scrollByPage, onWheel, onKeyDown, dragHandlers } =
+    useHorizontalCarousel();
 
   return (
     <section className="bg-paper py-14 sm:py-32">
       <div className="flex flex-col gap-6 sm:gap-12">
         <Container className="px-5 sm:px-6">
-          <Reveal variant="fade-up" duration={DURATION} easing={EASING}>
-            <SectionHeading
-              eyebrow="Ikuti kami"
-              title="Sorotan Instagram"
-              description="Lihat karya terbaru dan aktivitas Lapiita Karya."
-              compact
-            />
-          </Reveal>
+          <div className="flex items-end justify-between gap-6">
+            <Reveal variant="fade-up" duration={DURATION} easing={EASING}>
+              <SectionHeading
+                eyebrow="Ikuti kami"
+                title="Sorotan Instagram"
+                description="Lihat karya terbaru dan aktivitas Lapiita Karya."
+                compact
+              />
+            </Reveal>
+
+            {/* Desktop-only paging controls, parked outside the row itself
+                (next to the heading) so they never sit on top of a post. */}
+            {canScroll ? (
+              <div className="hidden shrink-0 items-center gap-2 pb-1 lg:flex">
+                <CarouselArrowButton
+                  direction="prev"
+                  label="Sorotan sebelumnya"
+                  onClick={() => scrollByPage(-1)}
+                  disabled={atStart}
+                />
+                <CarouselArrowButton
+                  direction="next"
+                  label="Sorotan berikutnya"
+                  onClick={() => scrollByPage(1)}
+                  disabled={atEnd}
+                />
+              </div>
+            ) : null}
+          </div>
         </Container>
 
         {/* Horizontally scrollable carousel: native swipe on touch devices,
-            plus pointer-drag support so a mouse can drag it on desktop too.
-            Reveal renders this element directly (via elementRef, merged
-            with the drag-scroll ref) so each tile can stagger in on its
-            own instead of the whole row moving as one block. */}
+            plus mouse drag, wheel, and arrow-key paging on desktop. Reveal
+            renders this element directly (via elementRef, merged with the
+            carousel hook's ref) so each tile can stagger in on its own
+            instead of the whole row moving as one block. */}
         <Reveal
           as="div"
           elementRef={scrollerRef}
-          onPointerDown={handlePointerDown}
-          onPointerMove={handlePointerMove}
-          onPointerUp={endDrag}
-          onPointerLeave={endDrag}
-          onPointerCancel={endDrag}
-          className="flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-2 [scrollbar-width:none] sm:gap-6 sm:px-6 md:px-10 [&::-webkit-scrollbar]:hidden cursor-grab active:cursor-grabbing"
+          role="region"
+          aria-label="Sorotan Instagram"
+          tabIndex={0}
+          onWheel={onWheel}
+          onKeyDown={onKeyDown}
+          {...dragHandlers}
+          className="flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-2 [scrollbar-width:none] sm:gap-6 sm:px-6 md:px-10 [&::-webkit-scrollbar]:hidden cursor-grab active:cursor-grabbing focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/40 focus-visible:ring-offset-2"
           variant="fade-left"
           stagger
           duration={DURATION}

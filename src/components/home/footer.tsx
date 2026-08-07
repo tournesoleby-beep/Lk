@@ -21,14 +21,6 @@ const footerColumns = [
     ],
   },
   {
-    heading: "Perusahaan",
-    links: [
-      { label: "Tentang Kami", href: "/about" },
-      { label: "Keberlanjutan", href: "/sustainability" },
-      { label: "Karier", href: "/careers" },
-    ],
-  },
-  {
     heading: "Bantuan",
     links: [
       { label: "Lacak Pesanan", href: "/orders/lookup" },
@@ -53,7 +45,7 @@ export function Footer() {
   return (
     <footer className="border-t border-line bg-paper">
       <Container className="flex flex-col gap-10 px-5 py-12 sm:gap-16 sm:px-6 sm:py-20">
-        <div className="grid grid-cols-2 gap-x-6 gap-y-9 sm:grid-cols-5 sm:gap-10">
+        <div className="grid grid-cols-2 gap-x-6 gap-y-9 sm:grid-cols-4 sm:gap-10">
           <div className="col-span-2 flex flex-col gap-3.5 sm:col-span-1 sm:gap-4">
             <div className="flex items-center gap-2.5">
               {/* eslint-disable-next-line @next/next/no-img-element */}

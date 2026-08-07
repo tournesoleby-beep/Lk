@@ -12,6 +12,7 @@ import { InstagramIcon } from "@/components/icons/instagram-icon";
 const CATEGORY_LINKS = [
   { label: "Fashion", href: "/shop?category=fashion" },
   { label: "Makanan", href: "/shop?category=food" },
+  { label: "Lacak Pesanan", href: "/orders/lookup" },
   { label: "Produksi", href: "/shop?category=production" },
   { label: "Hubungi Kami", href: "/contact" },
 ] as const;
@@ -196,13 +197,6 @@ export function Navbar() {
             className="flex min-h-11 items-center rounded-xl px-3.5 text-base font-medium text-ink transition-colors duration-200 hover:bg-cloud hover:text-signal active:bg-cloud"
           >
             Wishlist{wishlist.count > 0 ? ` (${wishlist.count})` : ""}
-          </Link>
-          <Link
-            href="/orders/lookup"
-            onClick={() => setMobileOpen(false)}
-            className="flex min-h-11 items-center rounded-xl px-3.5 text-base font-medium text-ink transition-colors duration-200 hover:bg-cloud hover:text-signal active:bg-cloud"
-          >
-            Lacak Pesanan
           </Link>
         </nav>
       ) : null}
