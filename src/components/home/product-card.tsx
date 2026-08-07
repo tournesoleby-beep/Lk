@@ -2,20 +2,35 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Check, Heart, ShoppingBag } from "lucide-react";
 
 import type { ProductCardData } from "@/lib/queries/home";
 import { cn, formatCurrency } from "@/lib/utils";
+import { cloudinaryImageLoader } from "@/lib/cloudinary";
 import { PlaceholderTile } from "@/components/home/placeholder-tile";
 import { useCart } from "@/components/cart/cart-provider";
 import { useWishlist } from "@/components/cart/wishlist-provider";
 
+// Matches the grid this card renders in on /shop (lg:grid-cols-4) and
+// roughly on other pages that reuse it, so <Image> requests a correctly
+// sized derivative per breakpoint instead of always fetching a full-width
+// image. See MobileShopProductCard in shop-browser.tsx for its counterpart.
+const PRODUCT_CARD_IMAGE_SIZES =
+  "(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw";
+
 export function ProductCard({
   product,
   className,
+  priority = false,
 }: {
   product: ProductCardData;
   className?: string;
+  // Set for the first row of cards in a grid (e.g. the initial /shop
+  // viewport) so those images preload eagerly instead of lazy-loading;
+  // everything else still lazy-loads as before. Defaults to false so
+  // existing callers (homepage, wishlist, category pages) are unaffected.
+  priority?: boolean;
 }) {
   const cart = useCart();
   const wishlist = useWishlist();
@@ -52,14 +67,19 @@ export function ProductCard({
         className="relative block aspect-[4/5] w-full overflow-hidden bg-cloud"
       >
         {product.imageUrl ? (
-          // Native <img> keeps this component simple and avoids requiring
-          // remote image domains to be allow-listed in next.config.ts.
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          // Custom `loader` delegates resizing/compression/format
+          // negotiation to Cloudinary (see cloudinaryImageLoader), so this
+          // still doesn't require remote image domains to be allow-listed
+          // in next.config.ts, while gaining <Image>'s responsive srcSet,
+          // lazy-loading, and priority preloading over a plain <img>.
+          <Image
+            loader={cloudinaryImageLoader}
             src={product.imageUrl}
             alt={product.imageAlt ?? product.name}
-            loading="lazy"
-            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+            fill
+            sizes={PRODUCT_CARD_IMAGE_SIZES}
+            {...(priority ? { priority: true } : { loading: "lazy" as const })}
+            className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
           />
         ) : (
           <PlaceholderTile

@@ -69,3 +69,83 @@ export async function uploadImageToCloudinary(
     return { success: false, error: "Image upload failed. Please try again." };
   }
 }
+
+const CLOUDINARY_UPLOAD_MARKER = "/image/upload/";
+
+/**
+ * Split a Cloudinary secure_url into the part before the transformation
+ * segment and the part after it (version + public_id + extension), so
+ * fresh transformation params can be inserted between them. Returns null
+ * for anything that isn't a Cloudinary delivery URL — callers should fall
+ * back to using the original URL unchanged in that case.
+ */
+function splitCloudinaryUrl(url: string): { prefix: string; rest: string } | null {
+  const index = url.indexOf(CLOUDINARY_UPLOAD_MARKER);
+  if (index === -1) return null;
+  const prefix = url.slice(0, index + CLOUDINARY_UPLOAD_MARKER.length);
+  const rest = url.slice(index + CLOUDINARY_UPLOAD_MARKER.length);
+  return { prefix, rest };
+}
+
+/**
+ * Build an on-the-fly optimized Cloudinary delivery URL by inserting
+ * transformation params right after `/upload/`.
+ *
+ * This is what makes existing product images fast without any re-upload
+ * or migration: Cloudinary renders the transformed derivative the first
+ * time a given transformation is requested and caches it at the CDN edge
+ * from then on, so a 3MB original is never sent to a browser again once
+ * this is in place — new uploads get the same benefit automatically.
+ *
+ * - f_auto  serves AVIF/WebP to browsers that support it, otherwise falls
+ *           back to the original format.
+ * - q_auto  applies Cloudinary's perceptual auto-compression.
+ * - c_limit resizes down to fit within width/height, never upscales, and
+ *           preserves the original aspect ratio (so it's safe to use with
+ *           a fixed-aspect-ratio container without introducing letterboxing
+ *           or layout shift).
+ *
+ * URLs that aren't Cloudinary delivery URLs (e.g. a stray external image)
+ * are returned unchanged.
+ */
+export function getCloudinaryDeliveryUrl(
+  url: string,
+  {
+    width,
+    height,
+    quality = "auto",
+  }: { width?: number; height?: number; quality?: string | number } = {}
+): string {
+  const split = splitCloudinaryUrl(url);
+  if (!split) return url;
+
+  const transforms = ["f_auto", `q_${quality}`];
+  if (width) transforms.push(`w_${width}`);
+  if (height) transforms.push(`h_${height}`);
+  if (width || height) transforms.push("c_limit");
+
+  return `${split.prefix}${transforms.join(",")}/${split.rest}`;
+}
+
+/**
+ * Custom `loader` for Next.js's `<Image>` component (see product-card.tsx
+ * and shop-browser.tsx), scoped to Cloudinary-hosted product photos.
+ *
+ * Passing a per-instance `loader` makes `<Image>` render the URL this
+ * function returns directly instead of proxying the request through
+ * Next's built-in `/_next/image` optimizer — so no change to
+ * `images.remotePatterns` in next.config.ts is required, while product
+ * cards still get `<Image>`'s responsive `srcSet` generation (driven by
+ * the `sizes` prop), lazy-loading, and `priority` preloading.
+ */
+export function cloudinaryImageLoader({
+  src,
+  width,
+  quality,
+}: {
+  src: string;
+  width: number;
+  quality?: number;
+}): string {
+  return getCloudinaryDeliveryUrl(src, { width, quality: quality ?? "auto" });
+}

@@ -2,9 +2,11 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Check, Heart, Search, ShoppingBag, SlidersHorizontal } from "lucide-react";
 
 import { cn, formatCurrency } from "@/lib/utils";
+import { cloudinaryImageLoader } from "@/lib/cloudinary";
 import type { ShopProductCardData } from "@/lib/shop/products";
 import { ProductCard } from "@/components/home/product-card";
 import { PlaceholderTile } from "@/components/home/placeholder-tile";
@@ -41,7 +43,18 @@ const SORT_OPTIONS: { label: string; value: SortOption }[] = [
  * - tap feedback (`active:scale`) instead of hover states, since hover
  *   doesn't apply on touch and can stick on first tap
  */
-function MobileShopProductCard({ product }: { product: ShopProductCardData }) {
+// Matches this card's grid (grid-cols-2, md:grid-cols-3, hidden at lg+).
+const MOBILE_SHOP_CARD_IMAGE_SIZES = "(min-width: 768px) 33vw, 50vw";
+
+function MobileShopProductCard({
+  product,
+  priority = false,
+}: {
+  product: ShopProductCardData;
+  // First row of the mobile/tablet grid — preload eagerly instead of
+  // lazy-loading, matching the desktop grid's behavior below.
+  priority?: boolean;
+}) {
   const cart = useCart();
   const wishlist = useWishlist();
   const [added, setAdded] = useState(false);
@@ -72,12 +85,14 @@ function MobileShopProductCard({ product }: { product: ShopProductCardData }) {
         className="relative block aspect-[4/5] w-full overflow-hidden bg-cloud"
       >
         {product.imageUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <Image
+            loader={cloudinaryImageLoader}
             src={product.imageUrl}
             alt={product.imageAlt ?? product.name}
-            loading="lazy"
-            className="h-full w-full object-cover"
+            fill
+            sizes={MOBILE_SHOP_CARD_IMAGE_SIZES}
+            {...(priority ? { priority: true } : { loading: "lazy" as const })}
+            className="object-cover"
           />
         ) : (
           <PlaceholderTile
@@ -362,15 +377,19 @@ export function ShopBrowser({
         <>
           {/* Mobile/tablet grid — premium card, roomier rhythm. */}
           <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6 lg:hidden">
-            {filtered.map((product) => (
-              <MobileShopProductCard key={product.id} product={product} />
+            {filtered.map((product, index) => (
+              <MobileShopProductCard
+                key={product.id}
+                product={product}
+                priority={index < 4}
+              />
             ))}
           </div>
 
           {/* Desktop grid — unchanged. */}
           <div className="hidden gap-6 lg:grid lg:grid-cols-4">
-            {filtered.map((product) => (
-              <ProductCard key={product.id} product={product} />
+            {filtered.map((product, index) => (
+              <ProductCard key={product.id} product={product} priority={index < 4} />
             ))}
           </div>
         </>
