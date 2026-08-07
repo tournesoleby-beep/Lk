@@ -415,16 +415,15 @@ const DRAG_MAX = 56;
 // without ever feeling bouncy or slow.
 const EASE = "cubic-bezier(0.32, 0.72, 0, 1)";
 const DURATION_MS = 640;
-// No `filter` in this transition (there used to be one, driving a
-// `blur()` depth cue on the resting/off-stage card) — `filter` on an
-// element inside a 3D-transformed, `backface-visibility: hidden` stack
-// is what was making the ACTIVE card render soft on iOS Safari: the
-// browser puts the blurred and unblurred layers in the same compositing
-// pass, and the active card's text picks up the neighbor's blur radius
-// instead of staying crisp. Depth between the active and resting cards
-// is now carried by scale + opacity alone (see `scale` in the render
-// loop below), which is enough for the "cross-fade" feel without ever
-// touching a compositing property that iOS mishandles.
+// No `filter` in this transition — `filter` on an element inside a
+// 3D-transformed, `backface-visibility: hidden` stack causes the
+// browser to composite the blurred and unblurred layers in the same
+// pass on iOS Safari, so the ACTIVE card's text picks up the
+// neighbor's blur radius instead of staying crisp. Depth between the
+// active and resting cards is carried by scale + opacity alone (see
+// `scale` in the render loop below), which is enough for the
+// "cross-fade" feel without touching a compositing property iOS
+// mishandles.
 const TRANSITION = `transform ${DURATION_MS}ms ${EASE}, opacity ${DURATION_MS}ms ${EASE}`;
 const FLIP_TRANSITION = `transform 620ms ${EASE}`;
 

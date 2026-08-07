@@ -240,8 +240,7 @@ export function ProductDetail({ product }: { product: ShopProductDetail }) {
     <>
       {/* ================================================================
           MOBILE / TABLET (< lg) — image-first, full-bleed composition.
-          Fully independent from the desktop tree below so desktop markup
-          and styling stay byte-for-byte unchanged.
+          Fully independent from the desktop tree below.
           ================================================================ */}
       <div className="lg:hidden">
         {/* Break out of the page section's top padding and the container's
@@ -316,10 +315,10 @@ export function ProductDetail({ product }: { product: ShopProductDetail }) {
       </div>
 
       {/* ================================================================
-          DESKTOP (lg+) — unchanged from the original layout.
+          DESKTOP (lg+)
           ================================================================ */}
       <div className="hidden lg:grid lg:grid-cols-2 lg:gap-16">
-        {/* Gallery — desktop: unchanged hover-zoom experience. */}
+        {/* Gallery — desktop: hover-zoom experience. */}
         <div className="flex flex-col gap-3">
           <div
             className={cn(
@@ -437,7 +436,7 @@ export function ProductDetail({ product }: { product: ShopProductDetail }) {
           ) : null}
         </div>
 
-        {/* Info — desktop: unchanged. */}
+        {/* Info — desktop. */}
         <div className="flex flex-col gap-6">
           <div className="flex flex-col gap-3">
             {product.category ? (

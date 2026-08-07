@@ -8,32 +8,15 @@ import { motion, type PanInfo } from "framer-motion";
 import { Container } from "@/components/home/container";
 
 // ---------------------------------------------------------------------------
-// REDESIGN SCOPE (per brief): a true "Layered Showcase Carousel" — all
-// three cards are ALWAYS visible at once. The active card is centered,
-// full size (scale 1), fully opaque, sharp, and sits at the highest
-// z-index with the strongest shadow. The previous/next cards sit
-// partially behind it — offset outside its left/right edge, scaled
-// down slightly, faded, and softly blurred — so a meaningful chunk of
-// each side card (~30-40% of its width) always stays visible. Nothing
-// is ever fully hidden behind the active card, and no card is ever
-// rotated or tilted: all three stay perfectly upright at all times, and
-// there is no "fan" spread. Card content is untouched: same CARDS data,
-// same CardShell, same FlipCard (its own click-to-flip rotateY
-// interaction, gradients, shadows, typography, internal padding). The
-// section's background is now the warm taupe/beige radial atmosphere in
-// CARDS_SECTION_BACKGROUND below (still handing off from HeroBanner's own
-// fade the same way), and every card face now sits under one shared warm
-// translucent-glass layer instead of its old standalone gradient, so
-// Hero -> Cards -> Belanja reads as one continuous warm surface.
-//
-// LIBRARY: uses `framer-motion` for the spring-based transform / scale /
-// opacity animation between the three slots (previous -> active,
-// active -> next, next -> previous). No abrupt horizontal sliding —
-// everything animates via a single tuned spring, so it feels like
-// rotating a premium display stand rather than swiping a slider.
-//
-// Requires: `npm install framer-motion` (and you can remove
-// embla-carousel-react if nothing else in the project uses it).
+// Layered Showcase Carousel: all three cards are always visible at once.
+// The active card is centered, full size, fully opaque, sharp, and sits
+// at the highest z-index with the strongest shadow. The previous/next
+// cards sit partially behind it — offset outside its left/right edge,
+// scaled down, faded, and softly blurred — so ~30-40% of each side card
+// always stays visible. No card is ever rotated or tilted. Uses
+// `framer-motion` for the spring-based transform/scale/opacity animation
+// between the three slots, so it reads as rotating a display stand
+// rather than swiping a slider.
 // ---------------------------------------------------------------------------
 
 type GridCard = {
@@ -499,13 +482,11 @@ export function CardsSection() {
                   // hidden] stack), and mobile WebKit merges that pass —
                   // leaving the ACTIVE card permanently soft after a swipe,
                   // even though the active card itself never has a blur
-                  // value. This is the same failure already identified and
-                  // fixed in hero-card-carousel.tsx (see its TRANSITION
-                  // comment). Desktop/tablet are unaffected by this bug and
-                  // keep the original blur() depth cue exactly as before;
-                  // on mobile the blur() function is simply omitted from
-                  // the filter string (scale + opacity + the smaller
-                  // drop-shadow still carry the depth cue there).
+                  // value. Same issue as hero-card-carousel.tsx (see its
+                  // TRANSITION comment). Desktop/tablet keep the blur()
+                  // depth cue; on mobile it's omitted from the filter
+                  // string (scale + opacity + the smaller drop-shadow
+                  // still carry the depth cue there).
                   const filter = isActive
                     ? "drop-shadow(0 18px 36px rgba(23,17,10,0.32))"
                     : breakpoint === "mobile"

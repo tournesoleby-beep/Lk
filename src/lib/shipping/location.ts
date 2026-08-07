@@ -103,7 +103,7 @@ async function geocodeQuery(query: string): Promise<GeocodedPoint | null> {
  * (they need coordinates for *both* origin and destination — see
  * `BiteshipLocation`'s docs in ./biteship.ts).
  */
-async function geocode(query: string): Promise<GeocodedPoint | null> {
+export async function geocode(query: string): Promise<GeocodedPoint | null> {
   const point = await geocodeQuery(query);
   if (point) return point;
 
@@ -130,9 +130,8 @@ async function geocode(query: string): Promise<GeocodedPoint | null> {
  * result). Biteship needs coordinates — not just an area ID — to price
  * instant couriers (GoSend, GrabExpress) for the origin leg; see
  * `BiteshipLocation`'s docs in ./biteship.ts. If either is unset or
- * unparsable, the origin falls back to area ID only, exactly as before
- * these env vars existed — JNE and other hub-network couriers are priced
- * fine either way.
+ * unparsable, the origin falls back to area ID only — JNE and other
+ * hub-network couriers are priced fine either way.
  */
 export function getStoreOrigin(): GetStoreOriginResult {
   const areaId = process.env.BITESHIP_ORIGIN_AREA_ID?.trim();
@@ -181,7 +180,14 @@ export type ResolveAreaResult =
 type BiteshipArea = {
   id: string;
   name: string;
-  postal_code: number;
+  postal_code?: number;
+  // Biteship's own district-level field for this area — same object shape
+  // Biteship uses for origin/destination in rates responses (level_1 =
+  // province, level_2 = city, level_3 = district). Used to exactly filter
+  // out unrelated districts that Biteship's fuzzy `input` text search can
+  // still surface (e.g. matching loosely on a shared province name) —
+  // see `searchAreas` below.
+  administrative_division_level_3_name?: string;
 };
 
 type BiteshipAreasResponse = {
@@ -189,6 +195,22 @@ type BiteshipAreasResponse = {
   error?: string;
   areas?: BiteshipArea[];
 };
+
+/**
+ * Resolve a single area's postal code, tolerating Biteship area entries
+ * that omit `postal_code` (confirmed on real district-level "(all)"
+ * matches — the code is still present as text inside `name` in that
+ * case). Returns `null` when no postal code can be determined at all.
+ * Shared by `searchAreas` and `resolveDestinationAreaId` so both apply
+ * the same fallback.
+ */
+function resolvePostalCode(area: BiteshipArea): number | null {
+  if (typeof area.postal_code === "number" && Number.isFinite(area.postal_code)) {
+    return area.postal_code;
+  }
+  const match = Number(area.name.match(/\b\d{5}\b/)?.[0]);
+  return Number.isFinite(match) ? match : null;
+}
 
 /**
  * Resolve free-text destination input (a city, district, or postal code a
@@ -204,8 +226,8 @@ type BiteshipAreasResponse = {
  * independent, best-effort lookup against the same input — a slow or
  * failed geocode should never delay or block the area lookup that every
  * courier (including JNE) depends on. If geocoding fails, the returned
- * area simply omits `latitude`/`longitude` — exactly what this function
- * returned before those fields existed, so existing callers are unaffected.
+ * area simply omits `latitude`/`longitude`, which existing callers that
+ * only read `areaId` are unaffected by.
  *
  * Also usable to resolve the store's own address once, to populate
  * `BITESHIP_ORIGIN_AREA_ID` (and optionally `BITESHIP_ORIGIN_LATITUDE` /
@@ -246,12 +268,18 @@ export async function resolveDestinationAreaId(input: string): Promise<ResolveAr
       return { success: false, error: "No matching location found. Try a different city or district." };
     }
 
+    const postalCode = resolvePostalCode(match);
+    if (postalCode === null) {
+      console.warn("[biteship] resolveDestinationAreaId: no resolvable postal code:", match);
+      return { success: false, error: "Couldn't determine a postal code for that location." };
+    }
+
     return {
       success: true,
       area: {
         areaId: match.id,
         name: match.name,
-        postalCode: match.postal_code,
+        postalCode,
         ...(point ? { latitude: point.latitude, longitude: point.longitude } : {}),
       },
     };
@@ -285,4 +313,99 @@ const STORE_ADDRESS = [
  */
 export async function resolveStoreAreaId(): Promise<ResolveAreaResult> {
   return resolveDestinationAreaId(STORE_ADDRESS);
+}
+
+export type SearchAreasResult =
+  | { success: true; areas: ResolvedArea[] }
+  | { success: false; error: string };
+
+/**
+ * Like `resolveDestinationAreaId`, but returns every Biteship area match
+ * instead of just the top one — used to populate the checkout postal-code
+ * dropdown, since one district can resolve to several Biteship areas that
+ * differ only by postal code. Does not geocode each result (that's only
+ * needed for the final origin/destination pair at rates time, not for
+ * listing options), so this is cheaper than calling
+ * `resolveDestinationAreaId` once per option.
+ */
+export async function searchAreas(input: string, exactDistrict?: string): Promise<SearchAreasResult> {
+  const apiKey = process.env.BITESHIP_API_KEY;
+  if (!apiKey) {
+    console.error("[biteship] BITESHIP_API_KEY is not configured.");
+    return { success: false, error: "Shipping isn't configured yet." };
+  }
+
+  const query = input.trim();
+  if (!query) {
+    return { success: false, error: "Enter a district, city, or postal code." };
+  }
+  // Biteship's own search ranks by loose text relevance, not by
+  // administrative hierarchy — a query combining district + city +
+  // province can still return areas from a completely different district
+  // that happen to share text with the query (e.g. the province name).
+  // `input` is only used to get Biteship a reasonable candidate set;
+  // `normalizedDistrict` below is what actually restricts results to the
+  // exact selected district, via Biteship's own structured district field
+  // rather than any text-matching heuristic.
+  const normalizedDistrict = exactDistrict?.trim().toLowerCase();
+
+  try {
+    const url = new URL("/v1/maps/areas", BITESHIP_BASE_URL);
+    url.searchParams.set("countries", "ID");
+    url.searchParams.set("input", query);
+    url.searchParams.set("type", "multiple");
+
+    const response = await fetch(url, { headers: { authorization: apiKey } });
+    const data = (await response.json()) as BiteshipAreasResponse;
+
+    if (!response.ok || !data.success) {
+      console.error("[biteship] area search failed:", data.error ?? response.statusText);
+      return { success: false, error: "Couldn't look up postal codes for that district." };
+    }
+
+    const seenAreaIds = new Set<string>();
+    const seenPostalCodes = new Set<number>();
+    const areas: ResolvedArea[] = [];
+    for (const area of data.areas ?? []) {
+      if (!area.id || !area.name) continue;
+
+      if (normalizedDistrict) {
+        const areaDistrict = area.administrative_division_level_3_name?.trim().toLowerCase();
+        if (areaDistrict !== normalizedDistrict) {
+          console.warn(
+            "[biteship] area search: dropping result outside selected district:",
+            { expected: exactDistrict, got: area.administrative_division_level_3_name, area }
+          );
+          continue;
+        }
+      }
+
+      const postalCode = resolvePostalCode(area);
+      if (postalCode === null) {
+        console.warn("[biteship] area search: no resolvable postal code, skipping entry:", area);
+        continue;
+      }
+      // Two entries can carry different postal-code text in `name` while
+      // sharing the same underlying area id — since areaId (not the
+      // postal code label) is what's actually sent to Biteship for rate
+      // calculation, such entries are functionally identical. Keep only
+      // the first: this both avoids a duplicate React key on the postal
+      // code dropdown and avoids presenting the customer two options that
+      // would price identically.
+      if (seenAreaIds.has(area.id) || seenPostalCodes.has(postalCode)) continue;
+
+      seenAreaIds.add(area.id);
+      seenPostalCodes.add(postalCode);
+      areas.push({ areaId: area.id, name: area.name, postalCode });
+    }
+
+    if (areas.length === 0) {
+      return { success: false, error: "No postal codes found for that district." };
+    }
+
+    return { success: true, areas };
+  } catch (error) {
+    console.error("[biteship] failed to search areas:", error);
+    return { success: false, error: "Couldn't look up postal codes for that district." };
+  }
 }

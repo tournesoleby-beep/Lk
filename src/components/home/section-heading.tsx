@@ -7,12 +7,9 @@ export function SectionHeading({
   align = "left",
   tone = "light",
   className,
-  // Opt-in only. Defaults to false so every existing caller (about, faq,
-  // checkout, cart, etc.) renders byte-for-byte the same as before — only
-  // homepage sections pass compact=true to get a tighter mobile rhythm.
-  // Every property below is either unprefixed-only-when-safe or paired
-  // with an explicit sm: value matching the original, so tablet/desktop
-  // never changes even when compact is on.
+  // Opt-in; defaults to false so existing callers (about, faq, checkout,
+  // cart, etc.) are unaffected. Homepage sections pass compact=true for
+  // tighter mobile spacing; tablet/desktop styling stays the same either way.
   compact = false,
 }: {
   eyebrow: string;

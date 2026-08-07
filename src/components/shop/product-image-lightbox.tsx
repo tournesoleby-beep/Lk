@@ -126,7 +126,7 @@ export function ProductImageLightbox({
         className="lg:hidden"
       />
 
-      {/* Image — desktop: unchanged click-to-zoom experience. */}
+      {/* Image — desktop: click-to-zoom experience. */}
       <div
         className={cn(
           "relative hidden flex-1 select-none items-center justify-center overflow-hidden px-4 pb-4 sm:px-16 sm:pb-10 lg:flex",

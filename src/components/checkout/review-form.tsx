@@ -49,15 +49,10 @@ async function compressImage(file: File): Promise<File> {
 }
 
 /**
- * The working version of the review form that used to be static markup in
- * app/orders/lookup/page.tsx. Kept as its own client component (one
+ * Review form for an order item. Kept as its own client component (one
  * instance per order item, mounted from the server-rendered page) since it
  * needs local state for the rating/comment/submitting/submitted state that
  * a server component can't hold.
- *
- * Visual design — including the peer-checked star radio group — is
- * unchanged from the original static markup; the photo picker below
- * replaces what used to be a non-functional placeholder.
  */
 export function ReviewForm({
   orderNumber,

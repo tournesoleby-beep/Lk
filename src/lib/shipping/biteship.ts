@@ -53,10 +53,10 @@ export const BITESHIP_BASE_URL = process.env.BITESHIP_BASE_URL ?? "https://api.b
  * administrative area, so Biteship silently omits them from the response
  * whenever only an area ID or postal code is supplied.
  *
- * All fields are optional so a caller can supply just an area ID (as
- * before), just coordinates, or both — `locationToRequestFields` below
- * sends whichever combination is present. Sending both when available is
- * the recommended approach: it gives JNE its usual area-based accuracy
+ * All fields are optional so a caller can supply just an area ID, just
+ * coordinates, or both — `locationToRequestFields` below sends whichever
+ * combination is present. Sending both when available is the
+ * recommended approach: it gives JNE its usual area-based accuracy
  * while still unlocking GoSend/GrabExpress pricing.
  */
 export type BiteshipLocation = {
@@ -66,8 +66,7 @@ export type BiteshipLocation = {
    * Precise coordinates. Required by Biteship for instant-courier pricing
    * (see above) — optional here because it isn't always resolvable (e.g.
    * geocoding a free-text destination can fail), in which case requests
-   * still go out with area ID / postal code alone, same as before this
-   * field existed.
+   * still go out with area ID / postal code alone.
    */
   latitude?: number;
   longitude?: number;

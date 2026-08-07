@@ -8,9 +8,8 @@ import { CopyIconButton } from "@/components/checkout/copy-icon-button";
  * the app's existing toast queue (see toast-provider.tsx), matching the
  * pattern already used by the cart/wishlist/newsletter components.
  *
- * Thin wrapper around the shared `CopyIconButton` — same rendered output
- * and behavior as before, just with the clipboard/toast logic factored out
- * so `CopyTrackingNumberButton` can reuse it too.
+ * Thin wrapper around the shared `CopyIconButton`, so
+ * `CopyTrackingNumberButton` can reuse the same clipboard/toast logic.
  */
 export function CopyOrderNumberButton({
   orderNumber,

@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { Loader2 } from "lucide-react";
 
 import { formatCurrency } from "@/lib/utils";
+import { getProvinces, getRegencies, getDistricts, type WilayahOption } from "@/lib/wilayah";
 import { useCart } from "@/components/cart/cart-provider";
 import { placeOrder } from "@/lib/checkout/actions";
 import { getCheckoutShippingRates, type CheckoutShippingRate } from "@/lib/checkout/shipping";
@@ -24,9 +25,13 @@ type FormValues = {
   phone: string;
   email: string;
   province: string;
+  provinceId: string;
   city: string;
+  cityId: string;
   district: string;
+  districtId: string;
   postalCode: string;
+  areaId: string;
   streetAddress: string;
   notes: string;
   shippingMethod: ShippingMethod;
@@ -37,13 +42,19 @@ const EMPTY_VALUES: FormValues = {
   phone: "",
   email: "",
   province: "",
+  provinceId: "",
   city: "",
+  cityId: "",
   district: "",
+  districtId: "",
   postalCode: "",
+  areaId: "",
   streetAddress: "",
   notes: "",
   shippingMethod: "standard",
 };
+
+type PostalOption = { areaId: string; postalCode: string; label: string };
 
 export default function CheckoutPage() {
   const cart = useCart();
@@ -55,25 +66,115 @@ export default function CheckoutPage() {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const [provinces, setProvinces] = useState<WilayahOption[]>([]);
+  const [regencies, setRegencies] = useState<WilayahOption[]>([]);
+  const [districts, setDistricts] = useState<WilayahOption[]>([]);
+  const [postalOptions, setPostalOptions] = useState<PostalOption[]>([]);
+  const [isLoadingPostal, setIsLoadingPostal] = useState(false);
+  const [postalError, setPostalError] = useState<string | null>(null);
+
   const [shippingRates, setShippingRates] = useState<CheckoutShippingRate[]>([]);
   const [selectedRateIndex, setSelectedRateIndex] = useState<number | null>(null);
   const [isLoadingRates, setIsLoadingRates] = useState(false);
   const [shippingRatesError, setShippingRatesError] = useState<string | null>(null);
 
+  useEffect(() => {
+    getProvinces().then(setProvinces);
+  }, []);
+
   function update(field: keyof Omit<FormValues, "shippingMethod">, value: string) {
     setValues((current) => ({ ...current, [field]: value }));
+  }
+
+  async function handleProvinceChange(provinceId: string) {
+    const name = provinces.find((p) => p.id === provinceId)?.name ?? "";
+    setValues((current) => ({
+      ...current,
+      provinceId,
+      province: name,
+      cityId: "",
+      city: "",
+      districtId: "",
+      district: "",
+      postalCode: "",
+      areaId: "",
+    }));
+    setRegencies([]);
+    setDistricts([]);
+    setPostalOptions([]);
+    setPostalError(null);
+    if (provinceId) setRegencies(await getRegencies(provinceId));
+  }
+
+  async function handleCityChange(cityId: string) {
+    const name = regencies.find((c) => c.id === cityId)?.name ?? "";
+    setValues((current) => ({
+      ...current,
+      cityId,
+      city: name,
+      districtId: "",
+      district: "",
+      postalCode: "",
+      areaId: "",
+    }));
+    setDistricts([]);
+    setPostalOptions([]);
+    setPostalError(null);
+    if (cityId) setDistricts(await getDistricts(cityId));
+  }
+
+  async function handleDistrictChange(districtId: string) {
+    const name = districts.find((d) => d.id === districtId)?.name ?? "";
+    setValues((current) => ({
+      ...current,
+      districtId,
+      district: name,
+      postalCode: "",
+      areaId: "",
+    }));
+    setPostalOptions([]);
+    setPostalError(null);
+    if (!districtId) return;
+
+    setIsLoadingPostal(true);
+    try {
+      const query = [name, values.city, values.province].filter(Boolean).join(", ");
+      const params = new URLSearchParams({ q: query, district: name });
+      const res = await fetch(`/api/shipping/postal-codes?${params.toString()}`);
+      const data = await res.json();
+      if (!data.success) {
+        setPostalError(data.error ?? "Gagal memuat kode pos.");
+        return;
+      }
+      setPostalOptions(
+        data.areas.map((a: { areaId: string; postalCode: number; name: string }) => ({
+          areaId: a.areaId,
+          postalCode: String(a.postalCode),
+          label: a.name,
+        }))
+      );
+    } catch (error) {
+      console.error("[checkout] failed to load postal codes:", error);
+      setPostalError("Gagal memuat kode pos.");
+    } finally {
+      setIsLoadingPostal(false);
+    }
+  }
+
+  function handlePostalChange(areaId: string) {
+    const option = postalOptions.find((o) => o.areaId === areaId);
+    setValues((current) => ({
+      ...current,
+      areaId,
+      postalCode: option?.postalCode ?? "",
+    }));
   }
 
   async function handleCalculateShipping() {
     setShippingRatesError(null);
 
-    const destination = [values.district, values.city, values.province, values.postalCode]
-      .map((part) => part.trim())
-      .filter(Boolean)
-      .join(", ");
-
-    if (!destination) {
-      setShippingRatesError("Isi provinsi, kota, kecamatan, dan kode pos terlebih dahulu.");
+    if (!values.areaId) {
+      setShippingRatesError("Pilih provinsi, kota, kecamatan, dan kode pos terlebih dahulu.");
       return;
     }
     if (cart.lines.length === 0) {
@@ -81,12 +182,26 @@ export default function CheckoutPage() {
       return;
     }
 
+    // Used only to geocode a lat/lng point for pricing GoSend/GrabExpress —
+    // values.areaId above already fixes which postal code gets priced, so
+    // this never affects area/rate accuracy, only instant-courier coverage.
+    const geocodeQuery = [
+      values.streetAddress,
+      values.district,
+      values.city,
+      values.province,
+      values.postalCode,
+    ]
+      .map((part) => part.trim())
+      .filter(Boolean)
+      .join(", ");
+
     setIsLoadingRates(true);
     setShippingRates([]);
     setSelectedRateIndex(null);
 
     const result = await getCheckoutShippingRates(
-      destination,
+      { areaId: values.areaId, geocodeQuery },
       cart.lines.map((line) => ({ id: line.id, quantity: line.quantity }))
     );
 
@@ -117,7 +232,7 @@ export default function CheckoutPage() {
     if (!values.province.trim()) nextErrors.province = "Provinsi wajib diisi.";
     if (!values.city.trim()) nextErrors.city = "Kota wajib diisi.";
     if (!values.district.trim()) nextErrors.district = "Kecamatan wajib diisi.";
-    if (!values.postalCode.trim()) nextErrors.postalCode = "Kode pos wajib diisi.";
+    if (!values.areaId.trim()) nextErrors.postalCode = "Kode pos wajib dipilih.";
     if (!values.streetAddress.trim())
       nextErrors.streetAddress = "Alamat jalan wajib diisi.";
 
@@ -270,13 +385,19 @@ export default function CheckoutPage() {
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                   <label className="flex flex-col gap-1.5">
                     <span className={LABEL_CLASS}>Provinsi</span>
-                    <input
-                      value={values.province}
-                      onChange={(e) => update("province", e.target.value)}
-                      placeholder="Jawa Tengah"
+                    <select
+                      value={values.provinceId}
+                      onChange={(e) => handleProvinceChange(e.target.value)}
                       autoComplete="address-level1"
                       className={INPUT_CLASS}
-                    />
+                    >
+                      <option value="">Pilih provinsi</option>
+                      {provinces.map((p) => (
+                        <option key={p.id} value={p.id}>
+                          {p.name}
+                        </option>
+                      ))}
+                    </select>
                     {errors.province ? (
                       <span className="text-xs text-signal">{errors.province}</span>
                     ) : null}
@@ -284,13 +405,20 @@ export default function CheckoutPage() {
 
                   <label className="flex flex-col gap-1.5">
                     <span className={LABEL_CLASS}>Kota</span>
-                    <input
-                      value={values.city}
-                      onChange={(e) => update("city", e.target.value)}
-                      placeholder="Magelang"
+                    <select
+                      value={values.cityId}
+                      onChange={(e) => handleCityChange(e.target.value)}
+                      disabled={!values.provinceId}
                       autoComplete="address-level2"
                       className={INPUT_CLASS}
-                    />
+                    >
+                      <option value="">Pilih kota/kabupaten</option>
+                      {regencies.map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.name}
+                        </option>
+                      ))}
+                    </select>
                     {errors.city ? (
                       <span className="text-xs text-signal">{errors.city}</span>
                     ) : null}
@@ -300,13 +428,20 @@ export default function CheckoutPage() {
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                   <label className="flex flex-col gap-1.5">
                     <span className={LABEL_CLASS}>Kecamatan</span>
-                    <input
-                      value={values.district}
-                      onChange={(e) => update("district", e.target.value)}
-                      placeholder="Magelang Utara"
+                    <select
+                      value={values.districtId}
+                      onChange={(e) => handleDistrictChange(e.target.value)}
+                      disabled={!values.cityId}
                       autoComplete="address-level3"
                       className={INPUT_CLASS}
-                    />
+                    >
+                      <option value="">Pilih kecamatan</option>
+                      {districts.map((d) => (
+                        <option key={d.id} value={d.id}>
+                          {d.name}
+                        </option>
+                      ))}
+                    </select>
                     {errors.district ? (
                       <span className="text-xs text-signal">{errors.district}</span>
                     ) : null}
@@ -314,14 +449,23 @@ export default function CheckoutPage() {
 
                   <label className="flex flex-col gap-1.5">
                     <span className={LABEL_CLASS}>Kode pos</span>
-                    <input
-                      value={values.postalCode}
-                      onChange={(e) => update("postalCode", e.target.value)}
-                      placeholder="56111"
-                      inputMode="numeric"
+                    <select
+                      value={values.areaId}
+                      onChange={(e) => handlePostalChange(e.target.value)}
+                      disabled={!values.districtId || isLoadingPostal}
                       autoComplete="postal-code"
                       className={INPUT_CLASS}
-                    />
+                    >
+                      <option value="">{isLoadingPostal ? "Memuat…" : "Pilih kode pos"}</option>
+                      {postalOptions.map((o) => (
+                        <option key={`${o.areaId}-${o.postalCode}`} value={o.areaId}>
+                          {o.postalCode} — {o.label}
+                        </option>
+                      ))}
+                    </select>
+                    {postalError ? (
+                      <span className="text-xs text-signal">{postalError}</span>
+                    ) : null}
                     {errors.postalCode ? (
                       <span className="text-xs text-signal">{errors.postalCode}</span>
                     ) : null}

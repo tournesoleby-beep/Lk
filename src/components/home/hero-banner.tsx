@@ -4,23 +4,17 @@ import { ArrowRight } from "lucide-react";
 
 import { Container } from "@/components/home/container";
 
-// TWO wallpapers, one composition-shape swap, still ONE hero: full-bleed
-// photo as the section background, dark scrim, copy overlaid — nothing
-// stacked, nothing split into two columns, at any width.
+// Full-bleed photo background with a dark scrim and overlaid copy —
+// nothing stacked, nothing split into columns, at any width.
 //
-// Below `lg` this now uses a DIFFERENT source photo (`hero-mobile.png`)
-// shot/composed with the four subjects pushed into the bottom-right
-// corner, leaving a clean blank wall across the top-left — because the
-// original landscape photo's subjects run the full right ~65% of the
-// frame top-to-bottom, there was no way to crop *that* photo down to a
-// tall mobile viewport without either covering the subjects with text or
-// shrinking the text into a sliver. Swapping the source photo instead of
-// fighting the crop:
+// Below `lg` this uses a different source photo (`hero-mobile.png`)
+// composed with the subjects in the bottom-right corner, leaving a
+// blank wall top-left for the copy — the landscape photo's subjects
+// run the full right ~65% of the frame, so it can't be cropped down to
+// a tall mobile viewport without covering them or shrinking the text.
 //   - mobile/tablet (`<lg`): `hero-mobile.png`, subjects bottom-right,
-//     copy pinned to the top-left where the wall is, `items-start`.
-//   - `lg`+: exactly the original `backgroundd.png` + `object-bottom` +
-//     vertically centered copy — untouched, byte-for-byte the same
-//     classes as before this change.
+//     copy pinned top-left, `items-start`.
+//   - `lg`+: `backgroundd.png` + `object-bottom`, vertically centered copy.
 // Both `<Image>`s live in the DOM at once (`hidden`/`lg:hidden` swap,
 // not a conditional) so there's no layout-shift/hydration flash at the
 // `lg` breakpoint.
@@ -29,14 +23,12 @@ export function HeroBanner() {
     // `h-[100dvh]` (dynamic viewport height, not `100svh`/`100vh`) keeps
     // the section exactly one viewport tall at every breakpoint,
     // including on mobile browsers whose chrome shows/hides as you
-    // scroll — no min-height, so nothing can render taller than the
-    // actual viewport and let the page's white background peek through
+    // scroll — no min-height, so the page background can't peek through
     // below the fold.
     // `items-start` (mobile/tablet) vs `lg:items-center` follows the
     // photo swap above: the mobile photo's blank space is a top-left
     // block, not a full-height column, so the copy anchors to the top
-    // instead of the vertical middle. `lg:` reverts to the original
-    // vertically-centered behavior.
+    // instead of the vertical middle.
     // The bottom `after:` fade hands off into <CardsSection>'s
     // background gradient: it starts fully transparent and ends at the
     // same translucent taupe (rgba(177,162,149,0.32)) that gradient
@@ -46,25 +38,14 @@ export function HeroBanner() {
     // the copy or CTAs.
     <section className="relative isolate flex h-[100dvh] w-full items-start overflow-hidden bg-ink after:pointer-events-none after:absolute after:inset-x-0 after:bottom-0 after:z-[5] after:h-28 after:content-[''] sm:after:h-36 lg:items-center lg:after:h-44 after:[background:linear-gradient(to_bottom,rgba(177,162,149,0)_0%,rgba(177,162,149,0.12)_55%,rgba(177,162,149,0.22)_82%,rgba(177,162,149,0.32)_100%)]">
       {/* MOBILE/TABLET background — hidden at `lg`+. Composed with the
-          subjects bottom-right and blank wall top-left, so it's shown at
-          its natural full height on true phone-shaped viewports (cover
-          is width-constrained there, i.e. it crops left/right, not
-          top/bottom — the whole vertical story from wall to subjects
-          stays visible, `y` has no effect). On shorter/wider viewports
-          (short browser windows, tablets in landscape) cover instead
-          becomes height-constrained and crops top/bottom — that's what
-          `object-[38%_top]` is for: anchoring to the TOP so the crop
-          comes off the BOTTOM (the floor/base area below the subjects,
-          which has room to spare) instead of off the top (the blank
-          wall the copy needs). `_bottom` did the opposite — it kept the
-          subjects' feet/base fully in frame at the cost of eating into
-          the blank space above them, which is what was pushing the
-          whole composition down and starving the copy of room.
-          `object-[38%_top]` keeps the four dolls comfortably in frame
-          either way — the crop margin only ever reaches the empty floor
-          below them, well clear of their torsos/heads — while now also
-          preserving the top blank space. `38%` (the x-bias, keeping the
-          dolls in frame on true phones) is unchanged. */}
+          subjects bottom-right and blank wall top-left, shown at full
+          height on true phone-shaped viewports (cover is
+          width-constrained there, so it crops left/right, not
+          top/bottom). On shorter/wider viewports cover becomes
+          height-constrained instead — `object-[38%_top]` anchors to the
+          TOP so any crop comes off the floor area below the subjects
+          rather than the blank wall the copy needs. `38%` is the x-bias
+          that keeps the dolls in frame on true phones. */}
       <Image
         src="/hero/background-mobile.png"
         alt="Diorama warga binaan Lapas Perempuan Kelas IIA Jakarta membuat dan menyiapkan produk batik dan kerajinan tangan"
@@ -74,8 +55,7 @@ export function HeroBanner() {
         sizes="100vw"
         className="pointer-events-none select-none object-cover object-[38%_top] lg:hidden"
       />
-      {/* DESKTOP background — hidden below `lg`. Unchanged from before:
-          same file, same `object-bottom`, no scale/zoom adjustment. */}
+      {/* DESKTOP background — hidden below `lg`. */}
       <Image
         src="/hero/backgroundd.png"
         alt="Diorama warga binaan Lapas Perempuan Kelas IIA Jakarta membuat dan menyiapkan produk batik dan kerajinan tangan"
@@ -99,9 +79,8 @@ export function HeroBanner() {
             "radial-gradient(ellipse 100% 65% at 0% 0%, rgba(10,8,6,0.8) 0%, rgba(10,8,6,0.55) 30%, rgba(10,8,6,0.22) 55%, rgba(10,8,6,0) 75%)",
         }}
       />
-      {/* DESKTOP scrims — hidden below `lg`. Unchanged from before: the
-          same left-to-right band plus the gentle bottom fade for the
-          CTA row. */}
+      {/* DESKTOP scrims — hidden below `lg`. Left-to-right band plus a
+          gentle bottom fade for the CTA row. */}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 hidden lg:block"
@@ -123,25 +102,16 @@ export function HeroBanner() {
           keeps it painting above the bottom fade (`after:z-[5]` on the
           section) so it stays legible no matter how that fade blends
           into the photo behind it.
-          `pt-[4dvh] sm:pt-[6dvh] lg:pt-0` pulls the block up into the
-          top of the blank space (was `9dvh`/`8dvh` — sitting too low)
-          now that the section is `items-start` instead of vertically
-          centered below `lg` — `lg:pt-0` combined with `lg:items-center`
-          above reproduces the original centered placement exactly.
-          Sizing/gap starts smaller on mobile (`text-3xl`, tighter gaps)
-          and steps up through `sm:`/`md:`, arriving at the same
-          `sm:text-6xl md:text-[4.25rem]` etc. values the desktop design
-          already had — so `lg:` and up render identically to before. */}
+          `pt-[4dvh] sm:pt-[6dvh] lg:pt-0` pulls the block into the top
+          of the blank space below `lg` (which is `items-start`);
+          `lg:pt-0` combined with `lg:items-center` centers it on
+          desktop. */}
       <Container className="relative z-10 w-full px-5 pt-[4dvh] sm:px-6 sm:pt-[6dvh] lg:pt-0">
-        {/* `w-[62%] max-w-[220px]` (was `82%`/`300px`) is both the
-            "smaller" and the "pushed toward the left" fix in one: a
-            narrower hard cap on the column below `sm:` keeps every line
-            — including the paragraph, previously the widest element —
-            well clear of the bottom-right subjects instead of stretching
-            toward the middle of the photo. At `sm:` and up this reverts
-            to `w-full sm:max-w-xl`, i.e. exactly the original,
-            unconstrained-by-percentage behavior, so `lg:` renders
-            byte-for-byte as before. */}
+        {/* `w-[62%] max-w-[220px]` is a narrow hard cap below `sm:` that
+            keeps every line clear of the bottom-right subjects instead
+            of stretching toward the middle of the photo. At `sm:` and
+            up this reverts to `w-full sm:max-w-xl`, unconstrained by
+            percentage. */}
         <div className="animate-fade-up flex w-[62%] max-w-[220px] flex-col gap-2 sm:w-full sm:max-w-xl sm:gap-3.5 lg:gap-7">
           <span className="font-mono text-[8px] font-medium uppercase leading-tight tracking-[0.1em] text-signal sm:text-[11px] sm:tracking-[0.2em]">
             Lapas Perempuan Kelas IIA Jakarta

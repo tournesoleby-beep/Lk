@@ -2,7 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { getShippingRates } from "@/lib/shipping/biteship";
-import { getStoreOrigin, resolveDestinationAreaId } from "@/lib/shipping/location";
+import { getStoreOrigin, geocode } from "@/lib/shipping/location";
 import type { CheckoutCartLine } from "@/lib/checkout/actions";
 
 export type CheckoutShippingRate = {
@@ -18,18 +18,39 @@ export type GetCheckoutShippingRatesResult =
   | { success: true; rates: CheckoutShippingRate[] }
   | { success: false; error: string };
 
+export type CheckoutDestination = {
+  /**
+   * Biteship Area ID for the customer's selected postal code — resolved
+   * client-side by the checkout form's cascading dropdowns (see
+   * app/checkout/page.tsx and app/api/shipping/postal-codes/route.ts,
+   * both backed by src/lib/shipping/location.ts::searchAreas). This is
+   * used as-is; it is never re-derived or re-looked-up here.
+   */
+  areaId: string;
+  /**
+   * Optional free-text address (street + district + city + province),
+   * used ONLY to geocode a lat/lng point for pricing instant couriers
+   * (GoSend, GrabExpress) — see src/lib/shipping/location.ts::geocode.
+   * This never affects which area/postal code is priced (areaId above
+   * already fixes that); a missing or failed geocode just means instant
+   * couriers won't be priced for this request, same as before area IDs
+   * were resolved client-side.
+   */
+  geocodeQuery?: string;
+};
+
 /**
- * Fetch live shipping rates for checkout, given whatever free-text
- * destination the checkout form collects (city/district/postal code) and
- * the cart lines (product id + quantity — same shape `placeOrder` takes in
+ * Fetch live shipping rates for checkout, given the Biteship Area ID the
+ * checkout form's cascading Province → City → District → Postal Code
+ * dropdowns already resolved (see `CheckoutDestination` above), and the
+ * cart lines (product id + quantity — same shape `placeOrder` takes in
  * src/lib/checkout/actions.ts).
  *
- * Resolves that destination to a Biteship area ID via
- * src/lib/shipping/location.ts::resolveDestinationAreaId before requesting
- * rates — callers (e.g. the checkout page) never resolve or pass an area ID
- * themselves. Shipping weight is derived from each product's
- * `weightGrams` (re-read from the database, same as `placeOrder` does),
- * never trusted from the client.
+ * Unlike the previous free-text flow, this never calls
+ * src/lib/shipping/location.ts::resolveDestinationAreaId — the area is
+ * already fixed by `destination.areaId`. Shipping weight is derived from
+ * each product's `weightGrams` (re-read from the database, same as
+ * `placeOrder` does), never trusted from the client.
  *
  * The origin is always the store's own pickup location (see
  * getStoreOrigin) — never something a caller can override — and rates are
@@ -37,12 +58,12 @@ export type GetCheckoutShippingRatesResult =
  * getShippingRates itself (src/lib/shipping/biteship.ts).
  */
 export async function getCheckoutShippingRates(
-  destination: string,
+  destination: CheckoutDestination,
   lines: CheckoutCartLine[]
 ): Promise<GetCheckoutShippingRatesResult> {
-  const destinationInput = destination?.trim();
-  if (!destinationInput) {
-    return { success: false, error: "Destination is required to calculate shipping." };
+  const areaId = destination?.areaId?.trim();
+  if (!areaId) {
+    return { success: false, error: "Select a postal code to calculate shipping." };
   }
   if (!Array.isArray(lines) || lines.length === 0) {
     return { success: false, error: "Your bag is empty." };
@@ -53,10 +74,10 @@ export async function getCheckoutShippingRates(
     return { success: false, error: origin.error };
   }
 
-  const area = await resolveDestinationAreaId(destinationInput);
-  if (!area.success) {
-    return { success: false, error: area.error };
-  }
+  // Best-effort only — a failed or skipped geocode still prices JNE
+  // correctly via areaId alone, same fallback guarantee documented on
+  // `geocode` in src/lib/shipping/location.ts.
+  const point = destination.geocodeQuery ? await geocode(destination.geocodeQuery) : null;
 
   const products = await prisma.product.findMany({
     where: { id: { in: lines.map((line) => line.id) } },
@@ -80,16 +101,15 @@ export async function getCheckoutShippingRates(
 
   const result = await getShippingRates({
     origin: origin.origin,
-    // `area.area` already carries latitude/longitude alongside areaId when
-    // geocoding succeeded (see resolveDestinationAreaId in
-    // src/lib/shipping/location.ts) — passing the whole thing through
-    // (rather than just areaId) is what actually lets Biteship price
-    // instant couriers (GoSend, GrabExpress) for this destination; area ID
-    // alone still prices JNE correctly either way.
+    // point is only set when geocodeQuery was provided and resolved — see
+    // the geocode() call above. Passing latitude/longitude through (rather
+    // than just areaId) is what lets Biteship price instant couriers
+    // (GoSend, GrabExpress) for this destination; areaId alone still
+    // prices JNE correctly either way.
     destination: {
-      areaId: area.area.areaId,
-      latitude: area.area.latitude,
-      longitude: area.area.longitude,
+      areaId,
+      latitude: point?.latitude,
+      longitude: point?.longitude,
     },
     shippingWeightGrams,
   });

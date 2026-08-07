@@ -27,9 +27,9 @@ export function ProductCard({
   product: ProductCardData;
   className?: string;
   // Set for the first row of cards in a grid (e.g. the initial /shop
-  // viewport) so those images preload eagerly instead of lazy-loading;
-  // everything else still lazy-loads as before. Defaults to false so
-  // existing callers (homepage, wishlist, category pages) are unaffected.
+  // viewport) so those images preload eagerly instead of lazy-loading.
+  // Defaults to false so existing callers (homepage, wishlist, category
+  // pages) are unaffected.
   priority?: boolean;
 }) {
   const cart = useCart();

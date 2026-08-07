@@ -303,7 +303,7 @@ export function ShopBrowser({
       </div>
 
       {/* ================================================================
-          DESKTOP (lg+) — unchanged from the original layout.
+          DESKTOP (lg+)
           ================================================================ */}
       <div className="hidden gap-3 lg:flex lg:items-center lg:justify-between">
         <div className="relative w-full max-w-sm">
@@ -386,7 +386,7 @@ export function ShopBrowser({
             ))}
           </div>
 
-          {/* Desktop grid — unchanged. */}
+          {/* Desktop grid. */}
           <div className="hidden gap-6 lg:grid lg:grid-cols-4">
             {filtered.map((product, index) => (
               <ProductCard key={product.id} product={product} priority={index < 4} />
