@@ -492,9 +492,25 @@ export function CardsSection() {
                   // minimal one on the side cards — never through
                   // rotation or perspective tricks, keeping it subtle
                   // rather than an exaggerated 3D effect.
+                  // Mobile-only guard: animating `filter: blur()` on a side
+                  // card here shares a compositing pass with the active
+                  // card (both live inside FlipCard's own
+                  // [transform-style:preserve-3d] / [backface-visibility:
+                  // hidden] stack), and mobile WebKit merges that pass —
+                  // leaving the ACTIVE card permanently soft after a swipe,
+                  // even though the active card itself never has a blur
+                  // value. This is the same failure already identified and
+                  // fixed in hero-card-carousel.tsx (see its TRANSITION
+                  // comment). Desktop/tablet are unaffected by this bug and
+                  // keep the original blur() depth cue exactly as before;
+                  // on mobile the blur() function is simply omitted from
+                  // the filter string (scale + opacity + the smaller
+                  // drop-shadow still carry the depth cue there).
                   const filter = isActive
                     ? "drop-shadow(0 18px 36px rgba(23,17,10,0.32))"
-                    : `blur(${cfg.blur}px) drop-shadow(0 8px 18px rgba(23,17,10,0.14))`;
+                    : breakpoint === "mobile"
+                      ? "drop-shadow(0 8px 18px rgba(23,17,10,0.14))"
+                      : `blur(${cfg.blur}px) drop-shadow(0 8px 18px rgba(23,17,10,0.14))`;
 
                   return (
                     <motion.div
@@ -511,15 +527,18 @@ export function CardsSection() {
               </motion.div>
             </div>
 
-            {/* Small, subtle hover-reveal arrows — desktop only, inset as
-                small overlays on the card's own edges (rather than out at
-                the section's edges) now that the stage is compact. Hidden
-                entirely on touch/tablet, where drag/swipe is primary. */}
+            {/* Small, subtle hover-reveal arrows — desktop only. Positioned
+                at left-2/right-2 by default (mobile/tablet; irrelevant
+                since `hidden` applies there), but overridden at `lg` to sit
+                further outward (-left-14/-right-14), clearing the active
+                card's own edge/padding entirely so they never sit over its
+                text. Hidden entirely on touch/tablet, where drag/swipe is
+                primary. */}
             <button
               type="button"
               onClick={goPrev}
               aria-label="Kartu sebelumnya"
-              className="absolute left-2 top-1/2 z-40 hidden -translate-y-1/2 items-center justify-center rounded-full border border-ink/10 bg-paper/70 p-2 text-ink opacity-0 shadow-[0_6px_18px_-6px_rgba(23,17,10,0.25)] backdrop-blur-sm transition-all duration-300 ease-out hover:bg-paper/90 lg:flex lg:group-hover/showcase:opacity-100"
+              className="absolute left-2 top-1/2 z-40 hidden -translate-y-1/2 items-center justify-center rounded-full border border-ink/10 bg-paper/70 p-2 text-ink opacity-0 shadow-[0_6px_18px_-6px_rgba(23,17,10,0.25)] backdrop-blur-sm transition-all duration-300 ease-out hover:bg-paper/90 lg:-left-14 lg:flex lg:group-hover/showcase:opacity-100"
             >
               <ChevronLeft className="h-3 w-3" strokeWidth={2} />
             </button>
@@ -527,7 +546,7 @@ export function CardsSection() {
               type="button"
               onClick={goNext}
               aria-label="Kartu berikutnya"
-              className="absolute right-2 top-1/2 z-40 hidden -translate-y-1/2 items-center justify-center rounded-full border border-ink/10 bg-paper/70 p-2 text-ink opacity-0 shadow-[0_6px_18px_-6px_rgba(23,17,10,0.25)] backdrop-blur-sm transition-all duration-300 ease-out hover:bg-paper/90 lg:flex lg:group-hover/showcase:opacity-100"
+              className="absolute right-2 top-1/2 z-40 hidden -translate-y-1/2 items-center justify-center rounded-full border border-ink/10 bg-paper/70 p-2 text-ink opacity-0 shadow-[0_6px_18px_-6px_rgba(23,17,10,0.25)] backdrop-blur-sm transition-all duration-300 ease-out hover:bg-paper/90 lg:-right-14 lg:flex lg:group-hover/showcase:opacity-100"
             >
               <ChevronRight className="h-3 w-3" strokeWidth={2} />
             </button>
