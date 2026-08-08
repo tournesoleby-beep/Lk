@@ -45,11 +45,13 @@ const DETAILS = [
     icon: Clock,
     label: "Waktu respons",
     value: "Kami biasanya membalas dalam 1–2 hari kerja.",
+    href: undefined,
   },
   {
     icon: MapPin,
     label: "Lokasi",
     value: "Lapas Kelas II A Jakarta",
+    href: undefined,
   },
 ] as const;
 
