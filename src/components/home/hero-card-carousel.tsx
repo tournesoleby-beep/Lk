@@ -638,17 +638,28 @@ export function HeroCardCarousel() {
                   transition: FLIP_TRANSITION,
                 }}
               >
-                {/* Front face */}
+                {/* Front face. Clipping is done with `clip-path` rather
+                    than `overflow-hidden` + `rounded-[32px]` — on iPadOS
+                    Safari specifically, an `overflow: hidden` rounded clip
+                    living inside an ancestor that's being actively
+                    transformed (this card's outer wrapper gets raw,
+                    untransitioned translateX/scale on every pointermove
+                    while dragging) gets rasterized as a bitmap mask and
+                    scaled along with the transform instead of staying
+                    vector-sharp, so it reads as blurry mid-swipe and only
+                    re-sharpens once the drag settles. `clip-path` clips
+                    via the compositor instead of a rasterized mask, so it
+                    doesn't hit that bug. */}
                 <div
-                  className={`absolute inset-0 overflow-hidden rounded-[32px] ring-1 ring-inset [backface-visibility:hidden] ${slide.shadow ?? CARD_SURFACE_SHADOW} ${slide.ring}`}
-                  style={{ background: slide.gradient }}
+                  className={`absolute inset-0 rounded-[32px] ring-1 ring-inset [backface-visibility:hidden] ${slide.shadow ?? CARD_SURFACE_SHADOW} ${slide.ring}`}
+                  style={{ background: slide.gradient, clipPath: "inset(0 round 32px)" }}
                 >
                   {slide.front}
                 </div>
-                {/* Back face */}
+                {/* Back face — same clip-path fix as the front face above. */}
                 <div
-                  className={`absolute inset-0 overflow-hidden rounded-[32px] ring-1 ring-inset [backface-visibility:hidden] [transform:rotateY(180deg)] ${slide.shadow ?? CARD_SURFACE_SHADOW} ${slide.ring}`}
-                  style={{ background: slide.gradient }}
+                  className={`absolute inset-0 rounded-[32px] ring-1 ring-inset [backface-visibility:hidden] [transform:rotateY(180deg)] ${slide.shadow ?? CARD_SURFACE_SHADOW} ${slide.ring}`}
+                  style={{ background: slide.gradient, clipPath: "inset(0 round 32px)" }}
                 >
                   {slide.back}
                 </div>
