@@ -140,19 +140,27 @@ const SLIDES: Slide[] = [
             a warm glow bleeding in from the top-right corner... */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute -right-[90px] -top-20 z-0 h-[420px] w-[420px] rounded-full blur-[36px]"
+          className="pointer-events-none absolute -right-[90px] -top-20 z-0 h-[420px] w-[420px] rounded-full"
           style={{
+            // No `filter: blur()` here — see the TRANSITION comment below
+            // for why. This glow used to be a small solid-ish circle
+            // softened with `blur-[36px]`; the softness now comes from
+            // extra gradient stops instead, so there's nothing left for
+            // iOS to smear onto the active card during a swipe.
             background:
-              "radial-gradient(circle, rgba(214,187,145,0.22) 0%, rgba(214,187,145,0.08) 45%, transparent 72%)",
+              "radial-gradient(circle, rgba(214,187,145,0.20) 0%, rgba(214,187,145,0.13) 24%, rgba(214,187,145,0.07) 46%, rgba(214,187,145,0.02) 64%, transparent 78%)",
           }}
         />
         {/* ...and a softer white ambient glow lifting the bottom-left
             corner, so the card reads as gallery-lit rather than flat. */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute -bottom-[120px] -left-[120px] z-0 h-[340px] w-[340px] rounded-full blur-[50px]"
+          className="pointer-events-none absolute -bottom-[120px] -left-[120px] z-0 h-[340px] w-[340px] rounded-full"
           style={{
-            background: "radial-gradient(circle, rgba(255,255,255,0.45) 0%, transparent 72%)",
+            // Same fix as the glow above — gradient stops instead of
+            // `blur-[50px]`.
+            background:
+              "radial-gradient(circle, rgba(255,255,255,0.42) 0%, rgba(255,255,255,0.24) 26%, rgba(255,255,255,0.10) 50%, rgba(255,255,255,0.03) 68%, transparent 78%)",
           }}
         />
         <div className="relative z-10 h-full w-full">
@@ -174,10 +182,12 @@ const SLIDES: Slide[] = [
                     rectangle floating on top of it. */}
                 <div
                   aria-hidden="true"
-                  className="pointer-events-none absolute -inset-7 z-0 blur-xl"
+                  className="pointer-events-none absolute -inset-9 z-0"
                   style={{
+                    // Same fix as the card-level glows above — gradient
+                    // stops instead of `blur-xl`.
                     background:
-                      "radial-gradient(ellipse, rgba(214,187,145,0.26) 0%, rgba(214,187,145,0.10) 45%, transparent 78%)",
+                      "radial-gradient(ellipse, rgba(214,187,145,0.22) 0%, rgba(214,187,145,0.15) 22%, rgba(214,187,145,0.08) 46%, rgba(214,187,145,0.02) 66%, transparent 80%)",
                   }}
                 />
                 <Image
@@ -213,9 +223,10 @@ const SLIDES: Slide[] = [
                 aria-hidden="true"
                 className="pointer-events-none relative -mt-3 h-7 w-[70%]"
                 style={{
+                  // Same fix as the glows above — gradient stops instead
+                  // of `filter: blur(7px)`.
                   background:
-                    "radial-gradient(ellipse at center, rgba(0,0,0,0.10) 0%, rgba(0,0,0,0.05) 35%, transparent 70%)",
-                  filter: "blur(7px)",
+                    "radial-gradient(ellipse at center, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.05) 30%, rgba(0,0,0,0.025) 50%, transparent 72%)",
                 }}
               />
             </div>
@@ -229,17 +240,25 @@ const SLIDES: Slide[] = [
             background reads consistently through the flip. */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute -right-[90px] -top-20 z-0 h-[420px] w-[420px] rounded-full blur-[36px]"
+          className="pointer-events-none absolute -right-[90px] -top-20 z-0 h-[420px] w-[420px] rounded-full"
           style={{
+            // No `filter: blur()` here — see the TRANSITION comment below
+            // for why. This glow used to be a small solid-ish circle
+            // softened with `blur-[36px]`; the softness now comes from
+            // extra gradient stops instead, so there's nothing left for
+            // iOS to smear onto the active card during a swipe.
             background:
-              "radial-gradient(circle, rgba(214,187,145,0.22) 0%, rgba(214,187,145,0.08) 45%, transparent 72%)",
+              "radial-gradient(circle, rgba(214,187,145,0.20) 0%, rgba(214,187,145,0.13) 24%, rgba(214,187,145,0.07) 46%, rgba(214,187,145,0.02) 64%, transparent 78%)",
           }}
         />
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute -bottom-[120px] -left-[120px] z-0 h-[340px] w-[340px] rounded-full blur-[50px]"
+          className="pointer-events-none absolute -bottom-[120px] -left-[120px] z-0 h-[340px] w-[340px] rounded-full"
           style={{
-            background: "radial-gradient(circle, rgba(255,255,255,0.45) 0%, transparent 72%)",
+            // Same fix as the glow above — gradient stops instead of
+            // `blur-[50px]`.
+            background:
+              "radial-gradient(circle, rgba(255,255,255,0.42) 0%, rgba(255,255,255,0.24) 26%, rgba(255,255,255,0.10) 50%, rgba(255,255,255,0.03) 68%, transparent 78%)",
           }}
         />
         <div className="relative z-10 h-full w-full">
@@ -313,9 +332,12 @@ const SLIDES: Slide[] = [
             surface doesn't need. */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute -left-16 -top-24 z-0 h-[320px] w-[320px] rounded-full blur-[60px]"
+          className="pointer-events-none absolute -left-16 -top-24 z-0 h-[320px] w-[320px] rounded-full"
           style={{
-            background: "radial-gradient(circle, rgba(214,187,145,0.16) 0%, transparent 70%)",
+            // Same fix as the other card glows — gradient stops instead
+            // of `blur-[60px]`.
+            background:
+              "radial-gradient(circle, rgba(214,187,145,0.14) 0%, rgba(214,187,145,0.09) 28%, rgba(214,187,145,0.04) 52%, transparent 74%)",
           }}
         />
         <div className="relative z-10 h-full w-full">
@@ -423,7 +445,16 @@ const DURATION_MS = 640;
 // active and resting cards is carried by scale + opacity alone (see
 // `scale` in the render loop below), which is enough for the
 // "cross-fade" feel without touching a compositing property iOS
-// mishandles.
+// mishandles. The same reasoning applies to every card face's own
+// decorative ambient-glow elements above (front/back of each slide) —
+// those used to lean on `filter: blur()`/`blur-[Npx]` too, and since
+// every slide is mounted at all times (only opacity/pointer-events
+// toggle), their blur sat inside this same preserve-3d/
+// backface-visibility:hidden stack alongside the actively-dragging
+// card. On iPadOS Safari specifically, recompositing that stack on
+// every drag frame bled those blurs onto the active card's text. They
+// were rewritten as multi-stop radial-gradients with no `filter` at
+// all — same soft look, nothing left for iOS to smear.
 const TRANSITION = `transform ${DURATION_MS}ms ${EASE}, opacity ${DURATION_MS}ms ${EASE}`;
 const FLIP_TRANSITION = `transform 620ms ${EASE}`;
 
