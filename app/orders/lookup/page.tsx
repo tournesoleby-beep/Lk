@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Search, Download } from "lucide-react";
 
-import { getOrderForTracking, PAID_EQUIVALENT_STATUSES } from "@/lib/checkout/orders";
+import { getOrderForTracking, getOrdersForPhoneTracking, PAID_EQUIVALENT_STATUSES } from "@/lib/checkout/orders";
 import { formatCurrency, formatDate, cn } from "@/lib/utils";
 import { Container } from "@/components/home/container";
 import { SectionHeading } from "@/components/home/section-heading";
@@ -29,8 +29,33 @@ export default async function OrderLookupPage({
 }) {
   const { order: orderNumber } = await searchParams;
   const trimmed = orderNumber?.trim();
-  const order = trimmed ? await getOrderForTracking(trimmed) : null;
-  const notFound = Boolean(trimmed) && !order;
+  // Order numbers are always "ORD-..." (see generateOrderNumber) — that
+  // prefix is checked explicitly rather than inferred, so this can't
+  // misclassify an order number even if its random suffix happens to be
+  // all digits. Anything not in that shape is treated as a phone number
+  // only if it actually looks like one (digits, optionally with "+",
+  // spaces, or dashes); any other input falls through to the existing
+  // order-number lookup, same as before this feature existed.
+  const isOrderNumberInput = trimmed ? trimmed.toUpperCase().startsWith("ORD-") : false;
+  const isPhoneInput = trimmed
+    ? !isOrderNumberInput && /^\+?[0-9][0-9\s-]*$/.test(trimmed)
+    : false;
+
+  let order: Awaited<ReturnType<typeof getOrderForTracking>> = null;
+  let phoneMatches: Awaited<ReturnType<typeof getOrdersForPhoneTracking>> | null = null;
+
+  if (trimmed && isPhoneInput) {
+    const matches = await getOrdersForPhoneTracking(trimmed);
+    if (matches.length === 1) {
+      order = await getOrderForTracking(matches[0].orderNumber);
+    } else if (matches.length > 1) {
+      phoneMatches = matches;
+    }
+  } else if (trimmed) {
+    order = await getOrderForTracking(trimmed);
+  }
+
+  const notFound = Boolean(trimmed) && !order && !phoneMatches;
   const reviewItems = order?.items ?? [];
   const showReviewSection = order?.status === "DELIVERED" && reviewItems.length > 0;
 
@@ -60,7 +85,7 @@ export default async function OrderLookupPage({
                   type="text"
                   name="order"
                   defaultValue={trimmed ?? ""}
-                  placeholder="cth. ORD-1A2B3C4D"
+                  placeholder="Masukkan nomor pesanan atau nomor HP"
                   className="w-full rounded-full border border-line bg-cloud/60 py-2.5 pl-10 pr-4 text-base text-ink outline-none transition-all duration-200 placeholder:text-slate focus:border-signal/50 focus:bg-paper focus:ring-4 focus:ring-signal/10 sm:text-sm"
                 />
               </div>
@@ -213,8 +238,28 @@ export default async function OrderLookupPage({
                   </div>
                 ) : null}
               </div>
+            ) : phoneMatches ? (
+              <div className="flex w-full max-w-xl flex-col gap-3 rounded-2xl border border-line p-6 shadow-xs sm:p-8">
+                <h2 className="font-serif text-base font-semibold text-ink">
+                  Pilih Pesanan
+                </h2>
+                <div className="flex flex-col divide-y divide-line">
+                  {phoneMatches.map((match) => (
+                    <Link
+                      key={match.orderNumber}
+                      href={`/orders/lookup?order=${encodeURIComponent(match.orderNumber)}`}
+                      className="flex items-center justify-between gap-4 py-4 text-sm transition-colors duration-200 hover:text-signal"
+                    >
+                      <span className="font-mono font-medium text-ink">
+                        {match.orderNumber}
+                      </span>
+                      <OrderStatusBadge status={match.status} />
+                    </Link>
+                  ))}
+                </div>
+              </div>
             ) : notFound ? (
-              <EmptyState message="Kami tidak dapat menemukan pesanan dengan nomor tersebut. Periksa kembali nomor pesanan dari email konfirmasi Anda, lalu coba lagi." />
+              <EmptyState message="Pesanan tidak ditemukan. Periksa kembali nomor pesanan atau nomor HP yang Anda masukkan." />
             ) : null}
 
             <RecentOrders />

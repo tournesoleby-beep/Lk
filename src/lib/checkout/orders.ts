@@ -214,6 +214,60 @@ export type TrackingOrder = {
 };
 
 /**
+ * Expand a customer-entered phone number into the Indonesian formats it
+ * might be stored as on Address.phone — `0812...`, `62812...`, and
+ * `+62812...` — by normalizing to the bare national number (no leading 0
+ * or country code) and rebuilding each variant. Returns [] for input with
+ * no digits at all, so callers can treat that as "no match" without a
+ * wasted query.
+ */
+function phoneNumberVariants(input: string): string[] {
+  const digits = input.replace(/\D/g, "");
+  const core = digits.startsWith("62")
+    ? digits.slice(2)
+    : digits.startsWith("0")
+      ? digits.slice(1)
+      : digits;
+
+  if (!core) return [];
+
+  return [`0${core}`, `62${core}`, `+62${core}`];
+}
+
+export type PhoneTrackingOrderSummary = {
+  orderNumber: string;
+  status: OrderStatus;
+};
+
+/**
+ * Look up orders by shipping phone number for the /orders/lookup page's
+ * phone-search path. A phone number can belong to several orders, so this
+ * only returns order number + status for each match — no address, totals,
+ * or other detail — since matching a phone number isn't proof of identity
+ * the way an exact order number is. The customer picks the specific order
+ * from that list to see its full tracking detail via getOrderForTracking
+ * (same public, unauth'd-by-orderNumber lookup model used there).
+ */
+export async function getOrdersForPhoneTracking(
+  phone: string
+): Promise<PhoneTrackingOrderSummary[]> {
+  const variants = phoneNumberVariants(phone);
+  if (variants.length === 0) return [];
+
+  try {
+    return await prisma.order.findMany({
+      where: { shippingAddress: { phone: { in: variants } } },
+      select: { orderNumber: true, status: true },
+      orderBy: { createdAt: "desc" },
+      take: 20,
+    });
+  } catch (error) {
+    console.error("[checkout] failed to load orders for phone tracking:", error);
+    return [];
+  }
+}
+
+/**
  * Look up everything the /orders/lookup tracking page needs — order +
  * timeline status, shipping address, line items (with variant/first product
  * image), payment totals, and carrier/tracking info. Same public,
