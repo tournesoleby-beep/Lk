@@ -22,26 +22,13 @@ export default function ShippingReturnsPage() {
               description="Apa yang bisa Anda harapkan setelah membuat pesanan."
             />
 
-            <div className="grid grid-cols-1 gap-8 sm:grid-cols-2">
-              <div className="flex flex-col gap-3 rounded-2xl border border-line p-6">
-                <span className={LABEL_CLASS}>Pengiriman</span>
-                <p className="text-sm leading-relaxed text-slate">
-                  Gratis ongkir untuk pesanan di atas Rp2.350.000. Pesanan
-                  disiapkan setelah pembayaran diverifikasi, dan kami akan
-                  mengirimkan email pembaruan saat pesanan Anda diproses dan
-                  dikirim.
-                </p>
-              </div>
-
-              <div className="flex flex-col gap-3 rounded-2xl border border-line p-6">
-                <span className={LABEL_CLASS}>Pengembalian</span>
-                <p className="text-sm leading-relaxed text-slate">
-                  Kami menyediakan retur mudah dalam 60 hari setelah barang
-                  diterima. Produk harus belum dipakai, belum dicuci, dan
-                  dalam kondisi aslinya. Hubungi kami melalui halaman kontak
-                  dengan menyertakan nomor pesanan Anda untuk memulai retur.
-                </p>
-              </div>
+            <div className="flex flex-col gap-3 rounded-2xl border border-line p-6">
+              <span className={LABEL_CLASS}>Pengiriman</span>
+              <p className="text-sm leading-relaxed text-slate">
+                Pesanan disiapkan setelah pembayaran diverifikasi, dan kami
+                akan mengirimkan pesan WhatsApp dan Email saat pesanan Anda
+                diproses dan dikirim.
+              </p>
             </div>
 
             <div className="flex flex-col gap-3 rounded-2xl bg-cloud/40 p-6">

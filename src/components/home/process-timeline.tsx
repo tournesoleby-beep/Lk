@@ -31,7 +31,7 @@ const steps = [
     icon: Hammer,
     title: "Produksi",
     description:
-      "Setiap karya dikerjakan dengan tangan, memadukan ketelitian dan kesabaran di setiap tahapnya.",
+      "Setiap karya dikerjakan langsung oleh tangan-tangan terampil warga binaan yang memadukan ketelitian dan kesabaran di setiap tahapnya.",
   },
   {
     icon: ShieldCheck,

@@ -56,8 +56,8 @@ export async function CategoriesSection() {
         <Reveal variant="fade-up" duration={DURATION} easing={EASING}>
           <SectionHeading
             eyebrow="Koleksi kami"
-            title="Belanja per Kategori"
-            description="Fashion dan makanan — setiap produk dibuat tangan oleh perempuan yang mengembangkan keterampilan baru melalui program pelatihan vokasi kami."
+            title="Kategori"
+            description="Fashion dan Makanan."
             compact
           />
         </Reveal>

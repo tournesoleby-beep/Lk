@@ -29,11 +29,6 @@ const FAQS = [
       "Gunakan tautan \"Lacak Pesanan\" di menu atau footer, lalu masukkan nomor pesanan Anda. Nomor ini bisa ditemukan di email konfirmasi atau di halaman pembayaran yang muncul setelah checkout.",
   },
   {
-    question: "Bagaimana kebijakan pengembalian barang?",
-    answer:
-      "Kami menyediakan retur mudah dalam 60 hari setelah barang diterima. Lihat halaman Pengiriman & Pengembalian kami untuk detail lengkapnya.",
-  },
-  {
     question: "Bagaimana cara menghubungi Anda?",
     answer:
       "Kirim pesan melalui halaman Hubungi Kami dan kami akan membalas secepat mungkin.",

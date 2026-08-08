@@ -58,7 +58,7 @@ export function Footer() {
               </span>
             </div>
             <p className="max-w-[220px] text-sm leading-relaxed text-slate">
-              Dibuat dengan tangan penuh makna, dibangun dari pelatihan vokasi.
+              Lapas Perempuan Kelas II A Jakarta
             </p>
             <div className="flex items-center gap-3 pt-1 sm:pt-2">
               {socialLinks.map(({ label, href, icon: Icon }) => (
