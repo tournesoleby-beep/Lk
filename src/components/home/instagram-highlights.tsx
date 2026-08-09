@@ -34,13 +34,13 @@ const SECTION_BACKGROUND =
  * stored locally under /public/instagram/.
  */
 const INSTAGRAM_POSTS = [
-  { url: "https://www.instagram.com/reel/DbkIGVBKSuE/?igsh=MThrb3VmMGt3OWdodA==", thumb: "/instagram/post-1.jpg" },
-  { url: "https://www.instagram.com/p/DbSVZuzEbre/?igsh=MXJnZTVteW5iNnlzZA==", thumb: "/instagram/post-2.jpg" },
-  { url: "https://www.instagram.com/p/DbFIeBRk-vc/?igsh=MXpiMm4wMGZjY2Fq", thumb: "/instagram/post-3.jpg" },
-  { url: "https://www.instagram.com/reel/Da7r0_jT1Eu/?igsh=N294MXd2Njg2ajBn", thumb: "/instagram/post-4.jpg" },
-  { url: "https://www.instagram.com/reel/DTjbEM-k4uZ/?igsh=MTBvazFyaHBjcGx5bw==", thumb: "/instagram/post-5.jpg" },
-  { url: "https://www.instagram.com/reel/DajmDk9zOAj/?igsh=amtoN2ZzY3k0cHVj", thumb: "/instagram/post-6.jpg" },
-  { url: "https://www.instagram.com/p/DF1KYCmzFUf/?igsh=bWtwbjNlMW56ZTUw", thumb: "/instagram/post-7.jpg" },
+  { url: "https://www.instagram.com/reel/DbkIGVBKSuE/", thumb: "/instagram/post-1.jpg" },
+  { url: "https://www.instagram.com/p/DbSVZuzEbre/", thumb: "/instagram/post-2.jpg" },
+  { url: "https://www.instagram.com/p/DbFIeBRk-vc/", thumb: "/instagram/post-3.jpg" },
+  { url: "https://www.instagram.com/reel/Da7r0_jT1Eu/", thumb: "/instagram/post-4.jpg" },
+  { url: "https://www.instagram.com/reel/DTjbEM-k4uZ/", thumb: "/instagram/post-5.jpg" },
+  { url: "https://www.instagram.com/reel/DajmDk9zOAj/", thumb: "/instagram/post-6.jpg" },
+  { url: "https://www.instagram.com/p/DF1KYCmzFUf/", thumb: "/instagram/post-7.jpg" },
 ] as const;
 
 export function InstagramHighlights() {
