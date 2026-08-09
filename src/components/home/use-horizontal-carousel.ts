@@ -12,6 +12,13 @@ import {
 
 const EDGE_EPSILON = 4;
 const PAGE_FRACTION = 0.9;
+// Pointer must move at least this many px before a pointerdown is treated
+// as a drag (and captures the pointer). Below this, it's left alone as a
+// plain click/tap so it can reach a link or button under the cursor —
+// setPointerCapture() retargets the eventual click event to the scroller
+// itself, which silently breaks navigation on every tile if it fires
+// unconditionally on pointerdown.
+const DRAG_THRESHOLD = 5;
 
 /**
  * Drives a single horizontally-scrolling row (New Arrivals, Instagram
@@ -27,7 +34,17 @@ const PAGE_FRACTION = 0.9;
  */
 export function useHorizontalCarousel() {
   const scrollerRef = useRef<HTMLDivElement>(null);
-  const dragState = useRef({ active: false, startX: 0, startScroll: 0 });
+  const dragState = useRef({
+    // Pointer is currently down (button held), regardless of whether it
+    // has moved enough to count as a drag yet.
+    down: false,
+    // True once movement has passed DRAG_THRESHOLD and the pointer has
+    // been captured — from here on this gesture is a drag, not a click.
+    dragging: false,
+    pointerId: -1,
+    startX: 0,
+    startScroll: 0,
+  });
 
   const [atStart, setAtStart] = useState(true);
   const [atEnd, setAtEnd] = useState(true);
@@ -65,22 +82,48 @@ export function useHorizontalCarousel() {
     if (event.pointerType === "touch") return;
     const el = scrollerRef.current;
     if (!el) return;
-    dragState.current = { active: true, startX: event.clientX, startScroll: el.scrollLeft };
-    el.setPointerCapture(event.pointerId);
+    // Deliberately no setPointerCapture here — see DRAG_THRESHOLD comment.
+    dragState.current = {
+      down: true,
+      dragging: false,
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startScroll: el.scrollLeft,
+    };
   }
 
   function onPointerMove(event: ReactPointerEvent<HTMLDivElement>) {
     const el = scrollerRef.current;
-    if (!el || !dragState.current.active) return;
-    el.scrollLeft = dragState.current.startScroll - (event.clientX - dragState.current.startX);
+    const state = dragState.current;
+    if (!el || !state.down) return;
+
+    const delta = event.clientX - state.startX;
+
+    if (!state.dragging) {
+      if (Math.abs(delta) < DRAG_THRESHOLD) return;
+      // Movement just crossed the threshold — this gesture is now a real
+      // drag. Capture from here on so the rest of the drag tracks even if
+      // the pointer leaves the element.
+      state.dragging = true;
+      el.setPointerCapture(state.pointerId);
+    }
+
+    el.scrollLeft = state.startScroll - delta;
   }
 
   function endDrag(event: ReactPointerEvent<HTMLDivElement>) {
     const el = scrollerRef.current;
-    dragState.current.active = false;
-    if (el?.hasPointerCapture(event.pointerId)) {
+    const state = dragState.current;
+    if (state.dragging && el?.hasPointerCapture(event.pointerId)) {
       el.releasePointerCapture(event.pointerId);
     }
+    dragState.current = {
+      down: false,
+      dragging: false,
+      pointerId: -1,
+      startX: 0,
+      startScroll: 0,
+    };
   }
 
   // Shift+wheel and trackpad horizontal scroll already work natively on an

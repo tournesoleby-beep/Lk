@@ -6,6 +6,7 @@ import type { OrderStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/utils";
 import { uploadImageToCloudinary, type UploadImageResult } from "@/lib/cloudinary";
+import { classifyFashionSubcategorySlug } from "@/lib/admin/fashion-subcategory-classifier";
 import type { MockProduct } from "@/lib/mock/products";
 import type { ProductFormValues } from "@/components/admin/product-form-modal";
 import {
@@ -142,9 +143,20 @@ function normalizeWeightGrams(value: number | undefined | null): number {
 // stray re-seed or manual insert can't quietly reopen this path.
 const BLOCKED_CATEGORY_SLUGS = new Set(["produksi", "production"]);
 
+// The admin form's category dropdown only ever offers top-level
+// categories ("Fashion", "Food") — it has no subcategory picker. When the
+// chosen category is Fashion, the product's slug is run through the same
+// classification rules the one-off migration script uses (see
+// fashion-subcategory-classifier.ts), so e.g. a new "Tas Rajut Ungu"
+// product lands directly under Tas Rajut instead of sitting under Fashion
+// until someone remembers to re-run that script.
+const FASHION_SLUG = "fashion";
+
 /**
  * Resolve `values.category` (a category name/label from the admin form,
- * e.g. "Fashion") to an existing `Category` row by slug.
+ * e.g. "Fashion") to an existing `Category` row by slug, additionally
+ * routing Fashion products into a subcategory when `productSlug` matches
+ * one of the known classification patterns.
  *
  * This intentionally does NOT create categories. Previously both
  * createProduct and updateProduct called `prisma.category.upsert(...)`
@@ -155,9 +167,16 @@ const BLOCKED_CATEGORY_SLUGS = new Set(["produksi", "production"]);
  * filed under a category that already exists, and a blocked or unknown
  * category slug fails the save with a clear error instead of creating
  * anything.
+ *
+ * Subcategory auto-routing is best-effort and never blocks the save: if
+ * the product's slug doesn't match a known pattern, or the matched
+ * subcategory doesn't exist in the DB for some reason, the product is
+ * simply filed under Fashion itself — the same behavior as before this
+ * was added.
  */
 async function resolveCategoryId(
-  categoryInput: string
+  categoryInput: string,
+  productSlug: string
 ): Promise<{ id: string } | { id: null; error: string }> {
   const categorySlug = slugify(categoryInput);
 
@@ -166,6 +185,22 @@ async function resolveCategoryId(
       id: null,
       error: "This category is no longer available. Please choose a different category.",
     };
+  }
+
+  if (categorySlug === FASHION_SLUG) {
+    const subcategorySlug = classifyFashionSubcategorySlug(productSlug);
+    if (subcategorySlug) {
+      const subcategory = await prisma.category.findUnique({
+        where: { slug: subcategorySlug },
+        select: { id: true },
+      });
+      if (subcategory) {
+        return subcategory;
+      }
+      console.warn(
+        `[admin products] classified '${productSlug}' as '${subcategorySlug}' but that category doesn't exist — filing under Fashion instead.`
+      );
+    }
   }
 
   const category = await prisma.category.findUnique({
@@ -196,9 +231,13 @@ async function resolveCategoryId(
  *
  * The product's category (a plain string on the form, e.g. "Fashion") is
  * resolved to an existing `Category` row by slug (see resolveCategoryId
- * above). It is never created here — a category must already exist (and
- * not be on the blocklist) for the product to save, so arbitrary or
- * retired category text can't silently create/recreate a Category row.
+ * above). When that resolves to Fashion, the product's slug is also
+ * checked against the shared subcategory classifier, so a recognizable
+ * product (e.g. slug containing "tas-rajut") is filed directly under its
+ * subcategory instead of sitting under Fashion. The category is never
+ * created here — it must already exist (and not be on the blocklist) for
+ * the product to save, so arbitrary or retired category text can't
+ * silently create/recreate a Category row.
  */
 export async function createProduct(
   values: ProductFormValues
@@ -206,7 +245,7 @@ export async function createProduct(
   try {
     const slug = values.slug || slugify(values.name);
 
-    const category = await resolveCategoryId(values.category);
+    const category = await resolveCategoryId(values.category, slug);
     if (category.id === null) {
       return { success: false, error: category.error };
     }
@@ -288,8 +327,11 @@ export async function createProduct(
  * Reuses the same field-mapping and category-resolution logic as
  * `createProduct` (see resolveCategoryId) — a product can only be moved to
  * a category that already exists and isn't blocked; it never creates one.
- * Images are replaced wholesale on every save — the form always starts
- * from the product's current images (see `ProductFormModal`), so
+ * A product edited back to "Fashion" is re-classified against its current
+ * slug the same way a new product would be, so moving a product back to
+ * Fashion doesn't strand it there if its slug matches a known subcategory
+ * pattern. Images are replaced wholesale on every save — the form always
+ * starts from the product's current images (see `ProductFormModal`), so
  * `values.images` already reflects any adds, removes, or reordering the
  * admin made before submitting.
  */
@@ -300,7 +342,7 @@ export async function updateProduct(
   try {
     const slug = values.slug || slugify(values.name);
 
-    const category = await resolveCategoryId(values.category);
+    const category = await resolveCategoryId(values.category, slug);
     if (category.id === null) {
       return { success: false, error: category.error };
     }

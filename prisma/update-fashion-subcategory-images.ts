@@ -5,8 +5,8 @@ import { prisma } from "@/lib/prisma";
 // schema, product data, or any other Category field.
 //
 // Idempotent: setting the same imageUrl again is a no-op in effect; safe
-// to run multiple times. Only the 5 slugs listed below are touched —
-// `batik` and `tas-kulit` are intentionally left alone (no image yet).
+// to run multiple times. Only the 6 slugs listed below are touched —
+// `tas-kulit` is intentionally left alone (no image yet).
 //
 // Run with: npx tsx prisma/update-fashion-subcategory-images.ts
 
@@ -21,6 +21,8 @@ const IMAGE_UPDATES: Record<string, string> = {
     "https://res.cloudinary.com/vkuafeej/image/upload/v1785997610/lapiita-karya/products/kweyn50gsddekmvtcsyn.jpg",
   pouch:
     "https://res.cloudinary.com/vkuafeej/image/upload/v1785994308/lapiita-karya/products/qmp5mff5ndmq95efirg5.jpg",
+  batik:
+    "https://res.cloudinary.com/vkuafeej/image/upload/v1786264028/lapiita-karya/products/pvnsydtnhlntydabjgoi.jpg",
 };
 
 async function main() {
@@ -60,7 +62,7 @@ async function main() {
   if (missing.length === 0) console.log("  none");
 
   console.log(
-    "\nUntouched by design: 'batik', 'tas-kulit' (no new image provided yet)."
+    "\nUntouched by design: 'tas-kulit' (no new image provided yet)."
   );
   console.log("\nDone.");
 }
