@@ -20,6 +20,21 @@ export default {
     // for the hidden admin dashboard.
     signIn: "/admin/login",
   },
+  // Admin dashboard only — no customer accounts, so there's no reason to
+  // trade convenience for a long-lived session here. 1 hour, absolute:
+  // the session becomes invalid 1 hour after login regardless of activity
+  // (no rolling/sliding renewal), so a device left logged in overnight or
+  // shared afterward can't be used to reach /admin without signing in
+  // again. jwt.maxAge mirrors session.maxAge explicitly rather than
+  // relying on it inheriting that value by default, so this stays correct
+  // even if `session` is ever restructured later.
+  session: {
+    strategy: "jwt",
+    maxAge: 60 * 60, // 1 hour, in seconds
+  },
+  jwt: {
+    maxAge: 60 * 60, // 1 hour, in seconds — kept equal to session.maxAge above
+  },
   providers: [
     // Listed here (without `authorize`) so middleware and the client know
     // this provider exists. The real `authorize()` lives in src/auth.ts.
