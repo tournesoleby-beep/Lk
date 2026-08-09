@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpRight, Camera } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 
 import { Container } from "@/components/home/container";
 import { Parallax } from "@/components/home/parallax";
@@ -10,7 +10,6 @@ import { Reveal } from "@/components/home/reveal";
 import { SectionHeading } from "@/components/home/section-heading";
 import { CarouselArrowButton } from "@/components/home/carousel-arrow-button";
 import { useHorizontalCarousel } from "@/components/home/use-horizontal-carousel";
-import { getPlaceholderGradient } from "@/lib/utils";
 
 // This section's own motion signature: a snappier, shorter ease-out —
 // distinct from the other three sections.
@@ -20,7 +19,6 @@ const STAGGER = 60;
 
 const INSTAGRAM_HANDLE = "@lapiitakarya";
 const INSTAGRAM_URL = "https://www.instagram.com/lapiitakarya";
-const VISIBLE_COUNT = 8;
 
 // Continues the same warm taupe surface used by every section below the
 // hero (CardsSection, CategoriesSection, ProcessTimeline, NewArrivals) —
@@ -31,42 +29,21 @@ const SECTION_BACKGROUND =
   "radial-gradient(ellipse 80% 60% at 20% 0%, rgba(208,196,184,0.95) 0%, rgba(196,182,168,0.85) 45%, rgba(176,159,144,0.95) 100%)";
 
 /**
- * A pool larger than what's displayed so the carousel can be reshuffled
- * into a different 8-image spread on every load. These are local seeds fed
- * into the shop's existing placeholder-gradient system (see
- * src/lib/utils.ts) — swap this out for real Instagram post images once
- * the API integration is wired up.
+ * Fixed set of real Instagram posts/reels to feature in the carousel.
+ * Each tile links out to its own post and shows that post's real thumbnail,
+ * stored locally under /public/instagram/.
  */
-const IMAGE_POOL = Array.from(
-  { length: 12 },
-  (_, index) => `instagram-post-${index + 1}`
-);
-
-function shuffled<T>(items: T[]): T[] {
-  const next = [...items];
-  for (let i = next.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [next[i], next[j]] = [next[j], next[i]];
-  }
-  return next;
-}
+const INSTAGRAM_POSTS = [
+  { url: "https://www.instagram.com/reel/DbkIGVBKSuE/?igsh=MThrb3VmMGt3OWdodA==", thumb: "/instagram/post-1.jpg" },
+  { url: "https://www.instagram.com/p/DbSVZuzEbre/?igsh=MXJnZTVteW5iNnlzZA==", thumb: "/instagram/post-2.jpg" },
+  { url: "https://www.instagram.com/p/DbFIeBRk-vc/?igsh=MXpiMm4wMGZjY2Fq", thumb: "/instagram/post-3.jpg" },
+  { url: "https://www.instagram.com/reel/Da7r0_jT1Eu/?igsh=N294MXd2Njg2ajBn", thumb: "/instagram/post-4.jpg" },
+  { url: "https://www.instagram.com/reel/DTjbEM-k4uZ/?igsh=MTBvazFyaHBjcGx5bw==", thumb: "/instagram/post-5.jpg" },
+  { url: "https://www.instagram.com/reel/DajmDk9zOAj/?igsh=amtoN2ZzY3k0cHVj", thumb: "/instagram/post-6.jpg" },
+  { url: "https://www.instagram.com/p/DF1KYCmzFUf/?igsh=bWtwbjNlMW56ZTUw", thumb: "/instagram/post-7.jpg" },
+] as const;
 
 export function InstagramHighlights() {
-  // Deterministic on first render so server and client markup match (no
-  // hydration mismatch), then reshuffled client-side once mounted so the
-  // set shown is randomized on every page load.
-  const [seeds, setSeeds] = useState<string[]>(() =>
-    IMAGE_POOL.slice(0, VISIBLE_COUNT)
-  );
-
-  useEffect(() => {
-    // One-time reshuffle after mount, client-only. Doing this in the
-    // initializer instead would run during SSR too, and a server-picked
-    // random order would mismatch the client's on hydration.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setSeeds(shuffled(IMAGE_POOL).slice(0, VISIBLE_COUNT));
-  }, []);
-
   const { scrollerRef, atStart, atEnd, canScroll, scrollByPage, onWheel, onKeyDown, dragHandlers } =
     useHorizontalCarousel();
 
@@ -136,26 +113,28 @@ export function InstagramHighlights() {
           easing={EASING}
           staggerDelay={STAGGER}
         >
-          {seeds.map((seed) => (
-            <div
-              key={seed}
+          {INSTAGRAM_POSTS.map((post, index) => (
+            <Link
+              key={post.url}
+              href={post.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Lihat postingan di Instagram"
               className="group relative aspect-square w-[140px] shrink-0 select-none snap-start overflow-hidden rounded-2xl border border-line shadow-xs transition-all duration-300 ease-out hover:-translate-y-1 hover:border-ink/15 hover:shadow-lg active:scale-95 sm:w-[190px] md:w-[220px]"
-              aria-hidden="true"
             >
               <Parallax as="div" className="h-full w-full" strength={10}>
-                <div
-                  className="h-full w-full"
-                  style={{ background: getPlaceholderGradient(seed) }}
-                  aria-hidden="true"
+                <Image
+                  src={post.thumb}
+                  alt=""
+                  fill
+                  sizes="(min-width: 768px) 220px, (min-width: 640px) 190px, 140px"
+                  className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.06]"
+                  // First couple of tiles are likely above the fold on load.
+                  priority={index < 2}
                 />
               </Parallax>
-              <div className="pointer-events-none absolute inset-0 flex items-center justify-center transition-transform duration-500 ease-out group-hover:scale-[1.06]">
-                <Camera className="h-6 w-6 text-white/70" strokeWidth={1.5} />
-              </div>
-            </div>
+            </Link>
           ))}
-          {/* Trailing spacer so the last card can reach the container's edge padding. */}
-          <div className="w-2 shrink-0 md:w-6" aria-hidden="true" />
         </Reveal>
 
         <Container className="flex flex-col items-center gap-4 px-5 text-center sm:flex-row sm:justify-between sm:px-6 sm:text-left">
