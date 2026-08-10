@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { ArrowUpRight, Package, Receipt } from "lucide-react";
 
+import { auth } from "@/auth";
 import { getAdminOrders } from "@/lib/admin/orders";
 import { getAdminProducts } from "@/lib/admin/products";
 import { Container } from "@/components/home/container";
@@ -11,7 +13,26 @@ export const metadata: Metadata = {
   title: "Dashboard — Admin — Lapiita Karya",
 };
 
+// Force this page to render fresh on every request instead of being
+// statically prerendered at build time. Without this, Next.js can treat
+// the page as static (it has no cookies()/headers() calls of its own) and
+// Vercel's CDN can then cache and serve that build-time HTML to every
+// visitor — stale data at best, and it means the page's own content isn't
+// being regenerated per-request even though middleware still runs first.
+export const dynamic = "force-dynamic";
+
 export default async function AdminDashboardPage() {
+  // Defense-in-depth: middleware.ts already gates everything under
+  // /admin behind an authenticated ADMIN session, but this page no longer
+  // trusts that alone. If middleware ever fails to run for a given
+  // request — a misconfigured matcher, a rewrite/proxy in front of it, a
+  // future edit that narrows the matcher — this check independently
+  // refuses to render admin data for anyone who isn't a verified admin.
+  const session = await auth();
+  if (session?.user?.role !== "ADMIN") {
+    redirect("/admin/login");
+  }
+
   const [orders, products] = await Promise.all([
     getAdminOrders(),
     getAdminProducts(),

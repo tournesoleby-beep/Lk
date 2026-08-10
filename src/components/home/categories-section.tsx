@@ -34,7 +34,12 @@ export async function CategoriesSection() {
           href: `/shop/${data.fashion.slug}?sub=${subcategory.slug}`,
         })),
         {
-          category: { ...data.fashion, name: "Tampilkan Semua" },
+          category: {
+            ...data.fashion,
+            name: "Tampilkan Semua",
+            imageUrl:
+              "https://res.cloudinary.com/vkuafeej/image/upload/v1786363402/lapiita-karya/products/u31clrq4xaokunpumdif.png",
+          },
           href: `/shop/${data.fashion.slug}`,
         },
       ]

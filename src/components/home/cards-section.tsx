@@ -213,6 +213,36 @@ const CARDS: GridCard[] = [
       </CardShell>
     ),
   },
+  {
+    id: 4,
+    label: "Pasal 9 Huruf j",
+    // Same three-stop diagonal recipe as cards 1 and 3 (light -> mid ->
+    // deep), just moved into a dusty slate-blue family instead of their
+    // amber or sage — a fourth color in the same warm-museum tonal
+    // range (soft, desaturated, never neon) rather than a clashing
+    // primary blue.
+    gradient: "linear-gradient(145deg, #e7edf1 0%, #a6bfcc 50%, #3f6072 100%)",
+    ring: "ring-ink/5",
+    textTone: "dark",
+    front: (
+      <CardShell eyebrow="Hak Narapidana" footer="04 — Pasal 9 Huruf j" tone="dark">
+        <p className="max-w-[32ch] text-balance font-serif text-lg font-medium leading-relaxed text-ink sm:text-xl">
+          Pasal 9 huruf j: Narapidana berhak mendapatkan jaminan keselamatan
+          kerja, upah, atau premi hasil bekerja.
+        </p>
+      </CardShell>
+    ),
+    back: (
+      <CardShell eyebrow="Definisi Premi" footer="Pasal 9 Huruf j" tone="dark">
+        <p className="max-w-[32ch] text-balance font-serif text-lg leading-relaxed text-ink/90 sm:text-xl">
+          Premi adalah hadiah dalam bentuk uang atau barang untuk Narapidana
+          yang melakukan kegiatan pelatihan kerja/keterampilan atau pekerjaan
+          yang bersifat pemeliharaan, misalnya bekerja di dapur atau
+          membersihkan lingkungan.
+        </p>
+      </CardShell>
+    ),
+  },
 ];
 
 function FlipCard({ card }: { card: GridCard }) {
@@ -441,10 +471,10 @@ export function CardsSection() {
                 {CARDS.map((card, i) => {
                   // Signed shortest-path distance from the active card:
                   // 0 = active/center, -1 = previous/left slot, +1 =
-                  // next/right slot. With exactly three cards this always
-                  // resolves to one of those three values — every card is
-                  // always in one of the three slots, always visible,
-                  // never fully hidden off-stage.
+                  // next/right slot, ±2 etc. for any further cards. Every
+                  // card is always visible (just pushed further out by
+                  // offsetPercent for larger |rel|), never fully hidden
+                  // off-stage.
                   let rel = (i - selectedIndex + total) % total;
                   if (rel > total / 2) rel -= total;
 
