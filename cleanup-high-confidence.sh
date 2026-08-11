@@ -43,5 +43,8 @@ remove "src/components/home/newsletter-cta.tsx" "unused component"
 #    contains zero files — the one hook that exists, useGalleryStage,
 #    lives colocated under src/components/shop/product-gallery/ instead).
 remove "src/hooks" "empty directory"
+remove "app/api/track" "unauthenticated example endpoint, unused"
+remove "src/components/TrackShipment.jsx" "unused example component"
 
 echo "Done."
+

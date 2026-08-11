@@ -70,7 +70,7 @@ export function ProcessTimeline() {
           <SectionHeading
             eyebrow="Proses kami"
             title="Proses Kami"
-            description="Setiap produk dibuat dengan tangan oleh warga binaan."
+            description="Setiap produk dibuat langsung oleh tangan-tangan kreatif warga binaan"
             compact
           />
         </Reveal>
