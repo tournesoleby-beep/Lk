@@ -97,11 +97,11 @@ export function ContactForm() {
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-5">
       <label className="flex flex-col gap-1.5">
-        <span className={LABEL_CLASS}>Full name</span>
+        <span className={LABEL_CLASS}>Nama Lengkap</span>
         <input
           value={values.fullName}
           onChange={(e) => update("fullName", e.target.value)}
-          placeholder="Jane Doe"
+          placeholder="Masukkan nama lengkap"
           className={INPUT_CLASS}
         />
         {errors.fullName ? (
@@ -115,7 +115,7 @@ export function ContactForm() {
           type="email"
           value={values.email}
           onChange={(e) => update("email", e.target.value)}
-          placeholder="you@example.com"
+          placeholder="Masukkan alamat email"
           className={INPUT_CLASS}
         />
         {errors.email ? (
@@ -124,11 +124,11 @@ export function ContactForm() {
       </label>
 
       <label className="flex flex-col gap-1.5">
-        <span className={LABEL_CLASS}>Message</span>
+        <span className={LABEL_CLASS}>Pesan</span>
         <textarea
           value={values.message}
           onChange={(e) => update("message", e.target.value)}
-          placeholder="How can we help?"
+          placeholder="Tulis pesan Anda..."
           rows={5}
           className={`${INPUT_CLASS} resize-none`}
         />
@@ -151,7 +151,7 @@ export function ContactForm() {
         {isSubmitting ? (
           <Loader2 className="h-4 w-4 animate-spin" strokeWidth={1.75} />
         ) : null}
-        {isSubmitting ? "Sending…" : "Send message"}
+        {isSubmitting ? "Mengirim…" : "Kirim Pesan"}
       </button>
     </form>
   );

@@ -162,7 +162,7 @@ export default async function CheckoutPaymentPage({
                           <img
                             src={QRIS_IMAGE_URL}
                             alt="Kode QRIS untuk pembayaran"
-                            className="h-44 w-44 rounded-lg object-contain shadow-xs sm:h-56 sm:w-56"
+                            className="h-64 w-64 rounded-lg object-contain shadow-xs sm:h-80 sm:w-80"
                           />
                         </div>
                       ) : null}
