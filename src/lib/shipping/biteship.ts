@@ -199,14 +199,13 @@ export async function getShippingRates({
     ],
   };
 
-  // TEMPORARY DEBUG LOGGING — added to diagnose why only JNE was coming
-  // back from the rates endpoint. Remove once the investigation is done.
-  // Logs the exact outgoing body so it's possible to see, per request,
-  // whether origin/destination coordinates are actually present (instant
-  // couriers need both origin AND destination lat/lng to price at all —
-  // area ID/postal code alone silently omits them from `pricing`, with no
-  // per-courier error to explain why).
-  console.log("[biteship][DEBUG] rates request body:", JSON.stringify(body, null, 2));
+  // Debug logging for diagnosing rates issues (e.g. the gosend/gojek
+  // courier-code mismatch this originally caught) — gated to non-production
+  // since `body` includes customer-derived origin/destination coordinates
+  // and postal code, which shouldn't land in prod logs on every checkout.
+  if (process.env.NODE_ENV !== "production") {
+    console.log("[biteship][DEBUG] rates request body:", JSON.stringify(body, null, 2));
+  }
 
   try {
     const response = await fetch(`${BITESHIP_BASE_URL}/v1/rates/couriers`, {
@@ -220,14 +219,14 @@ export async function getShippingRates({
 
     const data = (await response.json()) as BiteshipRatesResponse;
 
-    // TEMPORARY DEBUG LOGGING — see note above. Logs the full raw response
-    // (status + body) so it's possible to see exactly which couriers
-    // Biteship actually returned in `pricing`, versus what was requested.
-    console.log(
-      "[biteship][DEBUG] rates response:",
-      response.status,
-      JSON.stringify(data, null, 2)
-    );
+    // See gating note above.
+    if (process.env.NODE_ENV !== "production") {
+      console.log(
+        "[biteship][DEBUG] rates response:",
+        response.status,
+        JSON.stringify(data, null, 2)
+      );
+    }
 
     if (!response.ok || !data.success) {
       console.error("[biteship] rates request failed:", data.error ?? response.statusText);

@@ -34,7 +34,14 @@ export const BITESHIP_COURIERS: { code: string; label: string }[] = [
   { code: "ncs", label: "NCS" },
   { code: "rex", label: "REX" },
   { code: "rpx", label: "RPX" },
-  { code: "gosend", label: "GoSend" },
+  // Gojek's delivery service is branded "GoSend", but Biteship's own
+  // courier_code for it follows their usual bare-company-name pattern
+  // (same as "grab", "jne") — confirmed against Biteship's rates-API
+  // examples, which pass instant couriers as e.g. "grab,jne,tiki". If a
+  // Gojek waybill ever comes back "not found" from the tracking API,
+  // check Biteship's dashboard (Couriers list) for the exact code your
+  // account uses and update this entry.
+  { code: "gojek", label: "Gojek (GoSend)" },
   { code: "grab", label: "GrabExpress" },
   { code: "paxel", label: "Paxel" },
 ];

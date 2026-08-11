@@ -143,6 +143,11 @@ export type UpdateOrderShippingResult =
   | { success: false; error: string };
 
 const VALID_COURIER_CODES = new Set(BITESHIP_COURIERS.map((courier) => courier.code));
+// A manually-typed courier code (see ShippingUpdater's "Lainnya" option)
+// won't be in the curated list above, but it still has to look like a
+// real Biteship courier_code — lowercase letters/digits only, matching
+// the shape of every code Biteship actually uses (jne, sicepat, jnt...).
+const COURIER_CODE_SHAPE = /^[a-z0-9]{2,30}$/;
 
 /**
  * Set the courier and tracking number for an order from the admin order
@@ -165,7 +170,14 @@ export async function updateOrderShipping(
   const trimmedCourierCode = courierCode.trim();
 
   if (trimmedCourierCode && !VALID_COURIER_CODES.has(trimmedCourierCode)) {
-    return { success: false, error: "That isn't a recognized courier." };
+    if (!COURIER_CODE_SHAPE.test(trimmedCourierCode)) {
+      return {
+        success: false,
+        error: "Courier code should be lowercase letters/numbers only (e.g. \"gojek\").",
+      };
+    }
+    // Not in the curated list, but shaped like a real Biteship courier
+    // code — accepted as-is (see ShippingUpdater's "Lainnya" option).
   }
 
   // A tracking number without a courier can't be looked up on Biteship, and
