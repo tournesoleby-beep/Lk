@@ -43,14 +43,14 @@ const DETAILS = [
   },
   {
     icon: Clock,
-    label: "Waktu respons",
-    value: "Kami biasanya membalas dalam 1–2 hari kerja.",
+    label: "Jam kerja",
+    value: "Senin–Jumat 08.00–16.00",
     href: undefined,
   },
   {
     icon: MapPin,
     label: "Lokasi",
-    value: "Lapas Kelas II A Jakarta",
+    value: "Lapas Perempuan Kelas IIA Jakarta",
     href: undefined,
   },
 ] as const;
@@ -69,30 +69,46 @@ export default function ContactPage() {
 
             <div className="grid grid-cols-1 gap-10 lg:grid-cols-[320px_1fr] lg:items-start">
               <div className="flex flex-col gap-5">
-                {DETAILS.map(({ icon: Icon, label, value, href }) => (
-                  <div key={label} className="flex items-start gap-3">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-cloud text-ink">
-                      <Icon className="h-4 w-4" strokeWidth={1.75} />
-                    </span>
-                    <div className="flex flex-col">
-                      <span className="font-mono text-[11px] font-medium uppercase tracking-[0.14em] text-slate">
-                        {label}
+                {DETAILS.map(({ icon: Icon, label, value, href }) => {
+                  const isWhatsApp = label === "WhatsApp";
+
+                  return (
+                    <div key={label} className="flex items-start gap-3">
+                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-cloud text-ink">
+                        <Icon className="h-4 w-4" strokeWidth={1.75} />
                       </span>
-                      {href ? (
-                        <a
-                          href={href}
-                          target={href.startsWith("http") ? "_blank" : undefined}
-                          rel={href.startsWith("http") ? "noopener noreferrer" : undefined}
-                          className="text-sm text-ink transition-colors hover:text-signal"
-                        >
-                          {value}
-                        </a>
-                      ) : (
-                        <span className="text-sm text-ink">{value}</span>
-                      )}
+                      <div className="flex flex-col">
+                        <span className="font-mono text-[11px] font-medium uppercase tracking-[0.14em] text-slate">
+                          {label}
+                        </span>
+                        {href ? (
+                          isWhatsApp ? (
+                            <a
+                              href={href}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1.5 text-sm font-medium text-[#25D366] underline underline-offset-2 transition-colors hover:text-[#1DA851]"
+                            >
+                              {value}
+                              <Icon className="h-4 w-4" strokeWidth={1.75} />
+                            </a>
+                          ) : (
+                            <a
+                              href={href}
+                              target={href.startsWith("http") ? "_blank" : undefined}
+                              rel={href.startsWith("http") ? "noopener noreferrer" : undefined}
+                              className="text-sm text-ink transition-colors hover:text-signal"
+                            >
+                              {value}
+                            </a>
+                          )
+                        ) : (
+                          <span className="text-sm text-ink">{value}</span>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
               <div className="rounded-2xl border border-line p-6 sm:p-8">
