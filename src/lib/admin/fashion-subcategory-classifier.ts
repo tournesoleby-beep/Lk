@@ -26,6 +26,12 @@ const EXPLICIT_MOVES: Record<string, string> = {
   // Tas Kain
   "tas-hitam-pita": "tas-kain",
 
+  // Tas Kulit — slug was set to "tas-kain-*" even though these are
+  // "Tas Kulit Sintetis" products by name; slug alone gives no signal,
+  // so these have to be listed explicitly.
+  "tas-kain-besar-motif-bulat-coklat": "tas-kulit",
+  "tas-kain-mini-banyak-motif": "tas-kulit",
+
   // Tas Rajut — bags
   "tas-rajut-abu-abu": "tas-rajut",
   "tas-rajut-biru": "tas-rajut",
@@ -39,6 +45,10 @@ const EXPLICIT_MOVES: Record<string, string> = {
 
   // Tas Mote
   "tas-mote": "tas-mote",
+
+  // Batik — bare slug with no hyphen, so the "batik-" prefix pattern
+  // below never matches it.
+  batik: "batik",
 };
 
 // Keywords that mark a rajut item as an accessory (not a bag), even if it
@@ -46,7 +56,14 @@ const EXPLICIT_MOVES: Record<string, string> = {
 // below so items like "sendal-rajut-*" or "syal-rajut-*" never get
 // misclassified as bags.
 const RAJUT_ACCESSORY_KEYWORDS =
-  /(sendal|botol|syal|kotak|dompet|ganci|gantungan|charm|keychain)/;
+  /(sendal|botol|syal|kotak|dompet|ganci|gantungan|charm|keychain|peci)/;
+
+// Keywords that mark an item as decorative / storage / organizer rather
+// than a bag, regardless of material (rajut, mote, etc). Checked before
+// the material-specific bag rules below so e.g. a mote tissue-box cover
+// or a rajut display piece is never swept into a bag subcategory just
+// because it shares a material with one.
+const DECOR_ACCESSORY_KEYWORDS = /(^|-)(kotak|rak|organizer|pajangan|tempat)(-|$)/;
 
 // Slug prefixes that unambiguously identify a knitted (rajut) bag,
 // including the "selmpang" typo variant observed in the source data.
@@ -61,10 +78,38 @@ const RAJUT_BAG_PREFIXES = [
 function classifyBySlugPattern(slug: string): string | null {
   const s = slug.toLowerCase();
 
-  if (s.startsWith("tas-kain-")) return "tas-kain";
-  if (s.startsWith("tas-mote-")) return "tas-mote";
+  // Kulit / kulit sintetis (synthetic leather) bags must always land in
+  // Tas Kulit — checked before the Tas Kain prefix check below so a slug
+  // like "tas-kain-kulit-sintetis-..." or "tas-selempang-kulit-sintetis-..."
+  // is never misfiled under Tas Kanvas just because "kain" or a different
+  // bag-shape prefix also appears in it.
+  if (/(^|-)kulit(-|$)/.test(s)) return "tas-kulit";
+
+  // Decorative / storage items (tissue-box covers, organizers, displays)
+  // are accessories even when made of a bag material like mote or rajut —
+  // checked before the bag-material rules below for that reason.
+  if (DECOR_ACCESSORY_KEYWORDS.test(s)) return "aksesoris";
+
+  // "tas-kanvas-" and "tas-jinjing-kain-" are naming variants seen in the
+  // data for the same Tas Kain material; "tas-jinjing-mote-" likewise for
+  // Tas Mote.
+  if (
+    s.startsWith("tas-kain-") ||
+    s.startsWith("tas-kanvas-") ||
+    s.startsWith("tas-jinjing-kain-")
+  ) {
+    return "tas-kain";
+  }
+  if (s.startsWith("tas-mote-") || s.startsWith("tas-jinjing-mote-")) {
+    return "tas-mote";
+  }
   if (s.startsWith("tas-kulit-")) return "tas-kulit";
-  if (s.startsWith("pouch-") || s.endsWith("-pouch") || s.includes("-pouch-")) {
+  if (
+    s.startsWith("pouch-") ||
+    s.startsWith("poch-") ||
+    s.endsWith("-pouch") ||
+    s.includes("-pouch-")
+  ) {
     return "pouch";
   }
   if (s.startsWith("batik-") || s.includes("-batik-") || s.endsWith("-batik")) {
