@@ -28,7 +28,7 @@ const FASHION_SUBCATEGORIES = [
   { name: "Aksesoris", slug: "aksesoris" },
   { name: "Pouch", slug: "pouch" },
   { name: "Tas Kulit", slug: "tas-kulit" },
-  { name: "Tas Kain", slug: "tas-kain" },
+  { name: "Tas Kanvas", slug: "tas-kain" },
 ];
 
 async function main() {
