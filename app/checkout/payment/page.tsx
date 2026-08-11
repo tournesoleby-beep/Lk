@@ -168,7 +168,7 @@ export default async function CheckoutPaymentPage({
                         </div>
                         <div className="flex flex-col gap-0.5 sm:col-span-2">
                           <dt className={LABEL_CLASS}>Atas nama</dt>
-                          <dd className="text-lg font-semibold text-blue-600">
+                          <dd className="text-sm text-ink">
                             {BANK_ACCOUNT_HOLDER || "—"}
                           </dd>
                         </div>

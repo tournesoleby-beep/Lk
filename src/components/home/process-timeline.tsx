@@ -27,28 +27,28 @@ const steps = [
     title: "Pelatihan",
     description:
       "Warga binaan dibekali pelatihan keterampilan secara bertahap, didampingi instruktur berpengalaman di bidangnya.",
-    image: "/images/proses/pelatihan.jpg",
+    image: "/image/proses/pelatihan.jpg",
   },
   {
     icon: Hammer,
     title: "Produksi",
     description:
       "Setiap karya dikerjakan langsung oleh tangan-tangan terampil warga binaan yang memadukan ketelitian dan kesabaran di setiap tahapnya.",
-    image: "/images/proses/produksi.jpg",
+    image: "/image/proses/produksi.jpg",
   },
   {
     icon: ShieldCheck,
     title: "Kontrol Kualitas",
     description:
       "Produk diperiksa satu per satu untuk memastikan kualitas dan kerapian sebelum lolos standar kami.",
-    image: "/images/proses/kontrol-kualitas.jpg",
+    image: "/image/proses/kontrol-kualitas.jpg",
   },
   {
     icon: PackageCheck,
     title: "Sampai ke Anda",
     description:
       "Dikemas dengan rapi dan dikirim langsung ke tangan Anda, membawa cerita di balik setiap karya.",
-    image: "/images/proses/sampai-ke-anda.jpg",
+    image: "/image/proses/sampai-ke-anda.jpg",
   },
 ];
 
