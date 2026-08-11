@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { CheckCircle2, Clock, XCircle } from "lucide-react";
+import { CheckCircle2, Clock, Download, XCircle } from "lucide-react";
 
 import { getOrderForPayment } from "@/lib/checkout/orders";
 import { formatCurrency, formatDate } from "@/lib/utils";
@@ -15,6 +15,7 @@ import { Container } from "@/components/home/container";
 import { SectionHeading } from "@/components/home/section-heading";
 import { EmptyState } from "@/components/home/empty-state";
 import { PaymentProofUpload } from "@/components/checkout/payment-proof-upload";
+import { CopyButton } from "@/components/checkout/copy-button";
 
 export const metadata: Metadata = {
   title: "Selesaikan Pembayaran — Lapiita Karya",
@@ -22,6 +23,15 @@ export const metadata: Metadata = {
 
 const LABEL_CLASS =
   "font-mono text-[11px] font-medium uppercase tracking-[0.14em] text-slate";
+
+// Cloudinary serves images inline by default; inserting the `fl_attachment`
+// transformation flag makes the browser download the file instead of
+// navigating to it. Falls back to the plain URL for non-Cloudinary hosts.
+function toDownloadUrl(url: string) {
+  return url.includes("/upload/")
+    ? url.replace("/upload/", "/upload/fl_attachment/")
+    : url;
+}
 
 // Statuses where payment is already settled one way or another — the
 // upload form no longer applies.
@@ -141,29 +151,46 @@ export default async function CheckoutPaymentPage({
                       <dl className="grid grid-cols-1 gap-3 rounded-xl bg-cloud/40 p-4 sm:grid-cols-2">
                         <div className="flex flex-col gap-0.5">
                           <dt className={LABEL_CLASS}>Bank</dt>
-                          <dd className="text-sm text-ink">{BANK_NAME || "—"}</dd>
+                          <dd className="text-lg font-semibold text-blue-600">
+                            {BANK_NAME || "—"}
+                          </dd>
                         </div>
                         <div className="flex flex-col gap-0.5">
                           <dt className={LABEL_CLASS}>Nomor rekening</dt>
-                          <dd className="font-mono text-sm text-ink">
-                            {BANK_ACCOUNT_NUMBER || "—"}
+                          <dd className="flex items-center gap-2">
+                            <span className="font-mono text-sm text-ink">
+                              {BANK_ACCOUNT_NUMBER || "—"}
+                            </span>
+                            {BANK_ACCOUNT_NUMBER ? (
+                              <CopyButton value={BANK_ACCOUNT_NUMBER} />
+                            ) : null}
                           </dd>
                         </div>
                         <div className="flex flex-col gap-0.5 sm:col-span-2">
                           <dt className={LABEL_CLASS}>Atas nama</dt>
-                          <dd className="text-sm text-ink">{BANK_ACCOUNT_HOLDER || "—"}</dd>
+                          <dd className="text-lg font-semibold text-blue-600">
+                            {BANK_ACCOUNT_HOLDER || "—"}
+                          </dd>
                         </div>
                       </dl>
 
                       {QRIS_IMAGE_URL ? (
-                        <div className="flex flex-col items-center gap-2 rounded-xl border border-line p-4">
+                        <div className="flex flex-col items-center gap-3 rounded-xl border border-line p-4">
                           <span className={LABEL_CLASS}>Atau pindai QRIS</span>
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
                             src={QRIS_IMAGE_URL}
                             alt="Kode QRIS untuk pembayaran"
-                            className="h-64 w-64 rounded-lg object-contain shadow-xs sm:h-80 sm:w-80"
+                            className="h-80 w-80 rounded-lg object-contain shadow-xs sm:h-[28rem] sm:w-[28rem]"
                           />
+                          <a
+                            href={toDownloadUrl(QRIS_IMAGE_URL)}
+                            download
+                            className="inline-flex min-h-9 items-center gap-1.5 rounded-full border border-line px-4 py-2 text-xs font-medium text-ink transition-all duration-200 hover:bg-cloud active:scale-[0.98]"
+                          >
+                            <Download className="h-3.5 w-3.5" strokeWidth={1.75} />
+                            Simpan gambar QRIS
+                          </a>
                         </div>
                       ) : null}
 
