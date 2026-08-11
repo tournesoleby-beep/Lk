@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import type { OrderStatus } from "@prisma/client";
+import { getBiteshipTracking, type BiteshipTracking } from "@/lib/biteship";
 
 /**
  * Statuses that mean "payment has been received/verified" — shared by the
@@ -200,6 +201,13 @@ export type TrackingOrder = {
   createdAt: string;
   shippingCarrier: string | null;
   trackingNumber: string | null;
+  // Live checkpoint history from Biteship's public tracking API, fetched
+  // fresh on every call to getOrderForTracking below (see
+  // src/lib/biteship.ts). `null` means either there's no tracking number
+  // yet, or the live lookup failed/returned nothing — the page falls back
+  // to showing just the carrier + tracking number in that case, same as
+  // before this existed.
+  biteshipTracking: BiteshipTracking | null;
   shippingAddress: {
     fullName: string;
     phone: string | null;
@@ -288,6 +296,7 @@ export async function getOrderForTracking(orderNumber: string): Promise<Tracking
         shippingTotal: true,
         createdAt: true,
         shippingCarrier: true,
+        biteshipCourierCode: true,
         trackingNumber: true,
         shippingAddress: {
           select: {
@@ -347,6 +356,24 @@ export async function getOrderForTracking(orderNumber: string): Promise<Tracking
       : [];
     const reviewByProductId = new Map(reviews.map((review) => [review.productId, review]));
 
+    // Best-effort: a Biteship outage or bad response should never take
+    // down the whole tracking page — the page just falls back to showing
+    // carrier + tracking number with no live checkpoint history, same as
+    // before this integration existed. See getBiteshipTracking's own
+    // try/catch for the actual network handling; this one guards against
+    // anything unexpected slipping past that.
+    let biteshipTracking: BiteshipTracking | null = null;
+    if (order.trackingNumber && order.biteshipCourierCode) {
+      try {
+        biteshipTracking = await getBiteshipTracking(
+          order.trackingNumber,
+          order.biteshipCourierCode
+        );
+      } catch (error) {
+        console.error("[checkout] failed to fetch live Biteship tracking:", error);
+      }
+    }
+
     return {
       id: order.id,
       orderNumber: order.orderNumber,
@@ -358,6 +385,7 @@ export async function getOrderForTracking(orderNumber: string): Promise<Tracking
       createdAt: order.createdAt.toISOString(),
       shippingCarrier: order.shippingCarrier,
       trackingNumber: order.trackingNumber,
+      biteshipTracking,
       shippingAddress: order.shippingAddress
         ? {
             fullName: order.shippingAddress.fullName,

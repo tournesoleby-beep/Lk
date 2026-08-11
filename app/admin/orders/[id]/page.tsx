@@ -9,6 +9,7 @@ import { AdminNav } from "@/components/admin/admin-nav";
 import { EmptyState } from "@/components/home/empty-state";
 import { OrderStatusBadge } from "@/components/admin/order-status-badge";
 import { OrderStatusUpdater } from "@/components/admin/order-status-updater";
+import { ShippingUpdater } from "@/components/admin/shipping-updater";
 import { PaymentVerification } from "@/components/admin/payment-verification";
 
 export const metadata: Metadata = {
@@ -229,6 +230,21 @@ export default async function AdminOrderDetailPage({
                   Pelanggan belum mengunggah bukti pembayaran.
                 </p>
               )}
+            </div>
+
+            {/* Shipping info */}
+            <div className="rounded-2xl border border-line bg-paper p-6 shadow-xs">
+              <h2 className="font-serif text-lg font-semibold text-ink">Informasi Pengiriman</h2>
+              <p className="mt-1 text-sm text-slate">
+                Pelanggan dapat melihat status pengiriman terkini di halaman lacak pesanan.
+              </p>
+              <div className="mt-4">
+                <ShippingUpdater
+                  orderId={order.id}
+                  currentCourierCode={order.biteshipCourierCode}
+                  currentTrackingNumber={order.trackingNumber}
+                />
+              </div>
             </div>
 
             {/* Status update */}

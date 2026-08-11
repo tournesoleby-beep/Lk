@@ -94,6 +94,9 @@ export type AdminOrderDetail = {
   items: AdminOrderItem[];
   paymentProofUrl: string | null;
   paymentProofUploadedAt: string | null;
+  shippingCarrier: string | null;
+  biteshipCourierCode: string | null;
+  trackingNumber: string | null;
 };
 
 export async function getAdminOrderById(id: string): Promise<AdminOrderDetail | null> {
@@ -112,6 +115,9 @@ export async function getAdminOrderById(id: string): Promise<AdminOrderDetail | 
         currency: true,
         paymentProofUrl: true,
         paymentProofUploadedAt: true,
+        shippingCarrier: true,
+        biteshipCourierCode: true,
+        trackingNumber: true,
         user: { select: { email: true, name: true } },
         shippingAddress: {
           select: { fullName: true, phone: true, line1: true, line2: true },
@@ -148,6 +154,9 @@ export async function getAdminOrderById(id: string): Promise<AdminOrderDetail | 
       paymentProofUploadedAt: order.paymentProofUploadedAt
         ? order.paymentProofUploadedAt.toISOString()
         : null,
+      shippingCarrier: order.shippingCarrier,
+      biteshipCourierCode: order.biteshipCourierCode,
+      trackingNumber: order.trackingNumber,
     };
   }, null);
 }

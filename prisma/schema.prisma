@@ -358,7 +358,8 @@ model Order {
   // another schema change.
   shippingMethod         String?   @map("shipping_method") // e.g. "standard" | "express", chosen at checkout
   shippingWeightGrams    Int?      @map("shipping_weight_grams") // snapshot of total order weight at checkout time
-  shippingCarrier        String?   @map("shipping_carrier") // set later by the carrier integration
+  shippingCarrier        String?   @map("shipping_carrier") // human-readable courier label, e.g. "JNE" — set later by the carrier integration
+  biteshipCourierCode    String?   @map("biteship_courier_code") // Biteship's courier code for the same courier, e.g. "jne" — used to query live tracking (see src/lib/biteship.ts); kept separate from shippingCarrier so that field can stay a display label
   trackingNumber         String?   @map("tracking_number") // set later by the carrier integration
   estimatedDeliveryDate  DateTime? @map("estimated_delivery_date") // set later by the carrier integration
 

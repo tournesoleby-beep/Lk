@@ -175,6 +175,7 @@ export default async function OrderLookupPage({
                     <ShipmentInfo
                       carrier={order.shippingCarrier}
                       trackingNumber={order.trackingNumber}
+                      tracking={order.biteshipTracking}
                     />
                   </div>
                 ) : null}

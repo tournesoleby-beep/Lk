@@ -6,6 +6,7 @@ import type { OrderStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { sendOrderStatusEmail } from "@/lib/email/order-emails";
 import { recordStockChange } from "@/lib/admin/stock-history";
+import { BITESHIP_COURIERS, courierLabelForCode } from "@/lib/biteship";
 
 export type UpdateOrderStatusResult =
   | { success: true }
@@ -134,6 +135,88 @@ export async function updateOrderStatus(
     revalidatePath("/admin/orders");
     revalidatePath(`/admin/orders/${orderId}`);
     revalidatePath("/admin/products");
+  }
+}
+
+export type UpdateOrderShippingResult =
+  | { success: true }
+  | { success: false; error: string };
+
+const VALID_COURIER_CODES = new Set(BITESHIP_COURIERS.map((courier) => courier.code));
+
+/**
+ * Set the courier and tracking number for an order from the admin order
+ * detail page. Stores both the Biteship courier code (used to query live
+ * tracking, see src/lib/biteship.ts) and its human-readable label on
+ * `shippingCarrier` — the tracking page displays the label but never the
+ * raw code.
+ *
+ * Unlike updateOrderStatus, this never sends a customer email or touches
+ * stock — it's purely shipping metadata. Clearing both fields (empty
+ * courier + empty tracking number) is allowed, e.g. to correct a mistaken
+ * entry.
+ */
+export async function updateOrderShipping(
+  orderId: string,
+  courierCode: string,
+  trackingNumber: string
+): Promise<UpdateOrderShippingResult> {
+  const trimmedTrackingNumber = trackingNumber.trim();
+  const trimmedCourierCode = courierCode.trim();
+
+  if (trimmedCourierCode && !VALID_COURIER_CODES.has(trimmedCourierCode)) {
+    return { success: false, error: "That isn't a recognized courier." };
+  }
+
+  // A tracking number without a courier can't be looked up on Biteship, and
+  // a courier without a tracking number has nothing to display — either
+  // both are set or both are cleared.
+  if (Boolean(trimmedCourierCode) !== Boolean(trimmedTrackingNumber)) {
+    return {
+      success: false,
+      error: "Please provide both a courier and a tracking number, or leave both empty.",
+    };
+  }
+
+  try {
+    const existing = await prisma.order.findUnique({
+      where: { id: orderId },
+      select: { id: true },
+    });
+
+    if (!existing) {
+      return { success: false, error: "This order no longer exists." };
+    }
+
+    await prisma.order.update({
+      where: { id: orderId },
+      data: {
+        biteshipCourierCode: trimmedCourierCode || null,
+        shippingCarrier: trimmedCourierCode ? courierLabelForCode(trimmedCourierCode) : null,
+        trackingNumber: trimmedTrackingNumber || null,
+      },
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error("[admin orders] failed to update order shipping:", error);
+
+    const code =
+      typeof error === "object" && error !== null && "code" in error
+        ? (error as { code?: unknown }).code
+        : undefined;
+
+    return {
+      success: false,
+      error:
+        code === "P2025"
+          ? "This order no longer exists."
+          : "Something went wrong updating the shipping info. Please try again.",
+    };
+  } finally {
+    revalidatePath("/admin/orders");
+    revalidatePath(`/admin/orders/${orderId}`);
+    revalidatePath("/orders/lookup");
   }
 }
 

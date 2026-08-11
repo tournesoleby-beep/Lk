@@ -1,7 +1,8 @@
 import { Truck } from "lucide-react";
 
-import { cn } from "@/lib/utils";
+import { cn, formatDate } from "@/lib/utils";
 import { CopyTrackingNumberButton } from "@/components/checkout/copy-tracking-number-button";
+import type { BiteshipTracking } from "@/lib/biteship";
 
 /**
  * Lets the page decide whether to render a wrapper (border, spacing) around
@@ -18,18 +19,29 @@ export function hasShipmentInfo(order: {
 
 /**
  * "Shipment Information" section on the order tracking page — courier and
- * tracking number, with a one-tap copy button for the tracking number.
- * Purely presentational: renders whatever the order already has, no
- * carrier API calls.
+ * tracking number, with a one-tap copy button for the tracking number, plus
+ * (when available) the live checkpoint history fetched from Biteship's
+ * public tracking API. `tracking` is `null` whenever there's no tracking
+ * number yet or the live Biteship lookup didn't return anything (see
+ * getOrderForTracking in src/lib/checkout/orders.ts) — in that case this
+ * renders exactly as it did before the Biteship integration, just carrier +
+ * tracking number, no history section.
  */
 export function ShipmentInfo({
   carrier,
   trackingNumber,
+  tracking,
 }: {
   carrier?: string | null;
   trackingNumber?: string | null;
+  tracking?: BiteshipTracking | null;
 }) {
   if (!carrier && !trackingNumber) return null;
+
+  // Newest checkpoint first, since that's what a customer checking on
+  // their package cares about seeing at a glance — Biteship returns them
+  // oldest first.
+  const history = tracking?.history ? [...tracking.history].reverse() : [];
 
   return (
     <div className="flex flex-col gap-5">
@@ -62,6 +74,32 @@ export function ShipmentInfo({
           </div>
         ) : null}
       </div>
+
+      {history.length > 0 ? (
+        <div className="flex flex-col gap-4 border-t border-line pt-4">
+          <span className="font-mono text-[11px] font-medium uppercase tracking-[0.14em] text-slate">
+            Riwayat Pengiriman
+          </span>
+          <ol className="flex flex-col gap-4">
+            {history.map((checkpoint, index) => (
+              <li key={`${checkpoint.updatedAt}-${index}`} className="flex gap-3">
+                <span
+                  className={cn(
+                    "mt-1 h-2 w-2 shrink-0 rounded-full",
+                    index === 0 ? "bg-signal" : "bg-line"
+                  )}
+                />
+                <div className="flex flex-col gap-0.5">
+                  <span className={cn("text-sm", index === 0 ? "font-medium text-ink" : "text-ink")}>
+                    {checkpoint.note}
+                  </span>
+                  <span className="text-xs text-slate">{formatDate(checkpoint.updatedAt)}</span>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </div>
+      ) : null}
     </div>
   );
 }
