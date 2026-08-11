@@ -1,10 +1,11 @@
+import Image from "next/image";
 import { GraduationCap, Hammer, PackageCheck, ShieldCheck } from "lucide-react";
 
 import { Container } from "@/components/home/container";
 import { Parallax } from "@/components/home/parallax";
 import { Reveal } from "@/components/home/reveal";
 import { SectionHeading } from "@/components/home/section-heading";
-import { cn, getPlaceholderGradient } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 
 // This section's own motion signature: a slightly overshooting ease-out,
 // on the slower end of the range, distinct from the other three sections.
@@ -26,24 +27,28 @@ const steps = [
     title: "Pelatihan",
     description:
       "Warga binaan dibekali pelatihan keterampilan secara bertahap, didampingi instruktur berpengalaman di bidangnya.",
+    image: "/images/proses/pelatihan.jpg",
   },
   {
     icon: Hammer,
     title: "Produksi",
     description:
       "Setiap karya dikerjakan langsung oleh tangan-tangan terampil warga binaan yang memadukan ketelitian dan kesabaran di setiap tahapnya.",
+    image: "/images/proses/produksi.jpg",
   },
   {
     icon: ShieldCheck,
     title: "Kontrol Kualitas",
     description:
       "Produk diperiksa satu per satu untuk memastikan kualitas dan kerapian sebelum lolos standar kami.",
+    image: "/images/proses/kontrol-kualitas.jpg",
   },
   {
     icon: PackageCheck,
     title: "Sampai ke Anda",
     description:
       "Dikemas dengan rapi dan dikirim langsung ke tangan Anda, membawa cerita di balik setiap karya.",
+    image: "/images/proses/sampai-ke-anda.jpg",
   },
 ];
 
@@ -83,7 +88,7 @@ export function ProcessTimeline() {
           easing={EASING}
           staggerDelay={STAGGER}
         >
-          {steps.map(({ icon: Icon, title, description }, index) => (
+          {steps.map(({ icon: Icon, title, description, image }, index) => (
             <li key={title} className="group flex gap-4">
               <div className="flex flex-col items-center">
                 <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-ink/10 bg-paper shadow-xs transition-all duration-300 group-hover:-translate-y-0.5 group-hover:border-signal/25 group-hover:shadow-sm">
@@ -102,13 +107,15 @@ export function ProcessTimeline() {
               >
                 <Parallax
                   as="div"
-                  className="aspect-[16/10] w-full overflow-hidden rounded-2xl"
+                  className="relative aspect-[16/10] w-full overflow-hidden rounded-2xl"
                   strength={12}
                 >
-                  <div
-                    className="h-full w-full rounded-2xl shadow-xs transition-transform duration-500 ease-out group-hover:scale-[1.02]"
-                    style={{ background: getPlaceholderGradient(title) }}
-                    aria-hidden="true"
+                  <Image
+                    src={image}
+                    alt={title}
+                    fill
+                    sizes="100vw"
+                    className="rounded-2xl object-cover shadow-xs transition-transform duration-500 ease-out group-hover:scale-[1.02]"
                   />
                 </Parallax>
                 <div className="flex flex-col gap-1">
@@ -145,7 +152,7 @@ export function ProcessTimeline() {
             aria-hidden="true"
           />
 
-          {steps.map(({ icon: Icon, title, description }, index) => (
+          {steps.map(({ icon: Icon, title, description, image }, index) => (
             <div
               key={title}
               className="group relative z-10 flex flex-col items-center gap-4 px-2 text-center"
@@ -156,13 +163,15 @@ export function ProcessTimeline() {
 
               <Parallax
                 as="div"
-                className="aspect-[4/3] w-full max-w-[220px] overflow-hidden rounded-2xl"
+                className="relative aspect-[4/3] w-full max-w-[220px] overflow-hidden rounded-2xl"
                 strength={12}
               >
-                <div
-                  className="h-full w-full rounded-2xl shadow-xs transition-transform duration-500 ease-out group-hover:scale-[1.03]"
-                  style={{ background: getPlaceholderGradient(title) }}
-                  aria-hidden="true"
+                <Image
+                  src={image}
+                  alt={title}
+                  fill
+                  sizes="220px"
+                  className="rounded-2xl object-cover shadow-xs transition-transform duration-500 ease-out group-hover:scale-[1.03]"
                 />
               </Parallax>
 
