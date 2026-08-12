@@ -106,7 +106,7 @@ export default async function OrderLookupPage({
               </div>
 
               <span className="mt-1 font-mono text-xs text-slate">
-                Contoh: ORD-6MKMAB atau 0812xxxxxxxx
+                Contoh: ORD-9F3K2A7B1C0D atau 0812xxxxxxxx
               </span>
             </form>
 

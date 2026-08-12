@@ -7,6 +7,7 @@ import { prisma } from "@/lib/prisma";
 import { sendOrderStatusEmail } from "@/lib/email/order-emails";
 import { recordStockChange } from "@/lib/admin/stock-history";
 import { BITESHIP_COURIERS, courierLabelForCode } from "@/lib/biteship";
+import { requireAdminSession } from "@/lib/admin/require-admin";
 
 export type UpdateOrderStatusResult =
   | { success: true }
@@ -40,6 +41,11 @@ export async function updateOrderStatus(
   orderId: string,
   status: OrderStatus
 ): Promise<UpdateOrderStatusResult> {
+  const admin = await requireAdminSession();
+  if (!admin) {
+    return { success: false, error: "You must be signed in as an admin to do this." };
+  }
+
   if (!VALID_STATUSES.includes(status)) {
     return { success: false, error: "That isn't a valid order status." };
   }
@@ -166,6 +172,11 @@ export async function updateOrderShipping(
   courierCode: string,
   trackingNumber: string
 ): Promise<UpdateOrderShippingResult> {
+  const admin = await requireAdminSession();
+  if (!admin) {
+    return { success: false, error: "You must be signed in as an admin to do this." };
+  }
+
   const trimmedTrackingNumber = trackingNumber.trim();
   const trimmedCourierCode = courierCode.trim();
 
@@ -236,6 +247,11 @@ export async function updateOrderShipping(
  * Delete an order from the admin orders list.
  */
 export async function deleteOrder(orderId: string): Promise<DeleteOrderResult> {
+  const admin = await requireAdminSession();
+  if (!admin) {
+    return { success: false, error: "You must be signed in as an admin to do this." };
+  }
+
   try {
     await prisma.order.delete({ where: { id: orderId } });
 
@@ -273,6 +289,11 @@ export type DeleteReviewResult =
  * Approve a pending product review so it becomes publicly visible.
  */
 export async function approveProductReview(reviewId: string): Promise<UpdateReviewResult> {
+  const admin = await requireAdminSession();
+  if (!admin) {
+    return { success: false, error: "You must be signed in as an admin to do this." };
+  }
+
   try {
     await prisma.productReview.update({
       where: { id: reviewId },
@@ -304,6 +325,11 @@ export async function approveProductReview(reviewId: string): Promise<UpdateRevi
  * Mark a review as featured (e.g. for display on the product page).
  */
 export async function featureProductReview(reviewId: string): Promise<UpdateReviewResult> {
+  const admin = await requireAdminSession();
+  if (!admin) {
+    return { success: false, error: "You must be signed in as an admin to do this." };
+  }
+
   try {
     await prisma.productReview.update({
       where: { id: reviewId },
@@ -335,6 +361,11 @@ export async function featureProductReview(reviewId: string): Promise<UpdateRevi
  * Remove a review's featured status.
  */
 export async function unfeatureProductReview(reviewId: string): Promise<UpdateReviewResult> {
+  const admin = await requireAdminSession();
+  if (!admin) {
+    return { success: false, error: "You must be signed in as an admin to do this." };
+  }
+
   try {
     await prisma.productReview.update({
       where: { id: reviewId },
@@ -366,6 +397,11 @@ export async function unfeatureProductReview(reviewId: string): Promise<UpdateRe
  * Delete a product review from the admin reviews list.
  */
 export async function deleteProductReview(reviewId: string): Promise<DeleteReviewResult> {
+  const admin = await requireAdminSession();
+  if (!admin) {
+    return { success: false, error: "You must be signed in as an admin to do this." };
+  }
+
   try {
     await prisma.productReview.delete({ where: { id: reviewId } });
 

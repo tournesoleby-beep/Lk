@@ -6,6 +6,7 @@ import { checkoutSchema, type CheckoutInput } from "@/lib/validations/checkout";
 import { sendOrderConfirmationEmail, sendAdminOrderNotificationEmail } from "@/lib/email/order-emails";
 import { sendWhatsAppMessage } from "@/lib/whatsapp/client";
 import { newOrderAdmin } from "@/lib/whatsapp/templates";
+import { getCheckoutShippingRates } from "@/lib/checkout/shipping";
 
 // Indonesian labels for the admin WhatsApp alert only — separate from the
 // English STATUS_LABELS in src/lib/email/order-emails.ts, which serve the
@@ -32,6 +33,44 @@ export type PlaceOrderResult =
   | { success: false; error: string };
 
 /**
+ * Re-quote shipping for the given destination/cart server-side and pick
+ * out the rate matching the customer's chosen courier + service, ignoring
+ * whatever `shippingCost` the client sent. Returns an error if the quote
+ * fails or no rate matches — this deliberately does NOT fall back to the
+ * client-submitted cost, since that would defeat the point.
+ *
+ * A small tolerance (rather than exact equality) absorbs sub-unit
+ * floating point noise between this call and the one the checkout page
+ * made moments earlier; it does not meaningfully reopen the door to
+ * tampering since the compared value comes from this fresh server quote,
+ * not from the client.
+ */
+async function resolveShippingCost(
+  areaId: string,
+  address: string,
+  courierCode: string,
+  service: string,
+  lines: CheckoutCartLine[]
+): Promise<{ success: true; cost: number } | { success: false; error: string }> {
+  const quote = await getCheckoutShippingRates({ areaId, geocodeQuery: address }, lines);
+  if (!quote.success) {
+    return { success: false, error: quote.error };
+  }
+
+  const matched = quote.rates.find(
+    (rate) => rate.courierCode === courierCode && rate.service === service
+  );
+  if (!matched) {
+    return {
+      success: false,
+      error: "Shipping rates have changed. Please recalculate shipping and try again.",
+    };
+  }
+
+  return { success: true, cost: matched.cost };
+}
+
+/**
  * Place a guest order from the cart.
  *
  * Lapiita Karya has no customer accounts (see src/auth.config.ts) — cart,
@@ -46,6 +85,12 @@ export type PlaceOrderResult =
  *
  * Prices/names are re-read from the database rather than trusted from the
  * client, so a stale cart or tampered payload can't change what's charged.
+ * Shipping cost is handled the same way: the client's `shippingCost` is
+ * only used to identify which quoted rate the customer picked (matched by
+ * courierCode + service against a fresh server-side quote for the same
+ * destination/weight, see `resolveShippingCost` below) — the amount
+ * actually charged always comes from that fresh quote, never straight
+ * from the request body.
  *
  * On success, this also sends a confirmation email to the customer and a
  * new-order alert to the store admin (see src/lib/email/order-emails.ts).
@@ -75,14 +120,17 @@ export async function placeOrder(
     notes,
     shippingMethod,
     // Selected Biteship option (see checkoutSchema in
-    // src/lib/validations/checkout.ts). `courier` and `shippingCost` are
-    // persisted below (as `shippingCarrier` / `shippingTotal`). `courierCode`
-    // and `service` are accepted for validation but have no dedicated
-    // column on `Order` yet, so they aren't stored.
+    // src/lib/validations/checkout.ts). `courier` is persisted below (as
+    // `shippingCarrier`). `courierCode`, `service`, and `areaId` are used
+    // to re-quote and verify shipping cost server-side (see
+    // resolveShippingCost above) but have no dedicated column on `Order`
+    // yet, so they aren't stored as-is. The client's `shippingCost` field
+    // is intentionally not destructured here — it's never used, only the
+    // server-recomputed `shippingCost` below is.
     courierCode,
     courier,
     service,
-    shippingCost,
+    areaId,
   } = parsed.data;
 
   try {
@@ -131,6 +179,15 @@ export async function placeOrder(
 
     const subtotal = orderItemsData.reduce((sum, item) => sum + item.price * item.quantity, 0);
     const currency = products[0]?.currency ?? "IDR";
+
+    // Never trust the client's shippingCost — re-quote it server-side for
+    // this destination/cart and use the matching rate's cost instead (see
+    // resolveShippingCost above).
+    const shippingResult = await resolveShippingCost(areaId, address, courierCode, service, lines);
+    if (!shippingResult.success) {
+      return { success: false, error: shippingResult.error };
+    }
+    const shippingCost = shippingResult.cost;
 
     const user = await prisma.user.upsert({
       where: { email },

@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 
 import { prisma } from "@/lib/prisma";
+import { requireAdminSession } from "@/lib/admin/require-admin";
 
 export type ReviewActionResult =
   | { success: true }
@@ -21,6 +22,11 @@ function prismaErrorCode(error: unknown): unknown {
  * `approved: true` reviews).
  */
 export async function approveReview(id: string): Promise<ReviewActionResult> {
+  const admin = await requireAdminSession();
+  if (!admin) {
+    return { success: false, error: "You must be signed in as an admin to do this." };
+  }
+
   try {
     await prisma.productReview.update({
       where: { id },
@@ -47,6 +53,11 @@ export async function approveReview(id: string): Promise<ReviewActionResult> {
  * that turn out to be invalid.
  */
 export async function deleteReview(id: string): Promise<ReviewActionResult> {
+  const admin = await requireAdminSession();
+  if (!admin) {
+    return { success: false, error: "You must be signed in as an admin to do this." };
+  }
+
   try {
     await prisma.productReview.delete({ where: { id } });
     return { success: true };

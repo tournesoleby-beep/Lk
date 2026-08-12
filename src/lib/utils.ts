@@ -1,3 +1,4 @@
+import { randomBytes } from "crypto";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -69,10 +70,25 @@ export function sleep(ms: number) {
 }
 
 /**
- * Generate a random alphanumeric order/reference number, e.g. ORD-9F3K2A.
+ * Generate a random order/reference number, e.g. ORD-9F3K2A7B1C0D.
+ *
+ * This doubles as the *only* credential guarding every public,
+ * unauth'd-by-orderNumber lookup in the app — order tracking, payment
+ * status, and invoice PDFs (see src/lib/checkout/orders.ts) all trust
+ * "knows the order number" as proof of ownership, with no login involved.
+ * It therefore has to be unguessable, not just unique:
+ *
+ * - `crypto.randomBytes` (a CSPRNG) instead of `Math.random()`, which is
+ *   not cryptographically secure and must never be used for anything
+ *   security-sensitive.
+ * - 8 random bytes (64 bits of entropy) instead of the previous 6
+ *   base-36 characters (~31 bits) — enough that brute-forcing it is
+ *   infeasible even without the rate limiting already in place on the
+ *   lookup routes (see src/lib/rate-limit.ts), which is deliberately
+ *   layered on top rather than relied on alone.
  */
 export function generateOrderNumber(prefix: string = "ORD") {
-  const random = Math.random().toString(36).slice(2, 8).toUpperCase();
+  const random = randomBytes(8).toString("hex").toUpperCase();
   return `${prefix}-${random}`;
 }
 

@@ -1,6 +1,39 @@
+import { headers } from "next/headers";
+
 import { prisma } from "@/lib/prisma";
 import type { OrderStatus } from "@prisma/client";
 import { getBiteshipTracking, type BiteshipTracking } from "@/lib/biteship";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+
+/**
+ * Every lookup in this file is public and keyed only on something the
+ * customer was handed (order number) or typed in (phone number) — there's
+ * no login involved (see src/auth.config.ts). Order numbers are now a
+ * high-entropy CSPRNG token (see generateOrderNumber in src/lib/utils.ts),
+ * which is the main defense, but rate limiting each caller's IP is layered
+ * on top so a single source can't script through lookups at volume even
+ * if a token were ever compromised or partially predictable. Phone lookup
+ * gets a stricter limit since phone numbers have far less entropy than an
+ * order number and are the easier of the two to guess/enumerate.
+ */
+const ORDER_LOOKUP_LIMIT = 20;
+const ORDER_LOOKUP_WINDOW_MS = 60 * 1000;
+const PHONE_LOOKUP_LIMIT = 8;
+const PHONE_LOOKUP_WINDOW_MS = 60 * 1000;
+
+async function assertOrderLookupNotRateLimited(scope: string): Promise<{ limited: false } | { limited: true }> {
+  const headerList = await headers();
+  const ip = getClientIp(headerList);
+  const result = checkRateLimit(`order-lookup:${scope}:${ip}`, ORDER_LOOKUP_LIMIT, ORDER_LOOKUP_WINDOW_MS);
+  return { limited: !result.allowed };
+}
+
+async function assertPhoneLookupNotRateLimited(): Promise<{ limited: false } | { limited: true }> {
+  const headerList = await headers();
+  const ip = getClientIp(headerList);
+  const result = checkRateLimit(`order-lookup:phone:${ip}`, PHONE_LOOKUP_LIMIT, PHONE_LOOKUP_WINDOW_MS);
+  return { limited: !result.allowed };
+}
 
 /**
  * Statuses that mean "payment has been received/verified" — shared by the
@@ -35,6 +68,9 @@ export type PaymentOrder = {
  * returns the fields the payment page needs, not the full order.
  */
 export async function getOrderForPayment(orderNumber: string): Promise<PaymentOrder | null> {
+  const rateLimit = await assertOrderLookupNotRateLimited("payment");
+  if (rateLimit.limited) return null;
+
   try {
     const order = await prisma.order.findUnique({
       where: { orderNumber },
@@ -102,6 +138,9 @@ export type InvoiceOrder = {
  * (see PAID_EQUIVALENT_STATUSES), not this query.
  */
 export async function getOrderForInvoice(orderNumber: string): Promise<InvoiceOrder | null> {
+  const rateLimit = await assertOrderLookupNotRateLimited("invoice");
+  if (rateLimit.limited) return null;
+
   try {
     const order = await prisma.order.findUnique({
       where: { orderNumber },
@@ -259,6 +298,9 @@ export type PhoneTrackingOrderSummary = {
 export async function getOrdersForPhoneTracking(
   phone: string
 ): Promise<PhoneTrackingOrderSummary[]> {
+  const rateLimit = await assertPhoneLookupNotRateLimited();
+  if (rateLimit.limited) return [];
+
   const variants = phoneNumberVariants(phone);
   if (variants.length === 0) return [];
 
@@ -283,6 +325,9 @@ export async function getOrdersForPhoneTracking(
  * getOrderForInvoice above.
  */
 export async function getOrderForTracking(orderNumber: string): Promise<TrackingOrder | null> {
+  const rateLimit = await assertOrderLookupNotRateLimited("tracking");
+  if (rateLimit.limited) return null;
+
   try {
     const order = await prisma.order.findUnique({
       where: { orderNumber },

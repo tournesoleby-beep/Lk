@@ -14,6 +14,7 @@ import {
   queryProductStockHistory,
   type StockHistoryEntry,
 } from "@/lib/admin/stock-history";
+import { requireAdminSession } from "@/lib/admin/require-admin";
 
 export type { UploadImageResult };
 
@@ -30,6 +31,12 @@ const MAX_PRODUCT_IMAGE_BYTES = 5 * 1024 * 1024; // 5MB
 export async function getProductStockHistory(
   productId: string
 ): Promise<StockHistoryEntry[]> {
+  // Server Actions are effectively public endpoints (see requireAdminSession's
+  // docstring) — this data is admin-only, so it's re-checked here rather than
+  // relying solely on the /admin route middleware.
+  const admin = await requireAdminSession();
+  if (!admin) return [];
+
   return queryProductStockHistory(productId);
 }
 
@@ -40,6 +47,11 @@ export async function getProductStockHistory(
 export async function uploadProductImage(
   formData: FormData
 ): Promise<UploadImageResult> {
+  const admin = await requireAdminSession();
+  if (!admin) {
+    return { success: false, error: "You must be signed in as an admin to do this." };
+  }
+
   const file = formData.get("file");
   if (!(file instanceof File)) {
     return { success: false, error: "No image file was provided." };
@@ -242,6 +254,11 @@ async function resolveCategoryId(
 export async function createProduct(
   values: ProductFormValues
 ): Promise<SaveProductResult> {
+  const admin = await requireAdminSession();
+  if (!admin) {
+    return { success: false, error: "You must be signed in as an admin to do this." };
+  }
+
   try {
     const slug = values.slug || slugify(values.name);
 
@@ -339,6 +356,11 @@ export async function updateProduct(
   id: string,
   values: ProductFormValues
 ): Promise<SaveProductResult> {
+  const admin = await requireAdminSession();
+  if (!admin) {
+    return { success: false, error: "You must be signed in as an admin to do this." };
+  }
+
   try {
     const slug = values.slug || slugify(values.name);
 
@@ -470,6 +492,11 @@ const NON_BLOCKING_ORDER_STATUSES: OrderStatus[] = [
  * so a product whose only orders are in those states can be deleted freely.
  */
 export async function deleteProduct(id: string): Promise<DeleteProductResult> {
+  const admin = await requireAdminSession();
+  if (!admin) {
+    return { success: false, error: "You must be signed in as an admin to do this." };
+  }
+
   try {
     const blockingOrderItem = await prisma.orderItem.findFirst({
       where: {

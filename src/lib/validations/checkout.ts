@@ -24,7 +24,17 @@ export const checkoutSchema = z.object({
   courierCode: z.string().trim().min(1, "Select a shipping option."),
   courier: z.string().trim().min(1, "Select a shipping option."),
   service: z.string().trim().min(1, "Select a shipping option."),
+  // Client-submitted shipping cost is only used to identify *which* quoted
+  // rate the customer picked (matched against a fresh server-side quote in
+  // placeOrder, see src/lib/checkout/actions.ts) — it is never trusted as
+  // the actual amount charged, since a tampered request body could
+  // otherwise understate or zero out shipping.
   shippingCost: z.number().finite().nonnegative("Shipping cost is invalid."),
+  // Biteship Area ID for the customer's selected postal code (see
+  // CheckoutDestination in src/lib/checkout/shipping.ts). Required so
+  // placeOrder can re-fetch live rates for this exact destination rather
+  // than trusting the client's shippingCost.
+  areaId: z.string().trim().min(1, "Select a postal code to calculate shipping."),
 });
 
 export type CheckoutInput = z.infer<typeof checkoutSchema>;

@@ -2,10 +2,26 @@ import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import bcrypt from "bcryptjs";
+import { headers } from "next/headers";
 
 import { prisma } from "@/lib/prisma";
 import { loginSchema } from "@/lib/validations/auth";
 import authConfig from "@/auth.config";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+
+// Admin login is the single gate to the entire /admin dashboard (see
+// middleware.ts) and has no CAPTCHA or account lockout, so it's rate
+// limited by both IP and the attempted email — IP alone would let an
+// attacker spread guesses for one admin email across many IPs miss
+// nothing, and email alone would let a single IP hammer many different
+// email guesses. Limiting on both closes each gap the other leaves open.
+// Deliberately generous (a legitimate admin mistyping a password a few
+// times shouldn't get locked out) but low enough to make online
+// brute-forcing impractical.
+const LOGIN_IP_LIMIT = 10;
+const LOGIN_IP_WINDOW_MS = 5 * 60 * 1000;
+const LOGIN_EMAIL_LIMIT = 5;
+const LOGIN_EMAIL_WINDOW_MS = 5 * 60 * 1000;
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
@@ -33,6 +49,21 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (!parsed.success) return null;
 
         const { email, password } = parsed.data;
+
+        // Rate limit before touching the database or bcrypt at all — both
+        // a failed IP check and a failed email check reject the same way
+        // a bad password does (return null), so a scripted attacker can't
+        // distinguish "rate limited" from "wrong credentials" and use that
+        // to fingerprint the limiter.
+        const headerList = await headers();
+        const ip = getClientIp(headerList);
+        const ipResult = checkRateLimit(`admin-login:ip:${ip}`, LOGIN_IP_LIMIT, LOGIN_IP_WINDOW_MS);
+        const emailResult = checkRateLimit(
+          `admin-login:email:${email}`,
+          LOGIN_EMAIL_LIMIT,
+          LOGIN_EMAIL_WINDOW_MS
+        );
+        if (!ipResult.allowed || !emailResult.allowed) return null;
 
         const user = await prisma.user.findUnique({ where: { email } });
         if (!user?.password) return null;

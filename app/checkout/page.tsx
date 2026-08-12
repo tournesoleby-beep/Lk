@@ -282,6 +282,7 @@ export default function CheckoutPage() {
         courier: selectedRate.courier,
         service: selectedRate.service,
         shippingCost: selectedRate.cost,
+        areaId: values.areaId,
       },
       cart.lines.map((line) => ({ id: line.id, quantity: line.quantity }))
     );
